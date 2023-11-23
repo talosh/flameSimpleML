@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 cv2.setNumThreads(4)
 
 class myDataset(Dataset):
-    def _init_(self, dataset_name, batch_size=8):
+    def __init__(self, dataset_name, batch_size=8):
         self.batch_size = batch_size
         self.data_root = '/mnt/StorageMedia/dataset/'
         self.clean_root = os.path.join(self.data_root, 'clean')
