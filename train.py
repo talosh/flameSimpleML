@@ -101,7 +101,8 @@ for epoch in range (num_epochs):
         rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
         rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
-        loss = (rgb_output - rgb_after).abs().mean()
+        # loss = (rgb_output - rgb_after).abs().mean()
+        loss = criterion(rgb_output, rgb_after)
         epoch_loss.append(float(loss))
 
         optimizer.zero_grad()
