@@ -176,6 +176,7 @@ class Conv2d_batchnorm(torch.nn.Module):
             kernel_size=kernel_size,
             stride=stride,
             padding="same",
+            padding_mode = 'reflect'
         )
         self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
         self.sqe = ChannelSELayer(num_out_filters)
@@ -211,6 +212,7 @@ class Conv2d_channel(torch.nn.Module):
             out_channels=num_out_filters,
             kernel_size=(1, 1),
             padding="same",
+            padding_mode = 'reflect'
         )
         self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
         self.sqe = ChannelSELayer(num_out_filters)
@@ -250,6 +252,7 @@ class HANCBlock(torch.nn.Module):
             n_filts * inv_fctr,
             kernel_size=3,
             padding=1,
+            padding_mode = 'reflect'
             groups=n_filts * inv_fctr,
         )
         self.norm2 = torch.nn.BatchNorm2d(n_filts * inv_fctr)
@@ -316,7 +319,7 @@ class ResPath(torch.nn.Module):
 
         for i in range(n_lvl):
             self.convs.append(
-                torch.nn.Conv2d(in_chnls, in_chnls, kernel_size=(3, 3), padding=1)
+                torch.nn.Conv2d(in_chnls, in_chnls, kernel_size=(3, 3), padding=1, padding_mode='reflect')
             )
             self.bns.append(torch.nn.BatchNorm2d(in_chnls))
             self.sqes.append(ChannelSELayer(in_chnls))
