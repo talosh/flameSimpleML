@@ -47,7 +47,6 @@ class myDataset(Dataset):
         img0, img1 = self.getimg(index)
         img0, img1 = self.crop(img0, img1, self.h, self.w)
         
-        '''
         p = random. uniform(0, 1)
         if p < 0.25:
             img0 = cv2.rotate(img0, cv2.ROTATE_90_CLOCKWISE)
@@ -61,6 +60,5 @@ class myDataset(Dataset):
 
         img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
         img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
-        '''
 
         return img0, img1
