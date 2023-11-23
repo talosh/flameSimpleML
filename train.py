@@ -94,8 +94,8 @@ for epoch in range (num_epochs):
         rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
         rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
 
-        rgb_after_blurred-F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_after_blurred=F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
+        rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
         rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
 
         rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
