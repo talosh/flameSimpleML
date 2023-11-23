@@ -45,7 +45,7 @@ class myDataset(Dataset):
     
     def __getitem__(self, index):        
         img0, img1 = self.getimg(index)
-        img0, img1 - self.crop(img0, img1, self.h, self.w)
+        img0, img1 = self.crop(img0, img1, self.h, self.w)
         
         '''
         p = random. uniform(0, 1)
