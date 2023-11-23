@@ -9,8 +9,7 @@ import torch.optim as optim
 import torch.nn.functional as F 
 import torch.distributed as dist
 
-from model.unet import UnetSimple_v002
-from model.unet import UnetMono_v002
+from model.accnet_w import ACC_UNet_W
 
 from dataset import *
 
@@ -47,7 +46,7 @@ def get_learning_rate(step):
         mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * np.math.pi) * 0.5 + 0.5
         return (lr - 4e-7) * mul + 4e-7
     
-model = UnetSimple_v002().to(device)
+model = ACC_UNet_W(3, 3).to(device)
 criterion = nn.MSELoss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
 
