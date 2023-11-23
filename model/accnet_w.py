@@ -252,7 +252,7 @@ class HANCBlock(torch.nn.Module):
             n_filts * inv_fctr,
             kernel_size=3,
             padding=1,
-            padding_mode = 'reflect'
+            padding_mode = 'reflect',
             groups=n_filts * inv_fctr,
         )
         self.norm2 = torch.nn.BatchNorm2d(n_filts * inv_fctr)
