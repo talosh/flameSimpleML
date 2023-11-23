@@ -10,6 +10,7 @@ cv2.setNumThreads(4)
 
 class myDataset(Dataset):
     def __init__(self, dataset_name, batch_size=8):
+        print ('dataset init')
         self.batch_size = batch_size
         self.data_root = '/mnt/StorageMedia/dataset/'
         self.clean_root = os.path.join(self.data_root, 'clean')
@@ -34,6 +35,7 @@ class myDataset(Dataset):
         return img0, img1
     
     def load_data(self):
+        print ('load data')
         self.meta_data = self.clean_files
 
     def getimg(self, index):
@@ -41,10 +43,11 @@ class myDataset(Dataset):
         img1 = cv2.imread(os.path.join(self.done_root, self.done_files[index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         return img0, img1
     
-    def __gettiem__(self, index):
+    def __getitem__(self, index):        
         img0, img1 = self.getimg(index)
         img0, img1 - self.crop(img0, img1, self.h, self.w)
         
+        '''
         p = random. uniform(0, 1)
         if p < 0.25:
             img0 = cv2.rotate(img0, cv2.ROTATE_90_CLOCKWISE)
@@ -58,5 +61,6 @@ class myDataset(Dataset):
 
         img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
         img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+        '''
 
         return img0, img1

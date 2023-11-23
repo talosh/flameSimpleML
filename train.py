@@ -29,8 +29,6 @@ def normalize(img) :
     img = (img + 1) / 2
     return img
 
-img0 = cv2.imread('/mnt/StorageMedia/dataset/clean/004_Subclip_001.100853.exr', cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
-
 log_path = 'train_log'
 num_epochs = 4444
 lr = 9e-6
