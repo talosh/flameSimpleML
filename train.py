@@ -11,7 +11,7 @@ import torch.distributed as dist
 
 from model.accnet_w import ACC_UNet_W
 
-from dataset import *
+from dataset import myDataset
 
 device = torch.device('cuda')
 
@@ -33,7 +33,7 @@ num_epochs = 4444
 lr = 9e-6
 batch_size = 4
 
-dataset = myDataset('test')
+dataset = myDataset()
 data_loader = torch.utils.data.DataLoader(dataset, batch_size-batch_size, num_workers=8, pin_memory=True)
 steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
