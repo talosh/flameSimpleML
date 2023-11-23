@@ -31,7 +31,7 @@ def normalize(img) :
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 9e-6
+lr = 9e-4
 batch_size = 2
 
 dataset = myDataset('test')
@@ -40,7 +40,6 @@ steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
 def get_learning_rate(step):
-    print (f'get learning rate step: {step}')
     if step < 999:
         mul = step / 999
         return lr * mul
@@ -84,7 +83,7 @@ for epoch in range (num_epochs):
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
-            param_group['Ir'] = current_lr
+            param_group['lr'] = current_lr
 
         rgb_output = model(before)
 
