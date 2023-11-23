@@ -1,5 +1,8 @@
 .DS_Store
 packages/*
+appenv
+train_log/*
+test/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
