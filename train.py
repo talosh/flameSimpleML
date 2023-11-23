@@ -32,7 +32,7 @@ def normalize(img) :
 log_path = 'train_log'
 num_epochs = 4444
 lr = 9e-6
-batch_size = 4
+batch_size = 2
 
 dataset = myDataset('test')
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
