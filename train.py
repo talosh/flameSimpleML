@@ -40,6 +40,7 @@ steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
 def get_learning_rate(step):
+    print (f'get learning rate step: {step}')
     if step < 999:
         mul = step / 999
         return lr * mul
