@@ -4,6 +4,7 @@ import random
 import cv2
 import time
 import numpy as np 
+import math
 import torch 
 import torch.nn as nn 
 import torch.optim as optim 
@@ -44,7 +45,7 @@ def get_learning_rate(step):
         mul = step / 999
         return lr * mul
     else:
-        mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * np.math.pi) * 0.5 + 0.5
+        mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
         return (lr - 4e-7) * mul + 4e-7
     
 model = ACC_UNet_W(3, 3).to(device)
