@@ -46,11 +46,11 @@ class myDataset(Dataset):
     def __getitem__(self, index):
         img0, img1 = self.getimg(index)
 
-        p = random.uniform(0, 1)
-        if p < 0.5:
+        q = random.uniform(0, 1)
+        if q < 0.5:
             img0 = cv2.resize(img0, (0,0), fx=0.5, fy=0.5)
             img1 = cv2.resize(img1, (0,0), fx=0.5, fy=0.5)
-        if p < 0.75:
+        if q < 0.75:
             img0 = cv2.resize(img0, (0,0), fx=0.25, fy=0.25)
             img1 = cv2.resize(img1, (0,0), fx=0.25, fy=0.25)
 
