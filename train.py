@@ -58,7 +58,7 @@ try:
     # print('loaded previously saved model')
     # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 except Exception as e:
-    print ('unable to load saved model: {e}')
+    print (f'unable to load saved model: {e}')
 
 time_stamp = time.time()
 
