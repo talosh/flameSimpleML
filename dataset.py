@@ -43,11 +43,20 @@ class myDataset(Dataset):
         img1 = cv2.imread(os.path.join(self.done_root, self.done_files[index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         return img0, img1
     
-    def __getitem__(self, index):        
+    def __getitem__(self, index):
         img0, img1 = self.getimg(index)
+
+        p = random.uniform(0, 1)
+        if p < 0.5:
+            img0 = cv2.resize(img0, (0,0), fx=0.5, fy=0.5)
+            img1 = cv2.resize(img1, (0,0), fx=0.5, fy=0.5)
+        if p < 0.75:
+            img0 = cv2.resize(img0, (0,0), fx=0.25, fy=0.25)
+            img1 = cv2.resize(img1, (0,0), fx=0.25, fy=0.25)
+
         img0, img1 = self.crop(img0, img1, self.h, self.w)
         
-        p = random. uniform(0, 1)
+        p = random.uniform(0, 1)
         if p < 0.25:
             img0 = cv2.rotate(img0, cv2.ROTATE_90_CLOCKWISE)
             img1 = cv2.rotate(img1, cv2.ROTATE_90_CLOCKWISE)
