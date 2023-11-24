@@ -50,9 +50,9 @@ class myDataset(Dataset):
         if q < 0.5:
             img0 = cv2.resize(img0, (0,0), fx=0.5, fy=0.5)
             img1 = cv2.resize(img1, (0,0), fx=0.5, fy=0.5)
-        if q < 0.75:
-            img0 = cv2.resize(img0, (0,0), fx=0.25, fy=0.25)
-            img1 = cv2.resize(img1, (0,0), fx=0.25, fy=0.25)
+        # if q < 0.75:
+        #    img0 = cv2.resize(img0, (0,0), fx=0.25, fy=0.25)
+        #    img1 = cv2.resize(img1, (0,0), fx=0.25, fy=0.25)
 
         img0, img1 = self.crop(img0, img1, self.h, self.w)
         
