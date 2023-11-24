@@ -54,9 +54,9 @@ optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
 
 try:
     checkpoint = torch.load('train_log/model_training-pth')
-    model.load_state_dict(checkpoint['model_state_dict'])
-    print('loaded previously saved model')
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    # model.load_state_dict(checkpoint['model_state_dict'])
+    # print('loaded previously saved model')
+    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 except:
     print ('unable to load saved model')
 
