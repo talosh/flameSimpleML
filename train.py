@@ -130,4 +130,4 @@ for epoch in range (num_epochs):
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state dict': optimizer.state_dict(),
-    }, f'train_log/model_trainig.pth')
+    }, f'train_log/model_training.pth')
