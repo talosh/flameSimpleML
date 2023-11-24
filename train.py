@@ -129,5 +129,5 @@ for epoch in range (num_epochs):
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
-        'optimizer_state dict': optimizer.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
     }, f'train_log/model_training.pth')
