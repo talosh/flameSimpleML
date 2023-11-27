@@ -23,7 +23,7 @@ class myDataset(Dataset):
         self.load_data()
 
     def __len__(self):
-        return len(self.clean_files)
+        return len(self.clean_files) * 20
     
     def crop(self, img0, img1, h, w):
         np.random.seed(None)
@@ -39,8 +39,8 @@ class myDataset(Dataset):
         self.meta_data = self.clean_files
 
     def getimg(self, index):
-        img0 = cv2.imread(os.path.join(self.clean_root, self.clean_files[index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
-        img1 = cv2.imread(os.path.join(self.done_root, self.done_files[index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
+        img0 = cv2.imread(os.path.join(self.clean_root, self.clean_files[index // 20]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
+        img1 = cv2.imread(os.path.join(self.done_root, self.done_files[index // 20]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         return img0, img1
     
     def __getitem__(self, index):

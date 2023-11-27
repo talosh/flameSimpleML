@@ -588,7 +588,7 @@ class ACC_UNet_W(torch.nn.Module):
 
         self.up7 = torch.nn.ConvTranspose2d(n_filts * 8, n_filts * 4, kernel_size=(2, 2), stride=2)
         self.cnv71 = HANCBlock(n_filts * 4 + n_filts * 4, n_filts * 4, k=3, inv_fctr=3)
-        self.cnv72 = HANCBlock(n_filts * 4, n_filts * 4, k=3, inv_fctr=34)
+        self.cnv72 = HANCBlock(n_filts * 4, n_filts * 4, k=3, inv_fctr=3)
 
         self.up8 = torch.nn.ConvTranspose2d(n_filts * 4, n_filts * 2, kernel_size=(2, 2), stride=2)
         self.cnv81 = HANCBlock(n_filts * 2 + n_filts * 2, n_filts * 2, k=3, inv_fctr=3)

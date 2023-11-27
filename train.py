@@ -113,7 +113,7 @@ for epoch in range (num_epochs):
         train_time_int = time.time() - time_stamp
         time_stamp = time.time()
 
-        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss: {loss.item():.4f}', end='')
+        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss: {loss.item():.8f}', end='')
         step = step + 1
 
         if step % 20 == 1:
@@ -124,7 +124,7 @@ for epoch in range (num_epochs):
             sample_current = ((rgb_output[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
-    print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum loss: {min(epoch_loss):.4f} Avg loss: {(sum(epoch_loss) / len(epoch_loss)):.4f}, Maximum loss: {max(epoch_loss):.4f}')
+    print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum loss: {min(epoch_loss):.8f} Avg loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum loss: {max(epoch_loss):.8f}')
 
     torch.save({
         'epoch': epoch,
