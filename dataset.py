@@ -18,7 +18,7 @@ class myDataset(Dataset):
         self.dataset_name = dataset_name
         self.clean_files = sorted(os.listdir(self.clean_root))
         self.done_files = sorted(os.listdir(self.done_root))
-        self.indices = list(range(self.clean_files))
+        self.indices = list(range(len(self.clean_files)))
         random.shuffle(self.indices)
         self.h = 256
         self.w = 256
