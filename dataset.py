@@ -18,6 +18,8 @@ class myDataset(Dataset):
         self.dataset_name = dataset_name
         self.clean_files = sorted(os.listdir(self.clean_root))
         self.done_files = sorted(os.listdir(self.done_root))
+        self.indices = list(range(self.clean_files))
+        random.shuffle(self.indices)
         self.h = 256
         self.w = 256
         self.load_data()
@@ -39,8 +41,9 @@ class myDataset(Dataset):
         self.meta_data = self.clean_files
 
     def getimg(self, index):
-        img0 = cv2.imread(os.path.join(self.clean_root, self.clean_files[index // 20]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
-        img1 = cv2.imread(os.path.join(self.done_root, self.done_files[index // 20]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
+        shuffled_index = self.indices[index // 20]
+        img0 = cv2.imread(os.path.join(self.clean_root, self.clean_files[shuffled_index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
+        img1 = cv2.imread(os.path.join(self.done_root, self.done_files[shuffled_index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         return img0, img1
     
     def __getitem__(self, index):
