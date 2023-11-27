@@ -70,8 +70,11 @@ rgb_after_masked = None
 
 step = 0
 
+steps_loss = []
+epoch_loss = []
+
+
 for epoch in range (num_epochs):
-    epoch_loss = []
     random.seed()
 
     for batch_idx, (before, after) in enumerate(data_loader):
@@ -105,6 +108,7 @@ for epoch in range (num_epochs):
         # loss = (rgb_output - rgb_after).abs().mean()
         loss = criterion(rgb_output, rgb_after)
         epoch_loss.append(float(loss))
+        steps_loss.append(float(loss))
 
         optimizer.zero_grad()
         loss.backward()
@@ -125,6 +129,8 @@ for epoch in range (num_epochs):
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
         if step % 100 == 1:
+            print(f'\r\nStep [{step + 1} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
+            steps_loss = []
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -132,3 +138,5 @@ for epoch in range (num_epochs):
             }, f'train_log/model_training.pth')
     
     print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum loss: {min(epoch_loss):.8f} Avg loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum loss: {max(epoch_loss):.8f}')
+    epoch_loss = []
+
