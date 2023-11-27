@@ -125,9 +125,10 @@ for epoch in range (num_epochs):
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
         if step % 100 == 1:
-            print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum loss: {min(epoch_loss):.8f} Avg loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum loss: {max(epoch_loss):.8f}')
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
+    
+    print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum loss: {min(epoch_loss):.8f} Avg loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum loss: {max(epoch_loss):.8f}')
