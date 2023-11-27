@@ -116,7 +116,7 @@ for epoch in range (num_epochs):
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss: {loss.item():.8f}', end='')
         step = step + 1
 
-        if step % 20 == 1:
+        if step % 5 == 1:
             sample_before = ((before[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/01_before.exr', sample_before[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_after = ((after[0].cpu().detach().numpy().transpose(1,2,0)))
