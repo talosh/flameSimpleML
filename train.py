@@ -86,6 +86,15 @@ try:
 except Exception as e:
     print (f'unable to set step and epoch: {e}')
 
+try:
+    steps_loss = checkpoint['steps_loss']
+    print (f'loaded loss statistics for step: {step}')
+    epoch_loss = checkpoint['epoch_loss']
+    print (f'loaded loss statistics for epoch: {epoch + 1}')
+except Exception as e:
+    print (f'unable to load step and epoch loss statistics: {e}')
+
+
 time_stamp = time.time()
 
 epoch = current_epoch
@@ -149,7 +158,9 @@ while epoch < num_epochs + 1:
             print(f'\rStep [{len(steps_loss)} / {steps_per_epoch}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
             torch.save({
                 'step': step,
+                'steps_loss': steps_loss,
                 'epoch': epoch,
+                'epoch_loss': epoch_loss,
                 'lr': optimizer.param_groups[0]['lr'],
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
