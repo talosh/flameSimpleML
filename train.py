@@ -118,6 +118,7 @@ for epoch in range (num_epochs):
         time_stamp = time.time()
 
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss: {loss.item():.8f}', end='')
+        
         step = step + 1
 
         if step % 5 == 1:
@@ -129,7 +130,7 @@ for epoch in range (num_epochs):
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
         if step % 100 == 1:
-            print(f'\r\nStep [{len(steps_loss) + 1} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
+            print(f'\rStep [{len(steps_loss) + 1} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
             steps_loss = []
             torch.save({
                 'epoch': epoch,
