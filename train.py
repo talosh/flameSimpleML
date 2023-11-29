@@ -52,16 +52,6 @@ model = ACC_UNet_W(3, 3).to(device)
 criterion = nn.MSELoss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
 
-try:
-    checkpoint = torch.load('train_log/model_training.pth')
-    model.load_state_dict(checkpoint['model_state_dict'])
-    print('loaded previously saved model')
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-except Exception as e:
-    print (f'unable to load saved model: {e}')
-
-time_stamp = time.time()
-
 before = None
 after = None
 outputs = None
@@ -69,12 +59,28 @@ rgb_output_masked = None
 rgb_after_masked = None
 
 step = 0
+current_epoch = 0
 
 steps_loss = []
 epoch_loss = []
 
+try:
+    checkpoint = torch.load('train_log/model_training.pth')
+    model.load_state_dict(checkpoint['model_state_dict'])
+    print('loaded previously saved model')
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    print ('loaded optimizer state')
+    step = checkpoint['step']
+    print (f'step: {step}')
+    epoch = checkpoint['epoch']
+    print (f'epoch: {epoch}')
+except Exception as e:
+    print (f'unable to load saved model: {e}')
 
-for epoch in range (num_epochs):
+time_stamp = time.time()
+
+epoch = current_epoch
+while epoch < num_epochs + 1:
     random.seed()
 
     for batch_idx, (before, after) in enumerate(data_loader):
