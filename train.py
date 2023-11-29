@@ -68,14 +68,22 @@ try:
     checkpoint = torch.load('train_log/model_training.pth')
     model.load_state_dict(checkpoint['model_state_dict'])
     print('loaded previously saved model')
+except Exception as e:
+    print (f'unable to load saved model: {e}')
+
+try:
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     print ('loaded optimizer state')
+except Exception as e:
+    print (f'unable to load optimizer state: {e}')
+
+try:
     step = checkpoint['step']
     print (f'step: {step}')
     epoch = checkpoint['epoch']
     print (f'epoch: {epoch}')
 except Exception as e:
-    print (f'unable to load saved model: {e}')
+    print (f'unable to set step and epoch: {e}')
 
 time_stamp = time.time()
 
