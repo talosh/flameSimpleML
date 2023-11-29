@@ -50,6 +50,7 @@ def get_learning_rate(step):
     
 model = ACC_UNet_W(3, 3).to(device)
 criterion = nn.MSELoss()
+criterion_l1 = nn.L1Loss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
 
 before = None
@@ -121,8 +122,9 @@ while epoch < num_epochs + 1:
 
         # loss = (rgb_output - rgb_after).abs().mean()
         loss = criterion(rgb_output, rgb_after)
-        epoch_loss.append(float(loss))
-        steps_loss.append(float(loss))
+        loss_l1 = criterion_l1(rgb_output, rgb_after)
+        epoch_loss.append(float(loss_l1))
+        steps_loss.append(float(loss_l1))
 
         optimizer.zero_grad()
         loss.backward()
@@ -131,7 +133,7 @@ while epoch < num_epochs + 1:
         train_time_int = time.time() - time_stamp
         time_stamp = time.time()
 
-        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss: {loss.item():.8f}', end='')
+        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss: {loss_l1.item():.8f}', end='')
         
         step = step + 1
 
