@@ -144,8 +144,7 @@ while epoch < num_epochs + 1:
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
         if step % 100 == 1 and step > 100:
-            print(f'\rStep [{len(steps_loss) + 1} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
-            steps_loss = []
+            print(f'\rStep [{len(steps_loss)} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
             torch.save({
                 'step': step,
                 'epoch': epoch,
@@ -153,7 +152,8 @@ while epoch < num_epochs + 1:
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
-    
+
     print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum loss: {min(epoch_loss):.8f} Avg loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum loss: {max(epoch_loss):.8f}')
+    steps_loss = []
     epoch_loss = []
 
