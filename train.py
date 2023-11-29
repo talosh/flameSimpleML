@@ -177,3 +177,13 @@ while epoch < num_epochs + 1:
     steps_loss = []
     epoch_loss = []
 
+    torch.save({
+        'step': step,
+        'steps_loss': steps_loss,
+        'epoch': epoch,
+        'epoch_loss': epoch_loss,
+        'batch_idx': batch_idx,
+        'lr': optimizer.param_groups[0]['lr'],
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+    }, f'train_log/model_training.pth')
