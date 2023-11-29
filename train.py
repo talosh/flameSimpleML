@@ -80,7 +80,7 @@ except Exception as e:
 
 try:
     step = checkpoint['step']
-    print (f'step: {step}')
+    print (f'step: {step - 1}')
     epoch = checkpoint['epoch']
     print (f'epoch: {epoch + 1}')
 except Exception as e:
@@ -146,7 +146,7 @@ while epoch < num_epochs + 1:
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
         if step % 100 == 1 and step > 100:
-            print(f'\rStep [{len(steps_loss) - 1} / {steps_per_epoch}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
+            print(f'\rStep [{len(steps_loss)} / {steps_per_epoch}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
             torch.save({
                 'step': step,
                 'epoch': epoch,
