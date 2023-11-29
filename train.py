@@ -160,7 +160,7 @@ while epoch < num_epochs + 1:
             sample_current = ((rgb_output[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
-        if (batch_idx - 2) % 100 == 1 and (batch_idx - 2) > 100:
+        if (batch_idx + 2) % 100 == 1 and (batch_idx + 2) > 100:
             print(f'\rBatch [{batch_idx + 1} / {len(data_loader)}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
             torch.save({
                 'step': step,
