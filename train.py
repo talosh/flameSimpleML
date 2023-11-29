@@ -81,7 +81,7 @@ try:
     step = checkpoint['step']
     print (f'step: {step}')
     epoch = checkpoint['epoch']
-    print (f'epoch: {epoch}')
+    print (f'epoch: {epoch + 1}')
 except Exception as e:
     print (f'unable to set step and epoch: {e}')
 
