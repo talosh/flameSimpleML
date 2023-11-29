@@ -176,14 +176,3 @@ while epoch < num_epochs + 1:
     print(f'\r\nEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
     epoch_loss = []
-
-    torch.save({
-        'step': step,
-        'steps_loss': steps_loss,
-        'epoch': epoch,
-        'epoch_loss': epoch_loss,
-        'batch_idx': batch_idx,
-        'lr': optimizer.param_groups[0]['lr'],
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-    }, f'train_log/model_training.pth')
