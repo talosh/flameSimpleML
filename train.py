@@ -129,13 +129,13 @@ for epoch in range (num_epochs):
             sample_current = ((rgb_output[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
-        if step % 100 == 1 and step < 100:
-            print ('hello')
-            print (step)
+        if step % 100 == 1 and step > 100:
             print(f'\rStep [{len(steps_loss) + 1} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
             steps_loss = []
             torch.save({
+                'step': step,
                 'epoch': epoch,
+                'lr': optimizer.param_groups[0]['lr']
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
