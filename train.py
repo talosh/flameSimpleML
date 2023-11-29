@@ -61,6 +61,7 @@ rgb_after_masked = None
 
 step = 0
 current_epoch = 0
+saved_batch_idx = 0
 
 steps_loss = []
 epoch_loss = []
@@ -83,6 +84,8 @@ try:
     print (f'step: {step}')
     epoch = checkpoint['epoch']
     print (f'epoch: {epoch + 1}')
+    saved_batch_idx = checkpoint['batch_idx']
+    print (f'saved batch index: {saved_batch_idx}')
 except Exception as e:
     print (f'unable to set step and epoch: {e}')
 
@@ -102,6 +105,9 @@ while epoch < num_epochs + 1:
     random.seed()
 
     for batch_idx, (before, after) in enumerate(data_loader):
+        if batch_idx < saved_batch_idx:
+            continue
+        
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
         before = normalize(before)
