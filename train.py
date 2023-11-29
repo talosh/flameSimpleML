@@ -130,6 +130,7 @@ for epoch in range (num_epochs):
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
         if step % 100 == 1 and step < 100:
+            print ('hello')
             print (step)
             print(f'\rStep [{len(steps_loss) + 1} / {steps_per_epoch}], Minimum loss: {min(steps_loss):.8f} Avg loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum loss: {max(steps_loss):.8f}')
             steps_loss = []
