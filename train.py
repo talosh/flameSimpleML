@@ -59,7 +59,7 @@ rgb_output_masked = None
 rgb_after_masked = None
 
 step = 0
-current_epoch = 0
+current_epoch = 1
 
 steps_loss = []
 epoch_loss = []
@@ -88,7 +88,7 @@ except Exception as e:
 time_stamp = time.time()
 
 epoch = current_epoch
-while epoch < num_epochs + 1:
+while epoch < num_epochs + 2:
     random.seed()
 
     for batch_idx, (before, after) in enumerate(data_loader):
