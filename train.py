@@ -30,6 +30,29 @@ def normalize(img) :
     img = (img + 1) / 2
     return img
 
+def rgb_to_hsl(rgb):
+    # Assume RGB values are in [0, 1]
+    r, g, b = rgb[:, 0, :, :], rgb[:, 1, :, :], rgb[:, 2, :, :]
+
+    max_rgb, _ = torch.max(rgb, dim=1)
+    min_rgb, _ = torch.min(rgb, dim=1)
+    delta = max_rgb - min_rgb
+
+    # Lightness calculation
+    l = (max_rgb + min_rgb) / 2
+
+    # Saturation calculation
+    s = torch.where(delta == 0, torch.zeros_like(delta), delta / (1 - torch.abs(2 * l - 1)))
+
+    # Hue calculation
+    hue = torch.zeros_like(delta)
+    hue = torch.where((max_rgb == r) & (delta != 0), 60 * (((g - b) / delta) % 6), hue)
+    hue = torch.where((max_rgb == g) & (delta != 0), 60 * (((b - r) / delta) + 2), hue)
+    hue = torch.where((max_rgb == b) & (delta != 0), 60 * (((r - g) / delta) + 4), hue)
+
+    hsl = torch.stack((hue, s, l), dim=1)
+    return hsl
+
 log_path = 'train_log'
 num_epochs = 4444
 lr = 9e-4
@@ -137,7 +160,9 @@ while epoch < num_epochs + 1:
         rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
         # loss = (rgb_output - rgb_after).abs().mean()
-        loss = criterion_mse(rgb_output, rgb_after)
+        hsl_after = rgb_to_hsl(rgb_after)
+        hsl_output = rgb_to_hsl(rgb_output)
+        loss = criterion_mse(hsl_output, hsl_after)
         loss_l1 = criterion_l1(rgb_output, rgb_after)
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
