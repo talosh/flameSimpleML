@@ -31,7 +31,9 @@ def normalize(img) :
     return img
 
 def rgb_to_hsl(rgb):
-    # Assume RGB values are in [0, 1]
+    # Ensure RGB values are in [0, 1]
+    rgb = rgb.clamp(0, 1)
+
     r, g, b = rgb[:, 0, :, :], rgb[:, 1, :, :], rgb[:, 2, :, :]
 
     max_rgb, _ = torch.max(rgb, dim=1)
@@ -41,8 +43,11 @@ def rgb_to_hsl(rgb):
     # Lightness calculation
     l = (max_rgb + min_rgb) / 2
 
+    # Avoid division by zero; set delta to a small value if it is zero
+    delta = torch.where(delta == 0, torch.full_like(delta, 1e-6), delta)
+
     # Saturation calculation
-    s = torch.where(delta == 0, torch.zeros_like(delta), delta / (1 - torch.abs(2 * l - 1)))
+    s = torch.where(l == 0, torch.zeros_like(l), delta / (1 - torch.abs(2 * l - 1)))
 
     # Hue calculation
     hue = torch.zeros_like(delta)
@@ -162,7 +167,9 @@ while epoch < num_epochs + 1:
         # loss = (rgb_output - rgb_after).abs().mean()
         hsl_after = rgb_to_hsl(rgb_after)
         hsl_output = rgb_to_hsl(rgb_output)
-        loss = criterion_mse(hsl_output, hsl_after)
+        hsl_loss = criterion_mse(hsl_output, hsl_after)
+        rgb_loss = criterion_mse(rgb_output, rgb_after)
+        loss = 0.5 * rgb_loss + 0.5 * hsl_loss
         loss_l1 = criterion_l1(rgb_output, rgb_after)
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
