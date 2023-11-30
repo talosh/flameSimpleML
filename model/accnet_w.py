@@ -315,7 +315,7 @@ class ResPath(torch.nn.Module):
 
         self.bn = torch.nn.BatchNorm2d(in_chnls)
         self.act = torch.nn.LeakyReLU()
-        self.sqe = torch.nn.BatchNorm2d(in_chnls)
+        self.sqe = ChannelSELayer(in_chnls) # self.sqe = torch.nn.BatchNorm2d(in_chnls)
 
         for i in range(n_lvl):
             self.convs.append(
