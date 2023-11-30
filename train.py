@@ -49,7 +49,7 @@ def get_learning_rate(step):
         return (lr - 4e-7) * mul + 4e-7
     
 model = ACC_UNet_W(3, 3).to(device)
-criterion = nn.MSELoss()
+criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
 
@@ -137,7 +137,7 @@ while epoch < num_epochs + 1:
         rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
         # loss = (rgb_output - rgb_after).abs().mean()
-        loss = criterion_l1(rgb_output, rgb_after)
+        loss = criterion_mse(rgb_output, rgb_after)
         loss_l1 = criterion_l1(rgb_output, rgb_after)
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
