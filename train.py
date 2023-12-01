@@ -76,7 +76,7 @@ def rgb_to_yuv(rgb):
     yuv = torch.tensordot(rgb, transform_matrix, dims=([1], [1]))
 
     # Adjust the dimensions to maintain (N, C, H, W) format
-    yuv = yuv.permute(0, 3, 1, 2)
+    # yuv = yuv.permute(0, 3, 1, 2)
 
     return yuv
 
