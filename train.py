@@ -148,7 +148,7 @@ try:
     steps_loss = checkpoint['steps_loss']
     print (f'loaded loss statistics for step: {step}')
     epoch_loss = checkpoint['epoch_loss']
-    print (f'loaded loss statistics for epoch: {epoch + 1}')
+    print (f'loaded loss statistics for epoch: {current_epoch + 1}')
 except Exception as e:
     print (f'unable to load step and epoch loss statistics: {e}')
 
