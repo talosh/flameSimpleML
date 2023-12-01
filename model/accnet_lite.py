@@ -1,7 +1,7 @@
 """
 ACC-UNet architecture using PyTorch
 
-Using weighted sum
+without MLC block
 """
 
 import torch
@@ -31,7 +31,7 @@ class ChannelSELayer(torch.nn.Module):
 
         self.fc1 = torch.nn.Linear(num_channels, num_channels_reduced, bias=True)
         self.fc2 = torch.nn.Linear(num_channels_reduced, num_channels, bias=True)
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.LeakyReLU()
         self.sigmoid = torch.nn.Sigmoid()
         self.bn = torch.nn.BatchNorm2d(num_channels)
 
@@ -72,7 +72,7 @@ class HANCLayer(torch.nn.Module):
         self.k = k
 
         self.cnv = torch.nn.Conv2d((2 * k - 1) * in_chnl, out_chnl, kernel_size=(1, 1))
-        self.act = torch.nn.SiLU()         # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.LeakyReLU()
         self.bn = torch.nn.BatchNorm2d(out_chnl)
 
 
@@ -169,14 +169,13 @@ class Conv2d_batchnorm(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.SiLU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
             kernel_size=kernel_size,
             stride=stride,
             padding="same",
-            padding_mode = 'reflect'
         )
         self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
         self.sqe = ChannelSELayer(num_out_filters)
@@ -206,12 +205,12 @@ class Conv2d_channel(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.SiLU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
             kernel_size=(1, 1),
-            padding="same"
+            padding="same",
         )
         self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
         self.sqe = ChannelSELayer(num_out_filters)
@@ -251,7 +250,6 @@ class HANCBlock(torch.nn.Module):
             n_filts * inv_fctr,
             kernel_size=3,
             padding=1,
-            padding_mode = 'reflect',
             groups=n_filts * inv_fctr,
         )
         self.norm2 = torch.nn.BatchNorm2d(n_filts * inv_fctr)
@@ -265,7 +263,7 @@ class HANCBlock(torch.nn.Module):
 
         self.sqe = ChannelSELayer(out_channels)
 
-        self.activation = torch.nn.SiLU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.LeakyReLU()
 
 
     def forward(self, inp):
@@ -313,12 +311,12 @@ class ResPath(torch.nn.Module):
         self.sqes = torch.nn.ModuleList([])
 
         self.bn = torch.nn.BatchNorm2d(in_chnls)
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
-        self.sqe = ChannelSELayer(in_chnls) # self.sqe = torch.nn.BatchNorm2d(in_chnls)
+        self.act = torch.nn.LeakyReLU()
+        self.sqe = torch.nn.BatchNorm2d(in_chnls)
 
         for i in range(n_lvl):
             self.convs.append(
-                torch.nn.Conv2d(in_chnls, in_chnls, kernel_size=(3, 3), padding=1, padding_mode='reflect')
+                torch.nn.Conv2d(in_chnls, in_chnls, kernel_size=(3, 3), padding=1)
             )
             self.bns.append(torch.nn.BatchNorm2d(in_chnls))
             self.sqes.append(ChannelSELayer(in_chnls))
@@ -352,8 +350,6 @@ class MLFC(torch.nn.Module):
         """
 
         super().__init__()
-
-        self.W = torch.nn.Parameter(torch.zeros(1))        
 
         self.in_filters1 = in_filters1
         self.in_filters2 = in_filters2
@@ -415,7 +411,7 @@ class MLFC(torch.nn.Module):
             self.bns4.append(torch.nn.BatchNorm2d(in_filters4))
             self.bns_mrg4.append(torch.nn.BatchNorm2d(in_filters4))
 
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.LeakyReLU()
 
         self.sqe1 = ChannelSELayer(in_filters1)
         self.sqe2 = ChannelSELayer(in_filters2)
@@ -425,115 +421,15 @@ class MLFC(torch.nn.Module):
 
     def forward(self, x1, x2, x3, x4):
 
-        batch_size, _, h1, w1 = x1.shape
-        _, _, h2, w2 = x2.shape
-        _, _, h3, w3 = x3.shape
-        _, _, h4, w4 = x4.shape
-
-        for i in range(len(self.cnv_blks1)):
-            x_c1 = self.act(
-                self.bns1[i](
-                    self.cnv_blks1[i](
-                        torch.cat(
-                            [
-                                x1,
-                                self.no_param_up(x2),
-                                self.no_param_up(self.no_param_up(x3)),
-                                self.no_param_up(self.no_param_up(self.no_param_up(x4))),
-                            ],
-                            dim=1,
-                        )
-                    )
-                )
-            )
-            x_c2 = self.act(
-                self.bns2[i](
-                    self.cnv_blks2[i](
-                        torch.cat(
-                            [
-                                self.no_param_down(x1),
-                                (x2),
-                                (self.no_param_up(x3)),
-                                (self.no_param_up(self.no_param_up(x4))),
-                            ],
-                            dim=1,
-                        )
-                    )
-                )
-            )
-            x_c3 = self.act(
-                self.bns3[i](
-                    self.cnv_blks3[i](
-                        torch.cat(
-                            [
-                                self.no_param_down(self.no_param_down(x1)),
-                                self.no_param_down(x2),
-                                (x3),
-                                (self.no_param_up(x4)),
-                            ],
-                            dim=1,
-                        )
-                    )
-                )
-            )
-            x_c4 = self.act(
-                self.bns4[i](
-                    self.cnv_blks4[i](
-                        torch.cat(
-                            [
-                                self.no_param_down(self.no_param_down(self.no_param_down(x1))),
-                                self.no_param_down(self.no_param_down(x2)),
-                                self.no_param_down(x3),
-                                x4,
-                            ],
-                            dim=1,
-                        )
-                    )
-                )
-            )
-
-            x_c1 = self.act(
-                self.bns_mrg1[i](
-                    self.cnv_mrg1[i](
-                        torch.cat([x_c1, x1], dim=2).view(batch_size, 2 * self.in_filters1, h1, w1)
-                    )*self.W
-                    + x1*(1-self.W)
-                )
-            )
-            x_c2 = self.act(
-                self.bns_mrg2[i](
-                    self.cnv_mrg2[i](
-                        torch.cat([x_c2, x2], dim=2).view(batch_size, 2 * self.in_filters2, h2, w2)
-                    )*self.W
-                    + x2*(1-self.W)
-                )
-            )
-            x_c3 = self.act(
-                self.bns_mrg3[i](
-                    self.cnv_mrg3[i](
-                        torch.cat([x_c3, x3], dim=2).view(batch_size, 2 * self.in_filters3, h3, w3)
-                    )*self.W
-                    + x3*(1-self.W)
-                )
-            )
-            x_c4 = self.act(
-                self.bns_mrg4[i](
-                    self.cnv_mrg4[i](
-                        torch.cat([x_c4, x4], dim=2).view(batch_size, 2 * self.in_filters4, h4, w4)
-                    )*self.W
-                    + x4*(1-self.W)
-                )
-            )
-
-        x1 = self.sqe1(x_c1)
-        x2 = self.sqe2(x_c2)
-        x3 = self.sqe3(x_c3)
-        x4 = self.sqe4(x_c4)
+        x1 = self.sqe1(x1)
+        x2 = self.sqe2(x2)
+        x3 = self.sqe3(x3)
+        x4 = self.sqe4(x4)
 
         return x1, x2, x3, x4
 
 
-class ACC_UNet_W(torch.nn.Module):
+class ACC_UNet_Lite(torch.nn.Module):
     """
     ACC-UNet model
     """
