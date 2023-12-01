@@ -137,8 +137,8 @@ except Exception as e:
 try:
     step = checkpoint['step']
     print (f'step: {step}')
-    epoch = checkpoint['epoch']
-    print (f'epoch: {epoch + 1}')
+    current_epoch = checkpoint['epoch']
+    print (f'epoch: {current_epoch + 1}')
     saved_batch_idx = checkpoint['batch_idx']
     print (f'saved batch index: {saved_batch_idx}')
 except Exception as e:
