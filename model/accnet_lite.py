@@ -495,12 +495,8 @@ class ACC_UNet_Lite(torch.nn.Module):
         self.cnv91 = HANCBlock(n_filts + n_filts, n_filts, k=3, inv_fctr=3)
         self.cnv92 = HANCBlock(n_filts, n_filts, k=3, inv_fctr=3)
 
-        if n_classes == 1:
-            self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
-            self.last_activation = torch.nn.Sigmoid()
-        else:
-            self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
-            self.last_activation = None
+        self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
+        self.last_activation = torch.nn.Sigmoid()
 
     def forward(self, x):
 
@@ -554,10 +550,6 @@ class ACC_UNet_Lite(torch.nn.Module):
         x10 = self.cnv91(torch.cat([x10, x2], dim=1))
         x10 = self.cnv92(x10)
 
-        if self.last_activation is not None:
-            logits = self.last_activation(self.out(x10))
-
-        else:
-            logits = self.out(x10)
+        logits = self.last_activation(self.out(x10))
 
         return logits
