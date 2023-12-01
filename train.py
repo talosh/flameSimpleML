@@ -58,6 +58,32 @@ def rgb_to_hsl(rgb):
     hsl = torch.stack((hue, s, l), dim=1)
     return hsl
 
+def rgb_to_yuv(rgb):
+    """
+    Convert an RGB image to YUV.
+    Args:
+        rgb (torch.Tensor): An RGB image tensor.
+    Returns:
+        torch.Tensor: The YUV image tensor.
+    """
+    # Define the transformation matrix for RGB to YUV
+    transform_matrix = torch.tensor([
+        [ 0.299,  0.587,  0.114],
+        [-0.147, -0.289,  0.436],
+        [ 0.615, -0.515, -0.100]
+    ]).to(rgb.device)
+
+    # Add an extra dimension to the transformation matrix to support batch processing
+    transform_matrix = transform_matrix.unsqueeze(0)
+
+    # Perform the transformation
+    yuv = torch.tensordot(rgb, transform_matrix, dims=([1], [1]))
+
+    # Permute the tensor to maintain the (N, C, H, W) format
+    yuv = yuv.permute(0, 3, 1, 2)
+
+    return yuv
+
 log_path = 'train_log'
 num_epochs = 4444
 lr = 9e-4
@@ -165,9 +191,8 @@ while epoch < num_epochs + 1:
         rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
         # loss = (rgb_output - rgb_after).abs().mean()
-        hsl_after = rgb_to_hsl(rgb_after)
-        hsl_output = rgb_to_hsl(rgb_output)
-        hsl_loss = criterion_mse(hsl_output, hsl_after)
+        hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
+        yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
         rgb_loss = criterion_mse(rgb_output, rgb_after)
         loss = 0.95 * rgb_loss + 0.05 * hsl_loss
         loss_l1 = criterion_l1(rgb_output, rgb_after)
