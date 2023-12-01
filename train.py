@@ -194,7 +194,7 @@ while epoch < num_epochs + 1:
         hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
         yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
         rgb_loss = criterion_mse(rgb_output, rgb_after)
-        loss = 0.95 * rgb_loss + 0.05 * hsl_loss
+        loss = yuv_loss
         loss_l1 = criterion_l1(rgb_output, rgb_after)
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
