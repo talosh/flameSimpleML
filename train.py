@@ -12,6 +12,7 @@ import torch.nn.functional as F
 import torch.distributed as dist
 
 from model.accnet_w import ACC_UNet_W
+from model.accnet import ACC_UNet
 
 from dataset import myDataset
 
@@ -98,7 +99,9 @@ def get_learning_rate(step):
         mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
         return (lr - 4e-7) * mul + 4e-7
     
-model = ACC_UNet_W(3, 3).to(device)
+# model = ACC_UNet_W(3, 3).to(device)
+model = ACC_UNet(3, 3).to(device)
+
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
