@@ -61,25 +61,21 @@ def rgb_to_hsl(rgb):
 def rgb_to_yuv(rgb):
     """
     Convert an RGB image to YUV.
-    Args:
-        rgb (torch.Tensor): An RGB image tensor.
-    Returns:
-        torch.Tensor: The YUV image tensor.
     """
-    # Define the transformation matrix for RGB to YUV
+    # Transformation matrix
     transform_matrix = torch.tensor([
         [ 0.299,  0.587,  0.114],
         [-0.147, -0.289,  0.436],
         [ 0.615, -0.515, -0.100]
-    ]).to(rgb.device)
+    ], dtype=rgb.dtype, device=rgb.device)
 
-    # Add an extra dimension to the transformation matrix to support batch processing
+    # Reshape the transform matrix to be compatible with the batch dimension
     transform_matrix = transform_matrix.unsqueeze(0)
 
     # Perform the transformation
     yuv = torch.tensordot(rgb, transform_matrix, dims=([1], [1]))
 
-    # Permute the tensor to maintain the (N, C, H, W) format
+    # Adjust the dimensions to maintain (N, C, H, W) format
     yuv = yuv.permute(0, 3, 1, 2)
 
     return yuv
