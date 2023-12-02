@@ -34,6 +34,7 @@ class ChannelSELayer(torch.nn.Module):
         self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
         self.sigmoid = torch.nn.Sigmoid()
         self.bn = torch.nn.BatchNorm2d(num_channels)
+        self.tanh = torch.nn.Tanh()
 
 
     def forward(self, inp):
@@ -45,7 +46,7 @@ class ChannelSELayer(torch.nn.Module):
 
         out = torch.mul(inp, out.view(batch_size, num_channels, 1, 1))
 
-        out = self.bn(out) * torch.nn.Tanh(out)
+        out = self.bn(out) * self.tanh(out)
         out = self.act(out)
 
         return out
