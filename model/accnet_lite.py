@@ -46,7 +46,7 @@ class ChannelSELayer(torch.nn.Module):
 
         out = torch.mul(inp, out.view(batch_size, num_channels, 1, 1))
 
-        out = self.bn(out) * self.tanh(out)
+        out = 0.9 * self.bn(out) + 0.1 * out
         out = self.act(out)
 
         return out
