@@ -550,6 +550,7 @@ class ACC_UNet_Lite(torch.nn.Module):
         x10 = self.cnv91(torch.cat([x10, x2], dim=1))
         x10 = self.cnv92(x10)
 
-        logits = self.last_activation(self.out(x10))
+        # logits = self.last_activation(self.out(x10))
+        logits = self.out(x10)
 
         return logits
