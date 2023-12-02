@@ -31,7 +31,7 @@ class ChannelSELayer(torch.nn.Module):
 
         self.fc1 = torch.nn.Linear(num_channels, num_channels_reduced, bias=True)
         self.fc2 = torch.nn.Linear(num_channels_reduced, num_channels, bias=True)
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.sigmoid = torch.nn.Sigmoid()
         self.bn = torch.nn.BatchNorm2d(num_channels)
 
@@ -44,10 +44,7 @@ class ChannelSELayer(torch.nn.Module):
 
         out = torch.mul(inp, out.view(batch_size, num_channels, 1, 1))
 
-        # print (f'min: {torch.min(out):.4f}')
-        # print (f'max: {torch.max(out):.4f}')
-
-        out = 0.9 * self.bn(out) + 0.1 * out
+        out = self.bn(out)
         out = self.act(out)
 
         return out
@@ -74,7 +71,7 @@ class HANCLayer(torch.nn.Module):
         self.k = k
 
         self.cnv = torch.nn.Conv2d((2 * k - 1) * in_chnl, out_chnl, kernel_size=(1, 1))
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.bn = torch.nn.BatchNorm2d(out_chnl)
 
 
@@ -171,7 +168,7 @@ class Conv2d_batchnorm(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.activation = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
@@ -208,7 +205,7 @@ class Conv2d_channel(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.activation = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
@@ -267,7 +264,7 @@ class HANCBlock(torch.nn.Module):
 
         self.sqe = ChannelSELayer(out_channels)
 
-        self.activation = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.activation = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
 
 
     def forward(self, inp):
@@ -315,7 +312,7 @@ class ResPath(torch.nn.Module):
         self.sqes = torch.nn.ModuleList([])
 
         self.bn = torch.nn.BatchNorm2d(in_chnls)
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.sqe = ChannelSELayer(in_chnls)
 
         for i in range(n_lvl):
@@ -415,7 +412,7 @@ class MLFC(torch.nn.Module):
             self.bns4.append(torch.nn.BatchNorm2d(in_filters4))
             self.bns_mrg4.append(torch.nn.BatchNorm2d(in_filters4))
 
-        self.act = torch.nn.SiLU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
 
         self.sqe1 = ChannelSELayer(in_filters1)
         self.sqe2 = ChannelSELayer(in_filters2)
