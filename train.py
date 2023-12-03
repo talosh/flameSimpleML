@@ -14,6 +14,7 @@ import torch.distributed as dist
 from model.accnet_w import ACC_UNet_W
 from model.accnet import ACC_UNet
 from model.accnet_lite import ACC_UNet_Lite
+from model.multiresnet import MultiResUnet
 
 from dataset import myDataset
 
@@ -102,7 +103,8 @@ def get_learning_rate(step):
     
 # model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
-model = ACC_UNet_Lite(3, 3).to(device)
+# model = ACC_UNet_Lite(3, 3).to(device)
+model = MultiResUnet(3, 3).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
