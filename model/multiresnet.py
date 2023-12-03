@@ -238,4 +238,4 @@ class MultiResUnet(torch.nn.Module):
 
 		out =  self.conv_final(x_multires9)
 		
-		return out
+		return torch.nn.functional.sigmoid(out)
