@@ -18,14 +18,13 @@ class Conv2d_batchnorm(torch.nn.Module):
 		self.activation = activation
 		self.conv1 = torch.nn.Conv2d(in_channels=num_in_filters, out_channels=num_out_filters, kernel_size=kernel_size, stride=stride, padding = 'same')
 		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
-		self.act = torch.nn.SELU()
 	
 	def forward(self,x):
 		x = self.conv1(x)
 		x = self.batchnorm(x)
 		
 		if self.activation == 'relu':
-			return torch.nn.functional.relu(x)
+			return torch.nn.functional.elu(x)
 		else:
 			return x
 
