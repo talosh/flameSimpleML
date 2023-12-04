@@ -72,7 +72,7 @@ class HANCLayer(torch.nn.Module):
         self.k = k
 
         self.cnv = torch.nn.Conv2d((2 * k - 1) * in_chnl, out_chnl, kernel_size=(1, 1))
-        self.act = torch.nn.ELU())         # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.bn = torch.nn.BatchNorm2d(out_chnl)
 
 
