@@ -102,7 +102,6 @@ class Conv2d_batchnorm(torch.nn.Module):
 	def forward(self,x):
 		return self.layers(x)
 
-
 class Multiresblock(torch.nn.Module):
 	'''
 	MultiRes Block
