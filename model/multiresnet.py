@@ -80,8 +80,9 @@ class Multiresblock(torch.nn.Module):
 		x = torch.cat([a,b,c],axis=1)
 		x = self.batch_norm1(x)
 
-		# x = x + shrtct
+		x = x + shrtct
 		x = self.batch_norm2(x)
+		x = torch.nn.functional.logsigmoid(x - 9) + 9
 		x = torch.nn.functional.selu(x)
 	
 		return x
