@@ -68,6 +68,7 @@ class Multiresblock(torch.nn.Module):
 
 		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
 		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
+		self.batch_norm3 = torch.nn.BatchNorm2d(num_out_filters)
 
 	def forward(self,x):
 
@@ -80,8 +81,8 @@ class Multiresblock(torch.nn.Module):
 		x = torch.cat([a,b,c],axis=1)
 		x = self.batch_norm1(x)
 
-		x = x + torch.nn.functional.elu(self.batch_norm(shrtct))
-		x = self.batch_norm2(x)
+		x = x + torch.nn.functional.elu(self.batch_norm2(shrtct))
+		x = self.batch_norm3(x)
 		x = torch.nn.functional.elu(x)
 	
 		return x
