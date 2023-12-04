@@ -308,4 +308,4 @@ class MultiResUnet(torch.nn.Module):
 		# print (f'\nmax: {torch.max(out):.4f}')
 		# print (f'min: {torch.min(out):.4f}')
 		
-		return out
+		return torch.tanh(out)
