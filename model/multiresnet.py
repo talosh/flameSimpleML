@@ -133,6 +133,7 @@ class Respath(torch.nn.Module):
 
 			x = x + shortcut
 			x = self.bns[i](x)
+			x = torch.nn.functional.tanh(x)
 			x = torch.nn.functional.selu(x)
 
 		return x
