@@ -86,7 +86,7 @@ def rgb_to_yuv(rgb):
 log_path = 'train_log'
 num_epochs = 4444
 lr = 9e-4
-batch_size = 1
+batch_size = 8
 
 dataset = myDataset('test')
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
@@ -101,10 +101,10 @@ def get_learning_rate(step):
         mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
         return (lr - 4e-7) * mul + 4e-7
     
-model = ACC_UNet_W(3, 3).to(device)
+# model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
-# model = MultiResUnet(3, 3).to(device)
+model = MultiResUnet(3, 3).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
