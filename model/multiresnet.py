@@ -282,6 +282,6 @@ class MultiResUnet(torch.nn.Module):
 		out =  self.conv_final(x_multires9)
 
 		print (f'\nmax: {torch.max(out):.4f}')
-		print (f'\nmin: {torch.min(out):.4f}')
+		print (f'min: {torch.min(out):.4f}')
 		
 		return out
