@@ -55,6 +55,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 		activation {str} -- activation function (default: {'relu'})
 
 	'''
+	'''
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = 'relu'):
 		super().__init__()
 		self.activation = activation
@@ -77,6 +78,29 @@ class Conv2d_batchnorm(torch.nn.Module):
 			return torch.nn.functional.elu_(x)
 		else:
 			return x
+	'''
+
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = 'relu'):
+		super().__init__()
+		layers = [
+			torch.nn.Conv2d(
+				in_channels=num_in_filters, 
+				out_channels=num_out_filters, 
+				kernel_size=kernel_size, 
+				stride=stride, 
+				padding = 'same',
+				padding_mode = 'reflect'
+			),
+			torch.nn.BatchNorm2d(num_out_filters)
+		]
+
+		if activation == 'relu':
+			layers.append(torch.nn.ELU())
+		
+		self.layers = torch.nn.Sequental(*layers)
+	
+	def forward(self,x):
+		return self.layers(x)
 
 
 class Multiresblock(torch.nn.Module):
