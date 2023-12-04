@@ -659,9 +659,9 @@ class ACC_UNet_W(torch.nn.Module):
         x10 = self.cnv92(x10)
 
         # if self.last_activation is not None:
-        logits = self.last_activation(self.out(x10))
+        # logits = self.last_activation(self.out(x10))
 
         #else:
-        #    logits = self.out(x10)
+        logits = self.out(x10)
 
         return logits
