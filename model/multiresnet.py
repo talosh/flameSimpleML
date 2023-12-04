@@ -97,7 +97,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 		if activation == 'relu':
 			layers.append(torch.nn.ELU())
 		
-		self.layers = torch.nn.Sequental(*layers)
+		self.layers = torch.nn.Sequential(*layers)
 	
 	def forward(self,x):
 		return self.layers(x)
