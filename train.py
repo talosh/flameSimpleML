@@ -163,6 +163,7 @@ while epoch < num_epochs + 1:
 
     for batch_idx, (before, after) in enumerate(data_loader):
         if batch_idx < saved_batch_idx:
+            print (f'skiping up to step {saved_batch_idx}')
             continue
         saved_batch_idx = 0
 
