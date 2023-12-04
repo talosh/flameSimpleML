@@ -92,7 +92,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 				padding_mode = 'reflect'
 			),
 			torch.nn.Conv2d(
-				in_channels=num_in_filters, 
+				in_channels=num_out_filters, 
 				out_channels=num_out_filters, 
 				kernel_size=kernel_size, 
 				stride=stride, 
