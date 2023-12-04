@@ -72,18 +72,22 @@ class Multiresblock(torch.nn.Module):
 	def forward(self,x):
 
 		shrtct = self.shortcut(x)
+		shrtct = self.nn.functional.sigmoid(shrtct)
 		
 		a = self.conv_3x3(x)
+		a = self.nn.functional.sigmoid(a)
 		b = self.conv_5x5(a)
+		b = self.nn.functional.sigmoid(b)
 		c = self.conv_7x7(b)
+		c = self.nn.functional.sigmoid(c)
 
 		x = torch.cat([a,b,c],axis=1)
 		x = self.batch_norm1(x)
 
 		x = x + shrtct
 		x = self.batch_norm2(x)
-		x = torch.nn.functional.sigmoid(x)
-		# x = torch.nn.functional.selu(x)
+		# x = torch.nn.functional.sigmoid(x)
+		x = torch.nn.functional.selu(x)
 	
 		return x
 
@@ -133,8 +137,8 @@ class Respath(torch.nn.Module):
 
 			x = x + shortcut
 			x = self.bns[i](x)
-			x = torch.nn.functional.sigmoid(x)
-			# x = torch.nn.functional.selu(x)
+			# x = torch.nn.functional.sigmoid(x)
+			x = torch.nn.functional.selu(x)
 
 		return x
 
