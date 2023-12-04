@@ -78,10 +78,11 @@ class Multiresblock(torch.nn.Module):
 		c = self.conv_7x7(b)
 
 		x = torch.cat([a,b,c],axis=1)
-		x = self.batch_norm1(x)
+		# x = self.batch_norm1(x)
+		x = torch.nn.functional.selu(x)
 
 		x = x + shrtct
-		x = self.batch_norm2(x)
+		# x = self.batch_norm2(x)
 		x = torch.nn.functional.selu(x)
 	
 		return x
