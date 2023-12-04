@@ -280,5 +280,7 @@ class MultiResUnet(torch.nn.Module):
 		x_multires9 = self.multiresblock9(up9)
 
 		out =  self.conv_final(x_multires9)
+
+		print (f'min: {torch.min(out):.4f}')
 		
 		return out
