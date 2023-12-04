@@ -101,10 +101,10 @@ def get_learning_rate(step):
         mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
         return (lr - 4e-7) * mul + 4e-7
     
-# model = ACC_UNet_W(3, 3).to(device)
+model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
-model = MultiResUnet(3, 3).to(device)
+# model = MultiResUnet(3, 3).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
