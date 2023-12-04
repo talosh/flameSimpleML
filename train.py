@@ -177,7 +177,7 @@ while epoch < num_epochs + 1:
         for param_group in optimizer.param_groups:
             param_group['lr'] = current_lr
 
-        rgb_output = model((before*2 -1))
+        rgb_output = (model((before*2 -1)) + 1) / 2
 
         rgb_before = before[:, :3, :, :]
         rgb_after = after[:, :3, :, :]
