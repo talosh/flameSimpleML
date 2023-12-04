@@ -91,7 +91,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 				padding = 'same',
 				padding_mode = 'reflect'
 			),
-			# torch.nn.BatchNorm2d(num_out_filters),
+			torch.nn.BatchNorm2d(num_out_filters),
 		]
 
 		if activation == 'relu':
