@@ -67,14 +67,14 @@ class Conv2d_batchnorm(torch.nn.Module):
 			padding_mode = 'reflect'
 			)
 		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
-		# self.sqe = ChannelSELayer(num_out_filters)
+		self.sqe = ChannelSELayer(num_out_filters)
 	
 	def forward(self,x):
 		x = self.conv1(x)
 		x = self.batchnorm(x)
 		
 		if self.activation == 'relu':
-			return torch.nn.functional.elu(x)
+			return self.sqe(torch.nn.functional.elu(x))
 		else:
 			return x
 
