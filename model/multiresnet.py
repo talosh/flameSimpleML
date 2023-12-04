@@ -82,8 +82,8 @@ class Multiresblock(torch.nn.Module):
 
 		x = x + shrtct
 		x = self.batch_norm2(x)
-		x = torch.nn.functional.tanh(x)
-		x = torch.nn.functional.selu(x)
+		x = torch.nn.functional.sigmoid(x)
+		# x = torch.nn.functional.selu(x)
 	
 		return x
 
@@ -133,8 +133,8 @@ class Respath(torch.nn.Module):
 
 			x = x + shortcut
 			x = self.bns[i](x)
-			x = torch.nn.functional.tanh(x)
-			x = torch.nn.functional.selu(x)
+			x = torch.nn.functional.sigmoid(x)
+			# x = torch.nn.functional.selu(x)
 
 		return x
 
