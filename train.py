@@ -86,7 +86,7 @@ def rgb_to_yuv(rgb):
 log_path = 'train_log'
 num_epochs = 4444
 lr = 9e-4
-batch_size = 12
+batch_size = 8
 
 dataset = myDataset('test')
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
