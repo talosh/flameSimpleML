@@ -1,5 +1,47 @@
 import torch
 
+class ChannelSELayer(torch.nn.Module):
+    """
+    Implements Squeeze and Excitation
+    """
+
+    def __init__(self, num_channels):
+        """
+        Initialization
+
+        Args:
+            num_channels (int): No of input channels
+        """
+
+        super(ChannelSELayer, self).__init__()
+
+        self.gp_avg_pool = torch.nn.AdaptiveAvgPool2d(1)
+
+        self.reduction_ratio = 8  # default reduction ratio
+
+        num_channels_reduced = num_channels // self.reduction_ratio
+
+        self.fc1 = torch.nn.Linear(num_channels, num_channels_reduced, bias=True)
+        self.fc2 = torch.nn.Linear(num_channels_reduced, num_channels, bias=True)
+        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
+        self.sigmoid = torch.nn.Sigmoid()
+        self.bn = torch.nn.BatchNorm2d(num_channels)
+
+
+    def forward(self, inp):
+
+        batch_size, num_channels, H, W = inp.size()
+
+        out = self.act(self.fc1(self.gp_avg_pool(inp).view(batch_size, num_channels)))
+        out = self.sigmoid(self.fc2(out))
+
+        out = torch.mul(inp, out.view(batch_size, num_channels, 1, 1))
+
+        out = self.bn(out)
+        out = self.act(out)
+
+        return out
+
 
 class Conv2d_batchnorm(torch.nn.Module):
 	'''
@@ -25,13 +67,14 @@ class Conv2d_batchnorm(torch.nn.Module):
 			padding_mode = 'reflect'
 			)
 		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
+		self.sqe = ChannelSELayer(num_out_filters)
 	
 	def forward(self,x):
 		x = self.conv1(x)
 		x = self.batchnorm(x)
 		
 		if self.activation == 'relu':
-			return torch.nn.functional.elu(x)
+			return self.sqe(torch.nn.functional.elu(x))
 		else:
 			return x
 
