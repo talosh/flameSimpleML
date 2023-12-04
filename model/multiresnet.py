@@ -81,7 +81,7 @@ class Multiresblock(torch.nn.Module):
 		x = self.batch_norm1(x)
 
 		x = x + shrtct
-		x = self.batch_norm3(x)
+		x = self.batch_norm2(x)
 		x = torch.nn.functional.selu(x)
 	
 		return x
