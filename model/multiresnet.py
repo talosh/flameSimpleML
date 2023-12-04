@@ -126,11 +126,11 @@ class Multiresblock(torch.nn.Module):
 		
 		self.shortcut = Conv2d_batchnorm(num_in_channels ,num_out_filters , kernel_size = (1,1), activation='None')
 
-		self.conv_3x3 = Conv2d_batchnorm(num_in_channels, filt_cnt_3x3, kernel_size = (5,5), activation='relu')
+		self.conv_3x3 = Conv2d_batchnorm(num_in_channels, filt_cnt_3x3, kernel_size = (3,3), activation='relu')
 
-		self.conv_5x5 = Conv2d_batchnorm(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (5,5), activation='relu')
+		self.conv_5x5 = Conv2d_batchnorm(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3), activation='relu')
 		
-		self.conv_7x7 = Conv2d_batchnorm(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (5,5), activation='relu')
+		self.conv_7x7 = Conv2d_batchnorm(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3), activation='relu')
 
 		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
 		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
@@ -176,12 +176,12 @@ class Respath(torch.nn.Module):
 		for i in range(self.respath_length):
 			if(i==0):
 				self.shortcuts.append(Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation='None'))
-				self.convs.append(Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (5,5),activation='relu'))
+				self.convs.append(Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation='relu'))
 
 				
 			else:
 				self.shortcuts.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation='None'))
-				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (5,5), activation='relu'))
+				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation='relu'))
 
 			self.bns.append(torch.nn.BatchNorm2d(num_out_filters))
 		
