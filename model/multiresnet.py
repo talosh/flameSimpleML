@@ -91,10 +91,20 @@ class Conv2d_batchnorm(torch.nn.Module):
 				padding = 'same',
 				padding_mode = 'reflect'
 			),
-			torch.nn.BatchNorm2d(num_out_filters)
+			torch.nn.Conv2d(
+				in_channels=num_in_filters, 
+				out_channels=num_out_filters, 
+				kernel_size=kernel_size, 
+				stride=stride, 
+				padding = 'same',
+				padding_mode = 'reflect'
+			),
+
+			# torch.nn.BatchNorm2d(num_out_filters)
 		]
 
 		if activation == 'relu':
+			layers.insert(1, torch.nn.ELU(inplace=True))
 			layers.append(torch.nn.ELU(inplace=True))
 		
 		self.layers = torch.nn.Sequential(*layers)
