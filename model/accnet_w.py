@@ -31,7 +31,7 @@ class ChannelSELayer(torch.nn.Module):
 
         self.fc1 = torch.nn.Linear(num_channels, num_channels_reduced, bias=True)
         self.fc2 = torch.nn.Linear(num_channels_reduced, num_channels, bias=True)
-        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.PReLU() # self.act = torch.nn.LeakyReLU()
         self.sigmoid = torch.nn.Sigmoid()
         self.bn = torch.nn.BatchNorm2d(num_channels)
 
@@ -72,7 +72,7 @@ class HANCLayer(torch.nn.Module):
         self.k = k
 
         self.cnv = torch.nn.Conv2d((2 * k - 1) * in_chnl, out_chnl, kernel_size=(1, 1))
-        self.act = torch.nn.SELU()         # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.PReLU()         # self.act = torch.nn.LeakyReLU()
         self.bn = torch.nn.BatchNorm2d(out_chnl)
 
 
@@ -169,7 +169,7 @@ class Conv2d_batchnorm(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.SELU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.PReLU() # self.activation = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
@@ -206,7 +206,7 @@ class Conv2d_channel(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.SELU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.PReLU() # self.activation = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
@@ -265,7 +265,7 @@ class HANCBlock(torch.nn.Module):
 
         self.sqe = ChannelSELayer(out_channels)
 
-        self.activation = torch.nn.SELU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.PReLU() # self.activation = torch.nn.LeakyReLU()
 
 
     def forward(self, inp):
@@ -313,7 +313,7 @@ class ResPath(torch.nn.Module):
         self.sqes = torch.nn.ModuleList([])
 
         self.bn = torch.nn.BatchNorm2d(in_chnls)
-        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.PReLU() # self.act = torch.nn.LeakyReLU()
         self.sqe = ChannelSELayer(in_chnls) # self.sqe = torch.nn.BatchNorm2d(in_chnls)
 
         for i in range(n_lvl):
@@ -415,7 +415,7 @@ class MLFC(torch.nn.Module):
             self.bns4.append(torch.nn.BatchNorm2d(in_filters4))
             self.bns_mrg4.append(torch.nn.BatchNorm2d(in_filters4))
 
-        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.PReLU() # self.act = torch.nn.LeakyReLU()
 
         self.sqe1 = ChannelSELayer(in_filters1)
         self.sqe2 = ChannelSELayer(in_filters2)
