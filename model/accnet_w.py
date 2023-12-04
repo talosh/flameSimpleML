@@ -604,7 +604,7 @@ class ACC_UNet_W(torch.nn.Module):
             self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
             self.last_activation = None
             
-        self.last_activation = torch.nn.Sigmoid()
+        self.last_activation = torch.nn.Tanh()
 
     def forward(self, x):
 
