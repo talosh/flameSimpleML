@@ -13,7 +13,6 @@ class Conv2d_batchnorm(torch.nn.Module):
 		activation {str} -- activation function (default: {'relu'})
 
 	'''
-
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = 'relu'):
 		super().__init__()
 		self.activation = activation
@@ -22,8 +21,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 			out_channels=num_out_filters,
 			kernel_size=kernel_size,
 			stride=stride,
-			padding = 'same',
-			padding_mode = 'reflect'
+			padding = 'same'
 			)
 		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
 	
@@ -35,31 +33,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 			return torch.nn.functional.relu(x)
 		else:
 			return x
-	
-	'''
-	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = 'relu'):
-		super().__init__()
-		layers = [
-			torch.nn.Conv2d(
-				in_channels=num_in_filters, 
-				out_channels=num_out_filters, 
-				kernel_size=kernel_size, 
-				stride=stride, 
-				padding = 'same',
-				padding_mode = 'reflect'
-			),
-			torch.nn.BatchNorm2d(num_out_filters),
-		]
 
-		if activation == 'relu':
-			#layers.insert(2, torch.nn.ELU(inplace=True))
-			layers.append(torch.nn.ReLU(inplace=True))
-		
-		self.layers = torch.nn.Sequential(*layers)
-	
-	def forward(self,x):
-		return self.layers(x)
-	'''
 
 class Multiresblock(torch.nn.Module):
 	'''
@@ -94,8 +68,6 @@ class Multiresblock(torch.nn.Module):
 		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
 		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
 
-		self.act = torch.nn.ReLU()
-
 	def forward(self,x):
 
 		shrtct = self.shortcut(x)
@@ -109,7 +81,7 @@ class Multiresblock(torch.nn.Module):
 
 		x = x + shrtct
 		x = self.batch_norm2(x)
-		x = self.act(x)
+		x = torch.nn.functional.relu(x)
 	
 		return x
 
@@ -133,7 +105,6 @@ class Respath(torch.nn.Module):
 		self.shortcuts = torch.nn.ModuleList([])
 		self.convs = torch.nn.ModuleList([])
 		self.bns = torch.nn.ModuleList([])
-		self.act = torch.nn.ReLU()
 
 		for i in range(self.respath_length):
 			if(i==0):
@@ -156,11 +127,11 @@ class Respath(torch.nn.Module):
 
 			x = self.convs[i](x)
 			x = self.bns[i](x)
-			x = self.act(x)
+			x = torch.nn.functional.relu(x)
 
 			x = x + shortcut
 			x = self.bns[i](x)
-			x = self.act(x)
+			x = torch.nn.functional.relu(x)
 
 		return x
 
@@ -230,7 +201,7 @@ class MultiResUnet(torch.nn.Module):
 		self.multiresblock9 = Multiresblock(self.concat_filters4,32)
 		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
-		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation='None')
+		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes+1, kernel_size = (1,1), activation='None')
 
 	def forward(self,x : torch.Tensor)->torch.Tensor:
 
@@ -265,8 +236,6 @@ class MultiResUnet(torch.nn.Module):
 		x_multires9 = self.multiresblock9(up9)
 
 		out =  self.conv_final(x_multires9)
-
-		# print (f'\nmax: {torch.max(out):.4f}')
-		# print (f'min: {torch.min(out):.4f}')
 		
 		return out
+
