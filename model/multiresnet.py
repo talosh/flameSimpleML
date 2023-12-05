@@ -96,7 +96,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 
 		if activation == 'relu':
 			#layers.insert(2, torch.nn.ELU(inplace=True))
-			layers.append(torch.nn.ELU(inplace=True))
+			layers.append(torch.nn.ReLU(inplace=True))
 		
 		self.layers = torch.nn.Sequential(*layers)
 	
@@ -136,6 +136,8 @@ class Multiresblock(torch.nn.Module):
 		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
 		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
 
+		self.act = torch.nn.ReLU()
+
 	def forward(self,x):
 
 		shrtct = self.shortcut(x)
@@ -149,7 +151,7 @@ class Multiresblock(torch.nn.Module):
 
 		x = x + shrtct
 		x = self.batch_norm2(x)
-		x = torch.nn.functional.elu_(x)
+		x = self.act(x)
 	
 		return x
 
@@ -173,6 +175,7 @@ class Respath(torch.nn.Module):
 		self.shortcuts = torch.nn.ModuleList([])
 		self.convs = torch.nn.ModuleList([])
 		self.bns = torch.nn.ModuleList([])
+		self.act = torch.nn.ReLU()
 
 		for i in range(self.respath_length):
 			if(i==0):
@@ -195,11 +198,11 @@ class Respath(torch.nn.Module):
 
 			x = self.convs[i](x)
 			x = self.bns[i](x)
-			x = torch.nn.functional.elu_(x)
+			x = self.act(x)
 
 			x = x + shortcut
 			x = self.bns[i](x)
-			x = torch.nn.functional.elu_(x)
+			x = self.act(x)
 
 		return x
 
