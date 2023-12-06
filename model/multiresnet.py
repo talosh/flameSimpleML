@@ -30,7 +30,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 	
 	def forward(self,x):
 		x = self.conv1(x)
-		x = self.batchnorm(x)
+		# x = self.batchnorm(x)
 		
 		if self.activation == 'relu':
 			return self.act(x)
@@ -106,10 +106,10 @@ class Multiresblock(torch.nn.Module):
 		c = self.conv_7x7(b)
 
 		x = torch.cat([a,b,c],axis=1)
-		x = self.batch_norm1(x)
+		# x = self.batch_norm1(x)
 
 		x = x + shrtct
-		x = self.batch_norm2(x)
+		# x = self.batch_norm2(x)
 		x = self.act(x)
 	
 		return x
@@ -156,11 +156,11 @@ class Respath(torch.nn.Module):
 			shortcut = self.shortcuts[i](x)
 
 			x = self.convs[i](x)
-			x = self.bns[i](x)
+			# x = self.bns[i](x)
 			x = self.act(x)
 
 			x = x + shortcut
-			x = self.bns[i](x)
+			# x = self.bns[i](x)
 			x = self.act(x)
 
 		return x
