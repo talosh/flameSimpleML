@@ -321,7 +321,7 @@ class ResPath(torch.nn.Module):
             self.convs.append(
                 torch.nn.Conv2d(in_chnls, in_chnls, kernel_size=(3, 3), padding=1, padding_mode='reflect')
             )
-            # self.bns.append(torch.nn.BatchNorm2d(in_chnls))
+            self.bns.append(torch.nn.Identity(in_chnls))
             self.sqes.append(ChannelSELayer(in_chnls))
 
 
