@@ -31,9 +31,9 @@ class ChannelSELayer(torch.nn.Module):
 
         self.fc1 = torch.nn.Linear(num_channels, num_channels_reduced, bias=True)
         self.fc2 = torch.nn.Linear(num_channels_reduced, num_channels, bias=True)
-        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
         self.sigmoid = torch.nn.Sigmoid()
-        self.bn = torch.nn.BatchNorm2d(num_channels)
+        self.bn = torch.nn.Identity(num_channels) # self.bn = torch.nn.BatchNorm2d(num_channels)
 
 
     def forward(self, inp):
@@ -72,8 +72,8 @@ class HANCLayer(torch.nn.Module):
         self.k = k
 
         self.cnv = torch.nn.Conv2d((2 * k - 1) * in_chnl, out_chnl, kernel_size=(1, 1))
-        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
-        self.bn = torch.nn.BatchNorm2d(out_chnl)
+        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
+        self.bn = torch.nn.Identity(out_chnl) # self.bn = torch.nn.BatchNorm2d(out_chnl)
 
 
     def forward(self, inp):
@@ -184,7 +184,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-        x = self.batchnorm(x)
+        # x = self.batchnorm(x)
 
         return self.sqe(self.activation(x))
 
@@ -219,7 +219,7 @@ class Conv2d_channel(torch.nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-        x = self.batchnorm(x)
+        # x = self.batchnorm(x)
         return self.sqe(self.activation(x))
 
 
@@ -265,22 +265,23 @@ class HANCBlock(torch.nn.Module):
 
         self.sqe = ChannelSELayer(out_channels)
 
-        self.activation = torch.nn.ELU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.SELU() # self.activation = torch.nn.LeakyReLU()
 
 
     def forward(self, inp):
 
         x = self.conv1(inp)
-        x = self.norm1(x)
+        # x = self.norm1(x)
         x = self.activation(x)
 
         x = self.conv2(x)
-        x = self.norm2(x)
+        # x = self.norm2(x)
         x = self.activation(x)
 
         x = self.hnc(x)
 
-        x = self.norm(x + inp)
+        # x = self.norm(x + inp)
+        x = x + inp
 
         x = self.conv3(x)
         x = self.norm3(x)
@@ -312,7 +313,7 @@ class ResPath(torch.nn.Module):
         self.bns = torch.nn.ModuleList([])
         self.sqes = torch.nn.ModuleList([])
 
-        self.bn = torch.nn.BatchNorm2d(in_chnls)
+        self.bn = torch.nn.Identity(in_chnls) # self.bn = torch.nn.BatchNorm2d(in_chnls)
         self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
         self.sqe = ChannelSELayer(in_chnls) # self.sqe = torch.nn.BatchNorm2d(in_chnls)
 
@@ -320,7 +321,7 @@ class ResPath(torch.nn.Module):
             self.convs.append(
                 torch.nn.Conv2d(in_chnls, in_chnls, kernel_size=(3, 3), padding=1, padding_mode='reflect')
             )
-            self.bns.append(torch.nn.BatchNorm2d(in_chnls))
+            # self.bns.append(torch.nn.BatchNorm2d(in_chnls))
             self.sqes.append(ChannelSELayer(in_chnls))
 
 
@@ -391,28 +392,28 @@ class MLFC(torch.nn.Module):
                 Conv2d_batchnorm(self.in_filters, in_filters1, (1, 1))
             )
             self.cnv_mrg1.append(Conv2d_batchnorm(2 * in_filters1, in_filters1, (1, 1)))
-            self.bns1.append(torch.nn.BatchNorm2d(in_filters1))
+            self.bns1.append(torch.nn.Identity(in_filters1)) # self.bns1.append(torch.nn.BatchNorm2d(in_filters1))
             self.bns_mrg1.append(torch.nn.BatchNorm2d(in_filters1))
 
             self.cnv_blks2.append(
                 Conv2d_batchnorm(self.in_filters, in_filters2, (1, 1))
             )
             self.cnv_mrg2.append(Conv2d_batchnorm(2 * in_filters2, in_filters2, (1, 1)))
-            self.bns2.append(torch.nn.BatchNorm2d(in_filters2))
+            self.bns2.append(torch.nn.Identity(in_filters2)) # self.bns2.append(torch.nn.BatchNorm2d(in_filters2))
             self.bns_mrg2.append(torch.nn.BatchNorm2d(in_filters2))
 
             self.cnv_blks3.append(
                 Conv2d_batchnorm(self.in_filters, in_filters3, (1, 1))
             )
             self.cnv_mrg3.append(Conv2d_batchnorm(2 * in_filters3, in_filters3, (1, 1)))
-            self.bns3.append(torch.nn.BatchNorm2d(in_filters3))
+            self.bns3.append(torch.nn.Identity(in_filters3)) # self.bns3.append(torch.nn.BatchNorm2d(in_filters3))
             self.bns_mrg3.append(torch.nn.BatchNorm2d(in_filters3))
 
             self.cnv_blks4.append(
                 Conv2d_batchnorm(self.in_filters, in_filters4, (1, 1))
             )
             self.cnv_mrg4.append(Conv2d_batchnorm(2 * in_filters4, in_filters4, (1, 1)))
-            self.bns4.append(torch.nn.BatchNorm2d(in_filters4))
+            self.bns4.append(torch.nn.Identity(in_filters4)) # self.bns4.append(torch.nn.BatchNorm2d(in_filters4))
             self.bns_mrg4.append(torch.nn.BatchNorm2d(in_filters4))
 
         self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
