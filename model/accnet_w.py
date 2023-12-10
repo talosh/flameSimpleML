@@ -37,7 +37,9 @@ class ChannelSELayer(torch.nn.Module):
 
 
     def forward(self, inp):
+        return inp
 
+        '''
         batch_size, num_channels, H, W = inp.size()
 
         out = self.act(self.fc1(self.gp_avg_pool(inp).view(batch_size, num_channels)))
@@ -49,6 +51,7 @@ class ChannelSELayer(torch.nn.Module):
         out = self.act(out)
 
         return out
+        '''
 
 
 
