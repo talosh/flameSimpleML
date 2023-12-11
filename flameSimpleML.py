@@ -1,6 +1,8 @@
 import os
 import sys
 
+from utils.flameSimpleML_common import flameAppFramework
+
 # Configurable settings
 menu_group_name = 'Simple ML'
 DEBUG = False
@@ -16,22 +18,26 @@ requirements = [
 __version__ = 'v0.0.1.dev.001'
 
 
-
 def get_media_panel_custom_ui_actions():
 
-    menu = []
-    selection = []
-
-    try:
-        import flame
-        selection = flame.media_panel.selected_entries
-    except:
+    def about_dialog():
         pass
-    
-    for app in apps:
-        if app.__class__.__name__ == 'flameTimewarpML':
-            app_menu = []
-            app_menu = app.build_menu()
-            if app_menu:
-                menu.append(app_menu)
+
+    menu = [
+        {
+            'name': app_name,
+            'actions': [
+                {
+                    'name': f'{app_name}: {__version__}',
+                    'execute': about_dialog,
+                    #
+                    # Since this action require user input, we want to
+                    # show the normal cursor for the duration of the action.
+                    #
+                    'waitCursor': False,
+                },
+            ],
+        }
+    ]
+
     return menu
