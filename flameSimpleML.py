@@ -2,7 +2,7 @@ import os
 import sys
 from pprint import pprint
 
-from utils.flameSimpleML_common import flameAppFramework
+from inference.flameSimpleML_inference import flameSimpleMLInference
 
 # Configurable settings
 menu_group_name = 'Simple ML'
