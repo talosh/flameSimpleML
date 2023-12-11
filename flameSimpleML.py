@@ -1,5 +1,6 @@
 import os
 import sys
+from pprint import pprint
 
 from utils.flameSimpleML_common import flameAppFramework
 
@@ -29,6 +30,12 @@ def get_media_panel_custom_ui_actions():
         except Exception as e:
             print (f'[{app_name}]: Exception: {e}')
         return False
+    
+    def apply_model(selection):
+        pprint (selection)
+
+    def train_model(selection):
+        pprint (selection)
 
     def about_dialog():
         pass
@@ -39,13 +46,13 @@ def get_media_panel_custom_ui_actions():
             'actions': [
                 {
                     'name': 'Apply SimpleML model',
-                    'execute': about_dialog,
+                    'execute': apply_model,
                     'isVisible': scope_clip,
                     'waitCursor': False,
                 },
                 {
                     'name': 'Train SimpleML model',
-                    'execute': about_dialog,
+                    'execute': train_model,
                     'isVisible': scope_clip,
                     'waitCursor': False,
                 },
