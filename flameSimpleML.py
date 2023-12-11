@@ -32,7 +32,7 @@ def get_media_panel_custom_ui_actions():
         return False
     
     def apply_model(selection):
-        return flameSimpleMLInference(settings) 
+        return flameSimpleMLInference(settings, selection) 
 
     def train_model(selection):
         pprint (selection)
