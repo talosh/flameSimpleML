@@ -20,6 +20,16 @@ __version__ = 'v0.0.1.dev.001'
 
 def get_media_panel_custom_ui_actions():
 
+    def scope_clip(selection):
+        try:
+            import flame
+            for item in selection:
+                if isinstance(item, (flame.PyClip)):
+                    return True
+        except Exception as e:
+            print (f'[{app_name}]: Exception: {e}')
+        return False
+
     def about_dialog():
         pass
 
@@ -28,12 +38,21 @@ def get_media_panel_custom_ui_actions():
             'name': app_name,
             'actions': [
                 {
-                    'name': f'{app_name}: {__version__}',
+                    'name': 'Apply SimpleML model',
                     'execute': about_dialog,
-                    #
-                    # Since this action require user input, we want to
-                    # show the normal cursor for the duration of the action.
-                    #
+                    'isVisible': scope_clip,
+                    'waitCursor': False,
+                },
+                {
+                    'name': 'Train SimpleML model',
+                    'execute': about_dialog,
+                    'isVisible': scope_clip,
+                    'waitCursor': False,
+                },
+                {
+                    'name': f'Version: {__version__}',
+                    'execute': about_dialog,
+                    'isVisible': scope_clip,
                     'waitCursor': False,
                 },
             ],
