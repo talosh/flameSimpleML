@@ -28,7 +28,7 @@ def get_media_panel_custom_ui_actions():
                 if isinstance(item, (flame.PyClip)):
                     return True
         except Exception as e:
-            print (f'[{app_name}]: Exception: {e}')
+            print (f'[{settings["app_name"]}]: Exception: {e}')
         return False
     
     def apply_model(selection):
