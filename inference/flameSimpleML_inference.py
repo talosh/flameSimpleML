@@ -6,8 +6,12 @@ try:
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
 
+from pprint import pprint, pformat
+
 class flameSimpleMLInference(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pprint (kwargs)
+        '''
         self.version = __version__
         self.prefs['version'] = __version__
         self.framework.save_prefs()
@@ -66,3 +70,4 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # this enables fallback to CPU on Macs
         os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+        '''
