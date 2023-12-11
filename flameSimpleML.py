@@ -8,7 +8,7 @@ settings = {
     'menu_group_name': 'Simple ML',
     'debug': False,
     'app_name': 'flameSimpleML',
-    'prefs_folder': os.getenv('FLAMESMPLML_PREFS'),
+    'prefs_folder': os.getenv('FLAMESMPLMsL_PREFS'),
     'bundle_folder': os.getenv('FLAMESMPLML_BUNDLE'),
     'packages_folder': os.getenv('FLAMESMPLML_PACKAGES'),
     'temp_folder': os.getenv('FLAMESMPLML_TEMP'),
@@ -32,7 +32,7 @@ def get_media_panel_custom_ui_actions():
         return False
     
     def apply_model(selection):
-        pprint (settings) 
+        return flameSimpleMLInference(settings) 
 
     def train_model(selection):
         pprint (selection)
