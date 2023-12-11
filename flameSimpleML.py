@@ -14,7 +14,7 @@ settings = {
     'temp_folder': os.getenv('FLAMESMPLML_TEMP'),
     'requirements': [
         'numpy>=1.16',
-        'torch>=1.3.0'
+        'torch>=1.12.0'
     ],
     '__version__': 'v0.0.1.dev.001',
 }
