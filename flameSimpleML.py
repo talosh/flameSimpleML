@@ -20,7 +20,6 @@ settings = {
 }
 
 def get_media_panel_custom_ui_actions():
-
     def scope_clip(selection):
         try:
             import flame
