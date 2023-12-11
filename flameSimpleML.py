@@ -42,7 +42,7 @@ def get_media_panel_custom_ui_actions():
 
     menu = [
         {
-            'name': menu_group_name,
+            'name': settings['menu_group_name'],
             'actions': [
                 {
                     'name': 'Apply SimpleML model',
@@ -57,7 +57,7 @@ def get_media_panel_custom_ui_actions():
                     'waitCursor': False,
                 },
                 {
-                    'name': f'Version: {__version__}',
+                    'name': f'Version: {settings["__version__"]}',
                     'execute': about_dialog,
                     'isVisible': scope_clip,
                     'isEnabled': False,
