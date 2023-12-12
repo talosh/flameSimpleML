@@ -8,6 +8,7 @@ import atexit
 import hashlib
 import pickle
 
+from pprint import pprint, pformat
 
 class flameAppFramework(object):
     # flameAppFramework class takes care of preferences
@@ -72,6 +73,9 @@ class flameAppFramework(object):
             return list(self.master.keys())
 
     def __init__(self, *args, **kwargs):
+        pprint (kwargs)
+
+        '''
         self.name = self.__class__.__name__
         self.app_name = kwargs.get('app_name', 'flameApp')
         self.bundle_name = self.sanitize_name(self.app_name)
@@ -153,6 +157,7 @@ class flameAppFramework(object):
             self.bundle_name,
             'temp'
         )
+        '''
         
         '''
         self.bundle_path = os.path.join(
