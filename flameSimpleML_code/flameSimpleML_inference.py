@@ -1,7 +1,7 @@
 import os
 import sys
 
-from .flameSimpleML_common import flameAppFramework
+from .utils.flameSimpleML_common import flameAppFramework
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
