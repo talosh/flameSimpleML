@@ -1,7 +1,7 @@
 import os
 import sys
 
-from .flameSimpleML_common import flameAppFramework
+# from .flameSimpleML_common import flameAppFramework
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
@@ -14,7 +14,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         
         self.settings = kwargs.get('settings', dict())
-        self.framework = flameAppFramework(self.settings)
+        # self.framework = flameAppFramework(self.settings)
 
         '''
         self.version = __version__
