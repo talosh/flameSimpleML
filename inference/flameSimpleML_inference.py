@@ -1,6 +1,8 @@
 import os
 import sys
 
+from ..utils.flameSimpleML_common import flameAppFramework
+
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
@@ -10,7 +12,10 @@ from pprint import pprint, pformat
 
 class flameSimpleMLInference(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
-        pprint (kwargs)
+        
+        self.settings = kwargs.get('settings', dict())
+        self.framework = flameAppFramework(self.settings)
+
         '''
         self.version = __version__
         self.prefs['version'] = __version__
