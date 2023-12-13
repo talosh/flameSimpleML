@@ -172,7 +172,7 @@ class Conv2d_batchnorm(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.ELU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.SELU() # self.activation = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
@@ -209,7 +209,7 @@ class Conv2d_channel(torch.nn.Module):
             activation {str} -- activation function (default: {'LeakyReLU'})
         """
         super().__init__()
-        self.activation = torch.nn.ELU() # self.activation = torch.nn.LeakyReLU()
+        self.activation = torch.nn.SELU() # self.activation = torch.nn.LeakyReLU()
         self.conv1 = torch.nn.Conv2d(
             in_channels=num_in_filters,
             out_channels=num_out_filters,
@@ -317,7 +317,7 @@ class ResPath(torch.nn.Module):
         self.sqes = torch.nn.ModuleList([])
 
         self.bn = torch.nn.Identity(in_chnls) # self.bn = torch.nn.BatchNorm2d(in_chnls)
-        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
         self.sqe = ChannelSELayer(in_chnls) # self.sqe = torch.nn.BatchNorm2d(in_chnls)
 
         for i in range(n_lvl):
@@ -419,7 +419,7 @@ class MLFC(torch.nn.Module):
             self.bns4.append(torch.nn.Identity(in_filters4)) # self.bns4.append(torch.nn.BatchNorm2d(in_filters4))
             self.bns_mrg4.append(torch.nn.BatchNorm2d(in_filters4))
 
-        self.act = torch.nn.ELU() # self.act = torch.nn.LeakyReLU()
+        self.act = torch.nn.SELU() # self.act = torch.nn.LeakyReLU()
 
         self.sqe1 = ChannelSELayer(in_filters1)
         self.sqe2 = ChannelSELayer(in_filters2)
@@ -601,13 +601,12 @@ class ACC_UNet_W(torch.nn.Module):
         self.cnv91 = HANCBlock(n_filts + n_filts, n_filts, k=3, inv_fctr=3)
         self.cnv92 = HANCBlock(n_filts, n_filts, k=3, inv_fctr=3)
 
-        if n_classes == 1:
-            self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
-            self.last_activation = torch.nn.Sigmoid()
-        else:
-            self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
-            self.last_activation = None
-            
+        # if n_classes == 1:
+        #    self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
+        #    self.last_activation = torch.nn.Sigmoid()
+        # else:
+        self.out = torch.nn.Conv2d(n_filts, n_classes, kernel_size=(1, 1))
+        # self.last_activation = None
         self.last_activation = torch.nn.Tanh()
 
     def forward(self, x):
