@@ -542,7 +542,7 @@ class ACC_UNet_W(torch.nn.Module):
     ACC-UNet model
     """
 
-    def __init__(self, n_channels, n_classes, n_filts=32):
+    def __init__(self, n_channels, n_classes, n_filts=8):
         """
         Initialization
 
