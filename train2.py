@@ -127,7 +127,7 @@ steps_loss = []
 epoch_loss = []
 
 try:
-    checkpoint = torch.load('train_log/model_training.pth')
+    checkpoint = torch.load('train_log2/model2_training.pth')
     model.load_state_dict(checkpoint['model_state_dict'])
     print('loaded previously saved model')
 except Exception as e:
