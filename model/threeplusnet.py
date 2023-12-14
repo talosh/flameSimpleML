@@ -89,11 +89,9 @@ class unetConv2(nn.Module):
                 setattr(self, 'conv%d' % i, conv)
                 in_size = out_size
 
-        '''
         # initialise the blocks
         for m in self.children():
             init_weights(m, init_type='kaiming')
-        '''
 
     def forward(self, inputs):
         x = inputs
@@ -280,14 +278,12 @@ class UNet_3Plus(nn.Module):
         # output
         self.outconv1 = nn.Conv2d(self.UpChannels, n_classes, 3, padding=1)
 
-        '''
         # initialise weights
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 init_weights(m, init_type='kaiming')
             elif isinstance(m, nn.BatchNorm2d):
                 init_weights(m, init_type='kaiming')
-        '''
 
     def forward(self, inputs):
         ## -------------Encoder-------------
