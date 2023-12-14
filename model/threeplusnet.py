@@ -4,8 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
 
-from layers import unetConv2
-
 def weights_init_normal(m):
     classname = m.__class__.__name__
     #print(classname)
