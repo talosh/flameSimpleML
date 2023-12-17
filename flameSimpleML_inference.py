@@ -966,6 +966,37 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             time.sleep(timeout)
         return
 
+    def process_frames_to_save(self):
+        timeout = 0.0001
+
+        while self.threads:
+            try:
+                item = self.frames_to_save_queue.get_nowait()
+            except queue.Empty:
+                if not self.threads:
+                    break
+                time.sleep(timeout)
+                continue
+            if item is None:
+                time.sleep(timeout)
+                continue
+            if not isinstance(item, dict):
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue
+            
+            try:
+                self._save_result_frame(
+                    item.get('image_data'),
+                    item.get('frame_number')
+                )
+                self.message_queue.task_done()
+            except:
+                time.sleep(timeout)
+            
+            time.sleep(timeout)
+        return
+
     def close_application(self):
         import flame
         import torch
