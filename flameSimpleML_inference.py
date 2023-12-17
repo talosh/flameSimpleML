@@ -947,8 +947,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self._message(f'{message}')
             elif item_type == 'image':
                 self.updateInterfaceImage.emit(item)
-            elif item_type == 'flow':
-                self.updateFlowImage.emit(item)
             elif item_type == 'setText':
                 self.setText.emit(item)
             elif item_type == 'mbox':
