@@ -6,7 +6,7 @@ from flameSimpleML_inference import flameSimpleMLInference
 
 settings = {
     'menu_group_name': 'Simple ML',
-    'debug': False,
+    'debug': True,
     'app_name': 'flameSimpleML',
     'prefs_folder': os.getenv('FLAMESMPLMsL_PREFS'),
     'bundle_folder': os.getenv('FLAMESMPLML_BUNDLE'),
