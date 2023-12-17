@@ -1,5 +1,12 @@
 import os
 import sys
+import time
+import queue
+import threading
+import traceback
+import atexit
+import hashlib
+import pickle
 
 from flameSimpleML_framework import flameAppFramework
 
@@ -729,6 +736,28 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.prefs_global['version'] = self.version
         self.framework.save_prefs()
         
+        self.message_queue = queue.Queue()
+        self.frames_to_save_queue = queue.Queue(maxsize=8)
+
+        self.min_frame = 1
+        self.max_frame = 99
+        self.current_frame = 1
+
+        # mouse position on a press event
+        self.mousePressPos = None
+
+        self.frame_thread = None
+        self.rendering = False
+
+        # A flag to check if all events have been processed
+        self.allEventsFlag = False
+        # Connect signals to slots
+        self.allEventsProcessed.connect(self.on_allEventsProcessed)
+        self.updateInterfaceImage.connect(self.on_UpdateInterfaceImage)
+        self.updateFlowImage.connect(self.on_UpdateFlowImage)
+        self.setText.connect(self.on_setText)
+        self.showMessageBox.connect(self.on_showMessageBox)
+        self.updateFramePositioner.connect(self.update_frame_positioner)
 
 
         '''
