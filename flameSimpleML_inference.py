@@ -457,6 +457,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     self.setText('%.2f' % float(value))
 
         def setupUi(self, Progress):
+            print ('entering setupui')
             Progress.setObjectName("Progress")
             Progress.setStyleSheet("#Progress {background-color: #242424;} #frame {border: 1px solid #474747; border-radius: 4px;}\n")
                             
