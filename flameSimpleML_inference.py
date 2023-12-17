@@ -903,9 +903,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def after_show(self):
         self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
         self.processEvents()
+        missing_requirements = self.check_requirements(self.framework.requirements)
 
         '''
-        missing_requirements = self.parent_app.check_requirements(self.parent_app.requirements)
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
             python_executable_path = sys.executable
@@ -977,6 +977,41 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.frame_thread.daemon = True
         self.frame_thread.start()
         '''
+
+    def check_requirements(self, requirements):
+        sys.path_importer_cache.clear()
+
+        def import_required_packages(requirements):
+            import re
+
+            packages_by_name = {re.split(r'[!<>=]', req)[0]: req for req in requirements}
+            missing_requirements = []
+
+            for package_name in packages_by_name.keys():
+                try:
+                    self.message_queue.put(
+                        {'type': 'info', 'message': f'Checking requirements... importing {package_name}'}
+                    )
+                except:
+                    pass
+                try:                        
+                    __import__(package_name)
+                    try:
+                        self.message_queue.put(
+                            {'type': 'info', 'message': f'Checking requirements... successfully imported {package_name}'}
+                        )
+                    except:
+                        pass
+                except:
+                    missing_requirements.append(packages_by_name.get(package_name))
+            return missing_requirements
+
+        if import_required_packages(requirements):
+            if not self.framework.site_packages_folder in sys.path:
+                sys.path.append(self.framework.site_packages_folder)
+            return import_required_packages(requirements)
+        else:
+            return []
 
     def on_allEventsProcessed(self):
         self.allEventsFlag = True
