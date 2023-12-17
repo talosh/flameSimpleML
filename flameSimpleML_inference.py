@@ -457,7 +457,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     self.setText('%.2f' % float(value))
 
         def setupUi(self, Progress):
-            print ('entering setupui')
             Progress.setObjectName("Progress")
             Progress.setStyleSheet("#Progress {background-color: #242424;} #frame {border: 1px solid #474747; border-radius: 4px;}\n")
                             
@@ -658,6 +657,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 bottom_layout.addSpacing(4)
             '''
 
+            '''
             # mode selector button
             current_mode = Progress.parent_app.current_mode
             modes = Progress.parent_app.modes
@@ -669,6 +669,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # self.mode_selector.setMaximumSize(QtCore.QSize(120, 28))
             bottom_layout.addWidget(self.mode_selector, alignment=QtCore.Qt.AlignRight)
             bottom_layout.addSpacing(4)
+            '''
 
             # flow res selector button
             self.flow_res_selector = QtWidgets.QPushButton('Use Full Resolution')
