@@ -759,6 +759,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.showMessageBox.connect(self.on_showMessageBox)
         self.updateFramePositioner.connect(self.update_frame_positioner)
 
+        # load in the UI
+        self.ui = self.Ui_Progress()
+
 
         '''
 
