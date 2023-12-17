@@ -839,7 +839,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.show()
         self.setFixedSize(self.size())
 
-
+        QtCore.QTimer.singleShot(99, self.after_show)
 
         '''
 
@@ -898,6 +898,84 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # this enables fallback to CPU on Macs
         os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+        '''
+
+    def after_show(self):
+        self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
+        self.processEvents()
+
+        '''
+        missing_requirements = self.parent_app.check_requirements(self.parent_app.requirements)
+        if missing_requirements:
+            self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
+            python_executable_path = sys.executable
+            try:
+                import flame
+                flame_version = flame.get_version()
+                python_executable_path = f'/opt/Autodesk/python/{flame_version}/bin/python'
+            except:
+                pass
+
+            missing_req_string = '\n' + ', \n'.join(missing_requirements)
+            message_string = f'Unable to import:\n{missing_req_string}\n\n'
+            message_string += f"Make sure reqiured packages are available to Flame's built-in python interpreter.\n\n"
+            message_string += f'To install manually use:\n"{python_executable_path} -m pip install <package-name>"'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': self.close_application}
+            )
+            return
+
+        self.parent_app.torch_device = self.set_torch_device()
+
+        self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
+        self.processEvents()
+        self.parent_app.create_temp_library(self.selection)
+        if not self.parent_app.temp_library:
+            return
+
+        self.processEvents()
+        self.message_queue.put({'type': 'info', 'message': 'Building frames map...'})
+        self.processEvents()
+        self.frames_map = self.parent_app.compose_frames_map(self.selection, self.mode)
+
+        # print (f'frames map: {pformat(self.frames_map)}')
+
+        self.min_frame = min(self.frames_map.keys())
+        self.max_frame = max(self.frames_map.keys())
+        self.message_queue.put(
+            {'type': 'setText',
+            'widget': 'cur_frame_label',
+            'text': str(self.min_frame)}
+        )
+        self.message_queue.put(
+            {'type': 'setText',
+            'widget': 'end_frame_label',
+            'text': str(self.max_frame)}
+        )
+
+        
+
+        self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
+        self.processEvents()
+        self.destination_node_id = self.parent_app.create_destination_node(
+            self.selection,
+            len(self.frames_map.keys())
+            )
+        if not self.destination_node_id:
+            return
+
+        self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
+        self.processEvents()
+        
+        self.set_current_frame(self.min_frame)
+        '''
+
+        '''
+        self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
+        self.frame_thread.daemon = True
+        self.frame_thread.start()
         '''
 
     def on_allEventsProcessed(self):
