@@ -730,6 +730,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.log_debug = self.framework.log_debug
         self.version = self.settings.get('version', 'UnknownVersion')
         self.temp_folder = self.framework.temp_folder
+        self.temp_library = None
 
         self.prefs = self.framework.prefs_dict(self.framework.prefs, self.name)
         self.prefs_user = self.framework.prefs_dict(self.framework.prefs_user, self.name)
@@ -1043,10 +1044,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             time.sleep(timeout)
         return
 
+    def empty_torch_cache(self):
+        import torch
+        if sys.platform == 'darwin':
+            self.torch_device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+        else:
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
     def close_application(self):
         import flame
-        import torch
-        import gc
 
         self.stop_frame_rendering_thread()
 
@@ -1070,7 +1077,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except Exception as e:
             print (f'close_application exception {e}')
 
-        self.parent_app.empty_torch_cache()
+        self.empty_torch_cache()
 
         while not self.frames_to_save_queue.empty():
             qsize = self.frames_to_save_queue.qsize()
@@ -1078,10 +1085,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             time.sleep(0.01)
         
         result_clip = None
-        if not self.parent_app.temp_library:
-            self.parent_app.temp_library = None
-            self.parent_app.progress = None
-            self.parent_app.torch = None
+        if not self.temp_library:
+            self.temp_library = None
             self.deleteLater()
             return False
         
@@ -1152,14 +1157,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.on_showMessageBox({'message': pformat(e)})
 
         self.threads = False
-        self.parent_app.threads = False
-        # self.message_queue.join()
-        # self.message_thread.join()
-
-        self.parent_app.temp_library = None
-        self.parent_app.progress = None
-        self.parent_app.torch = None
-
         self.deleteLater() # close Progress window after all events are processed
 
         '''
