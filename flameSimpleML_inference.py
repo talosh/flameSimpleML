@@ -816,7 +816,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         desired_width = W
         # Coeeficient to accomodate additional rows: 
         # (1 + 1/n) * H + ttile_h + title_spacing + lower_stripe_h + lower_stripe_spacing
-        desired_height = (1 + (1/4)) * H + (24 + 18 + 28 + 10) 
+        # desired_height = (1 + (1/4)) * H + (24 + 18 + 28 + 10)
+        desired_height = H + (24 + 18 + 28 + 10) 
                                                         
         scale_factor = min(max_width / desired_width, max_height / desired_height)
         scaled_width = desired_width * scale_factor
