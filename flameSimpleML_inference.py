@@ -471,7 +471,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.stripe_widget.setFixedHeight(24)  # Adjust this value to change the height of the stripe
 
             # Create a label inside the stripe widget
-            self.stripe_label = QtWidgets.QLabel("TimewarpML")  # Replace this with the text you want on the stripe
+            self.stripe_label = QtWidgets.QLabel(Progress.app_name)  # Replace this with the text you want on the stripe
             self.stripe_label.setStyleSheet("color: #cbcbcb;")  # Change this to set the text color
 
             # Create a layout for the stripe widget and add the label to it
@@ -524,6 +524,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.verticalLayout.setStretchFactor(self.src_horisontal_layout, 4)
             '''
 
+            '''
             self.verticalLayout.addSpacing(4)  # Add a 4-pixel space
 
             self.int_horisontal_layout = QtWidgets.QHBoxLayout(Progress)
@@ -588,6 +589,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.verticalLayout.setStretchFactor(self.int_horisontal_layout, 2)
 
             self.verticalLayout.addSpacing(4)  # Add a 4-pixel space
+
+            '''
 
             self.res_frame = QtWidgets.QFrame(Progress)
             self.res_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
