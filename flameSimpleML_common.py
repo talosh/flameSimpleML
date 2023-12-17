@@ -102,13 +102,8 @@ class flameAppFramework(object):
         except:
             self.hostname = 'UnknownHostName'
 
-        print (f'self.flame_project_name - {self.flame_project_name}')
-        print (f'self.flame_user_name - {self.flame_user_name}')
-        print (f'self.hostname - {self.hostname}')
-
-        '''
-        if kwargs.get('prefs_folder'):
-            self.prefs_folder = kwargs['prefs_folder']        
+        if self.settings.get('prefs_folder'):
+            self.prefs_folder = self.settings['prefs_folder']        
         elif sys.platform == 'darwin':
             self.prefs_folder = os.path.join(
                 os.path.expanduser('~'),
@@ -126,6 +121,9 @@ class flameAppFramework(object):
             self.hostname,
         )
 
+        print (f'self.prefs_folder - {self.prefs_folder}')
+
+        '''
         self.log_debug('[%s] waking up' % self.__class__.__name__)
         self.load_prefs()
 
