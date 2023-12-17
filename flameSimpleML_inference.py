@@ -759,6 +759,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # load in the UI
         self.ui = self.Ui_Progress()
+        self.ui.setupUi(self)
 
 
         '''
