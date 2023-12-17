@@ -121,12 +121,11 @@ class flameAppFramework(object):
             self.hostname,
         )
 
-        print (f'self.prefs_folder - {self.prefs_folder}')
-
-        '''
         self.log_debug('[%s] waking up' % self.__class__.__name__)
         self.load_prefs()
 
+        '''
+        
         if kwargs.get('bundle_folder'):
             self.bundle_folder = kwargs['bundle_folder']
         else:
