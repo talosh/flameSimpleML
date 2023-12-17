@@ -892,3 +892,128 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(qt_pixmap))
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
+
+    def close_application(self):
+        import flame
+        import torch
+        import gc
+
+        self.stop_frame_rendering_thread()
+
+        '''
+        def print_all_tensors():
+            print ('printing all tensors')
+            for obj in gc.get_objects():
+                try:
+                    if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+                        print(type(obj), obj.size())
+                except:
+                    pass
+
+        print_all_tensors()
+        '''
+
+        try:
+            for key in self.parent_app.current_models.keys():
+                del self.self.parent_app.current_models[key]
+            self.parent_app.current_models = {}
+        except Exception as e:
+            print (f'close_application exception {e}')
+
+        self.parent_app.empty_torch_cache()
+
+        while not self.frames_to_save_queue.empty():
+            qsize = self.frames_to_save_queue.qsize()
+            self.info(f'Waiting for {qsize} frames to be saved')
+            time.sleep(0.01)
+        
+        result_clip = None
+        if not self.parent_app.temp_library:
+            self.parent_app.temp_library = None
+            self.parent_app.progress = None
+            self.parent_app.torch = None
+            self.deleteLater()
+            return False
+        
+        try:
+            self.parent_app.temp_library.acquire_exclusive_access()
+
+            flame.execute_shortcut('Save Project')
+            flame.execute_shortcut('Refresh Thumbnails')
+            self.parent_app.temp_library.commit()
+            if self.destination_node_id:
+                try:
+                    result_clip = flame.find_by_wiretap_node_id(self.destination_node_id)
+                except:
+                    result_clip = None
+            else:
+                result_clip = None
+
+            if not result_clip:
+                # try harder
+                flame.execute_shortcut('Save Project')
+                flame.execute_shortcut('Refresh Thumbnails')
+                self.parent_app.temp_library.commit()
+                ch = self.parent_app.temp_library.children
+                for c in ch:
+                    if c.name.get_value() == self.parent_app.destination_node_name:
+                        result_clip = c
+            
+            if not result_clip:
+                flame.execute_shortcut('Save Project')
+                flame.execute_shortcut('Refresh Thumbnails')
+                self.parent_app.temp_library.commit()
+                if self.destination_node_id:
+                    try:
+                        result_clip = flame.find_by_wiretap_node_id(self.destination_node_id)
+                    except:
+                        result_clip = None
+                else:
+                    result_clip = None
+
+            if not result_clip:
+                # try harder
+                flame.execute_shortcut('Save Project')
+                flame.execute_shortcut('Refresh Thumbnails')
+                self.parent_app.temp_library.commit()
+                ch = self.parent_app.temp_library.children
+                for c in ch:
+                    if c.name.get_value() == self.parent_app.destination_node_name:
+                        result_clip = c
+            
+            if result_clip:
+                try:
+                    copied_clip = flame.media_panel.copy(
+                        source_entries = result_clip, destination = self.clip_parent
+                        )
+                    self.parent_app.temp_library.acquire_exclusive_access()
+                    flame.delete(self.parent_app.temp_library)
+                    '''
+                    copied_clip = copied_clip[0]
+                    segment = copied_clip.versions[0].tracks[0].segments[0]
+                    segment.create_effect('Colour Mgmt')
+                    copied_clip.render()
+                    '''
+                    flame.execute_shortcut('Save Project')
+                    flame.execute_shortcut('Refresh Thumbnails')
+                except:
+                    pass
+        except Exception as e:
+            self.on_showMessageBox({'message': pformat(e)})
+
+        self.threads = False
+        self.parent_app.threads = False
+        # self.message_queue.join()
+        # self.message_thread.join()
+
+        self.parent_app.temp_library = None
+        self.parent_app.progress = None
+        self.parent_app.torch = None
+
+        self.deleteLater() # close Progress window after all events are processed
+
+        '''
+        def rescan_hooks():
+            flame.execute_shortcut('Rescan Python Hooks')
+        flame.schedule_idle_event(rescan_hooks)
+        '''
