@@ -59,7 +59,7 @@ def get_media_panel_custom_ui_actions():
                     'waitCursor': False,
                 },
                 {
-                    'name': f'Version: {settings["__version__"]}',
+                    'name': f'Version: {settings["version"]}',
                     'execute': about_dialog,
                     'isVisible': scope_clip,
                     'isEnabled': False,
