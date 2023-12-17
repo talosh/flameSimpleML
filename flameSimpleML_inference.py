@@ -768,6 +768,19 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.setupUi(self)
         self.log_debug('Loaded')
 
+        self.threads = True
+
+        # set up message thread
+        self.message_thread = threading.Thread(target=self.process_messages)
+        self.message_thread.daemon = True
+        self.message_thread.start()
+
+        
+
+
+        self.ui.info_label.setText('Initializing...')
+
+
         '''
 
         # Module defaults
