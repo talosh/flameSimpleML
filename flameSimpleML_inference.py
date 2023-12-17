@@ -12,10 +12,20 @@ from pprint import pprint, pformat
 
 class flameSimpleMLInference(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
-        
+
+        self.name = self.__class__.__name__
+
         self.settings = kwargs.get('settings', dict())
         self.framework = flameAppFramework(settings = self.settings)
+        self.app_name = self.framework.app_name
+        self.debug = self.framework.debug
+        self.log_debug = self.framework.log_debug
         self.version = self.settings.get('version', 'UnknownVersion')
+
+        self.prefs = self.framework.prefs_dict(self.framework.prefs, self.name)
+        self.prefs_user = self.framework.prefs_dict(self.framework.prefs_user, self.name)
+        self.prefs_global = self.framework.prefs_dict(self.framework.prefs_global, self.name)
+
         self.prefs['version'] = self.version
         self.framework.save_prefs()
         
