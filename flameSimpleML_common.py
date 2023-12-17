@@ -73,15 +73,18 @@ class flameAppFramework(object):
             return list(self.master.keys())
 
     def __init__(self, *args, **kwargs):
-        print ('initializing framework')
-        pprint (kwargs)
+        self.name = self.__class__.__name__
+        self.settings = kwargs.get('settings', dict())
+        self.app_name = self.settings.get('app_name', 'flameApp')
+        self.bundle_name = self.sanitize_name(self.app_name)
+        self.version = self.settings.get('version', 'Unknown version')
+        # self.prefs scope is limited to flame project and user
+
+        print(f'self.app_name - {self.app_name}')
+        print(f'self.bundle_name - {self.bundle_name}')
+        print(f'self.version - {self.version}')
 
         '''
-        self.name = self.__class__.__name__
-        self.app_name = kwargs.get('app_name', 'flameApp')
-        self.bundle_name = self.sanitize_name(self.app_name)
-        self.version = __version__
-        # self.prefs scope is limited to flame project and user
         self.prefs = {}
         self.prefs_user = {}
         self.prefs_global = {}
