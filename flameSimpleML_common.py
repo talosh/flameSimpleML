@@ -81,6 +81,8 @@ class flameAppFramework(object):
         self.debug = self.settings.get('debug', False)
         self.requirements = self.settings.get('requirements', list())
 
+        self.log_debug(f'settings: {self.settings}')
+
         # self.prefs scope is limited to flame project and user
         self.prefs = {}
         self.prefs_user = {}
@@ -123,17 +125,15 @@ class flameAppFramework(object):
 
         self.log_debug('[%s] waking up' % self.__class__.__name__)
         self.load_prefs()
-
-        '''
         
-        if kwargs.get('bundle_folder'):
+        if self.settings('bundle_folder'):
             self.bundle_folder = kwargs['bundle_folder']
         else:
             self.bundle_folder = os.path.realpath(
                 os.path.dirname(__file__)
             )
 
-        if kwargs.get('packages_folder'):
+        if self.settings.get('packages_folder'):
             self.packages_folder = kwargs['packages_folder']
         else:
             self.packages_folder = os.path.join(
@@ -150,7 +150,7 @@ class flameAppFramework(object):
 
         self.log_debug(f'site-packages folder: {self.site_packages_folder}')
 
-        if kwargs.get('temp_folder'):
+        if self.settings.get('temp_folder'):
             self.temp_folder = kwargs['temp_folder']
         else:
             self.temp_folder = os.path.join(
@@ -158,8 +158,9 @@ class flameAppFramework(object):
             self.bundle_name,
             'temp'
         )
-        '''
         
+        self.log_debug(f'temp folder: {self.temp_folder}')
+
         '''
         self.bundle_path = os.path.join(
             self.bundle_folder,
