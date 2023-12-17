@@ -167,14 +167,6 @@ class flameAppFramework(object):
             self.bundle_name
         )
 
-        # site-packages check and payload unpack if nessesary
-        self.site_packages_folder = os.path.join(
-            self.bundle_path,
-            'lib',
-            f'python{sys.version_info.major}.{sys.version_info.minor}',
-            'site-packages'
-        )
-
         if not self.check_bundle_id():
             threading.Thread(
                 target=self.unpack_bundle,
