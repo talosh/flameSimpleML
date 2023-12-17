@@ -27,6 +27,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.prefs_global = self.framework.prefs_dict(self.framework.prefs_global, self.name)
 
         self.prefs['version'] = self.version
+        self.prefs_user['version'] = self.version
+        self.prefs_global['version'] = self.version
         self.framework.save_prefs()
         
         '''
