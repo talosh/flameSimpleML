@@ -73,6 +73,7 @@ class flameAppFramework(object):
             return list(self.master.keys())
 
     def __init__(self, *args, **kwargs):
+        print ('initializing framework')
         pprint (kwargs)
 
         '''
