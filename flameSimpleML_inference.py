@@ -793,8 +793,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             QtCore.Qt.Window | QtCore.Qt.Tool
         )
 
-        # calculate window dimentions
+        self.ui.info_label.setText('Initializing...')
 
+        # calculate window dimentions
         try:
             W = self.selection[0].width
             H = self.selection[0].height
@@ -802,11 +803,37 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             W = 1280
             H = 720
 
-        pprint (self.selection)
+        desktop = QtWidgets.QApplication.desktop()
+        screen_geometry = desktop.screenGeometry(desktop.primaryScreen())
 
+        max_width = screen_geometry.width() * 0.88
+        max_height = screen_geometry.height() * 0.88
 
+        desired_width = W
+        # Coeeficient to accomodate additional rows: 
+        # (1 + 1/n) * H + ttile_h + title_spacing + lower_stripe_h + lower_stripe_spacing
+        desired_height = (1 + (1/4)) * H + (24 + 18 + 28 + 10) 
+                                                        
+        scale_factor = min(max_width / desired_width, max_height / desired_height)
+        scaled_width = desired_width * scale_factor
+        scaled_height = desired_height * scale_factor
 
-        self.ui.info_label.setText('Initializing...')
+        # Check that scaled_width is not less than the minimum
+        if scaled_width < 1024:
+            scaled_width = 1024
+
+        # Set window dimensions
+        self.setGeometry(0, 0, scaled_width, scaled_height)
+
+        # Move the window to the center of the screen
+        screen_center = screen_geometry.center()
+        self.move(screen_center.x() - scaled_width // 2, screen_center.y() - scaled_height // 2 - 100)
+
+        # show window and fix its size
+        self.setWindowTitle(self.app_name + ' ' + self.version)
+        self.show()
+        self.setFixedSize(self.size())
+
 
 
         '''
