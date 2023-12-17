@@ -1088,12 +1088,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         print_all_tensors()
         '''
 
+        '''
         try:
             for key in self.parent_app.current_models.keys():
                 del self.self.parent_app.current_models[key]
             self.parent_app.current_models = {}
         except Exception as e:
             print (f'close_application exception {e}')
+        '''
 
         self.empty_torch_cache()
 
@@ -1109,11 +1111,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return False
         
         try:
-            self.parent_app.temp_library.acquire_exclusive_access()
+            self.temp_library.acquire_exclusive_access()
 
             flame.execute_shortcut('Save Project')
             flame.execute_shortcut('Refresh Thumbnails')
-            self.parent_app.temp_library.commit()
+            self.temp_library.commit()
             if self.destination_node_id:
                 try:
                     result_clip = flame.find_by_wiretap_node_id(self.destination_node_id)
@@ -1126,16 +1128,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 # try harder
                 flame.execute_shortcut('Save Project')
                 flame.execute_shortcut('Refresh Thumbnails')
-                self.parent_app.temp_library.commit()
-                ch = self.parent_app.temp_library.children
+                self.temp_library.commit()
+                ch = self.temp_library.children
                 for c in ch:
-                    if c.name.get_value() == self.parent_app.destination_node_name:
+                    if c.name.get_value() == self.destination_node_name:
                         result_clip = c
             
             if not result_clip:
                 flame.execute_shortcut('Save Project')
                 flame.execute_shortcut('Refresh Thumbnails')
-                self.parent_app.temp_library.commit()
+                self.temp_library.commit()
                 if self.destination_node_id:
                     try:
                         result_clip = flame.find_by_wiretap_node_id(self.destination_node_id)
@@ -1148,10 +1150,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 # try harder
                 flame.execute_shortcut('Save Project')
                 flame.execute_shortcut('Refresh Thumbnails')
-                self.parent_app.temp_library.commit()
-                ch = self.parent_app.temp_library.children
+                self.temp_library.commit()
+                ch = self.temp_library.children
                 for c in ch:
-                    if c.name.get_value() == self.parent_app.destination_node_name:
+                    if c.name.get_value() == self.destination_node_name:
                         result_clip = c
             
             if result_clip:
@@ -1159,8 +1161,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     copied_clip = flame.media_panel.copy(
                         source_entries = result_clip, destination = self.clip_parent
                         )
-                    self.parent_app.temp_library.acquire_exclusive_access()
-                    flame.delete(self.parent_app.temp_library)
+                    self.temp_library.acquire_exclusive_access()
+                    flame.delete(self.temp_library)
                     '''
                     copied_clip = copied_clip[0]
                     segment = copied_clip.versions[0].tracks[0].segments[0]
