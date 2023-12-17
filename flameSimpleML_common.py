@@ -86,10 +86,6 @@ class flameAppFramework(object):
         self.prefs_user = {}
         self.prefs_global = {}
         
-        print (f'self.debug - {self.debug}')
-        print (f'self.requirements - {self.requirements}')
-
-        '''
         try:
             import flame
             self.flame = flame
@@ -100,8 +96,16 @@ class flameAppFramework(object):
             self.flame_project_name = 'UnknownFlameProject'
             self.flame_user_name = 'UnknownFlameUser'
         
-        import socket
-        self.hostname = socket.gethostname()
+        try:
+            import socket
+            self.hostname = socket.gethostname()
+        except:
+            self.hostname = 'UnknownHostName'
+
+        print (f'self.flame_project_name - {self.flame_project_name}')
+        print (f'self.flame_user_name - {self.flame_user_name}')
+        print (f'self.hostname - {self.hostname}')
+
 
         if kwargs.get('prefs_folder'):
             self.prefs_folder = kwargs['prefs_folder']        
