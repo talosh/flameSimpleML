@@ -14,7 +14,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         
         self.settings = kwargs.get('settings', dict())
-        self.framework = flameAppFramework(self.settings)
+        self.framework = flameAppFramework(settings = self.settings)
 
         '''
         self.version = __version__
