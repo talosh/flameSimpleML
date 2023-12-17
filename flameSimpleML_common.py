@@ -78,22 +78,18 @@ class flameAppFramework(object):
         self.app_name = self.settings.get('app_name', 'flameApp')
         self.bundle_name = self.sanitize_name(self.app_name)
         self.version = self.settings.get('version', 'Unknown version')
+        self.debug = self.settings.get('debug', False)
+        self.requirements = self.settings.get('requirements', list())
+
         # self.prefs scope is limited to flame project and user
-
-        print(f'self.app_name - {self.app_name}')
-        print(f'self.bundle_name - {self.bundle_name}')
-        print(f'self.version - {self.version}')
-
-        '''
         self.prefs = {}
         self.prefs_user = {}
         self.prefs_global = {}
-        self.debug = kwargs.get('debug', False)
         
-        self.apps = []
+        print (f'self.debug - {self.debug}')
+        print (f'self.requirements - {self.requirements}')
 
-        self.requirements = kwargs.get('requirements', list())
-
+        '''
         try:
             import flame
             self.flame = flame
