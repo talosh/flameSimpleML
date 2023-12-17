@@ -708,7 +708,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'QPushButton::menu-indicator {image: none;}')
 
     def __init__(self, *args, **kwargs):
-
+        super().__init__()
+        
         self.name = self.__class__.__name__
 
         self.settings = kwargs.get('settings', dict())
