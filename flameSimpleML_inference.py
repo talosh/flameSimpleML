@@ -1013,6 +1013,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         else:
             return []
 
+    def processEvents(self):
+        try:
+            QtWidgets.QApplication.instance().processEvents()
+            self.allEventsProcessed.emit()
+            while not self.allEventsFlag:
+                time.sleep(0.0001)
+        except:
+            pass
+
     def on_allEventsProcessed(self):
         self.allEventsFlag = True
 
