@@ -1051,6 +1051,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         }
         self.message_queue.put(item)
 
+    def _info(self, message):
+        self.ui.info_label.setText(str(message))
+        QtWidgets.QApplication.instance().processEvents()
+
     def stop_frame_rendering_thread(self):
         self.info(f'Frame {self.current_frame}: Stopping...')
         if isinstance(self.frame_thread, threading.Thread):
