@@ -1,7 +1,7 @@
 import os
 import sys
 
-from flameSimpleML_common import flameAppFramework
+from flameSimpleML_framework import flameAppFramework
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
@@ -15,11 +15,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         self.settings = kwargs.get('settings', dict())
         self.framework = flameAppFramework(settings = self.settings)
-
-        '''
-        self.version = __version__
-        self.prefs['version'] = __version__
+        self.version = self.settings.get('version', 'UnknownVersion')
+        self.prefs['version'] = self.version
         self.framework.save_prefs()
+        
+        '''
 
         # Module defaults
         self.new_speed = 1
