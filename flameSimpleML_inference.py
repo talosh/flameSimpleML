@@ -721,6 +721,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         super().__init__()
 
         self.name = self.__class__.__name__
+        self.selection = kwargs.get('selection')
+
+        pprint (self.selection)
 
         self.settings = kwargs.get('settings', dict())
         self.framework = flameAppFramework(settings = self.settings)
@@ -785,7 +788,23 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.save_thread.start()
         self.log_debug('frame save thread started')
 
-    
+        # set window flags
+        self.setWindowFlags(
+            # QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint
+            # QtCore.Qt.Window | QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint
+            QtCore.Qt.Window | QtCore.Qt.Tool
+        )
+
+        # calculate window dimentions
+
+        try:
+            W = self.selection[0].width
+            H = self.selection[0].height
+        except:
+            W = 1280
+            H = 720
+
+
 
         self.ui.info_label.setText('Initializing...')
 
