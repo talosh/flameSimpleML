@@ -106,7 +106,7 @@ class flameAppFramework(object):
         print (f'self.flame_user_name - {self.flame_user_name}')
         print (f'self.hostname - {self.hostname}')
 
-
+        '''
         if kwargs.get('prefs_folder'):
             self.prefs_folder = kwargs['prefs_folder']        
         elif sys.platform == 'darwin':
