@@ -1063,12 +1063,19 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.frame_thread.join()
 
     def empty_torch_cache(self):
-        import torch
         if sys.platform == 'darwin':
-            self.torch_device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+            try:
+                import torch
+                self.torch_device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+            except:
+                pass
         else:
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+            except:
+                pass
 
     def close_application(self):
         import flame
