@@ -758,9 +758,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.updateFramePositioner.connect(self.update_frame_positioner)
 
         # load in the UI
+        self.log_debug('Initializing UI')
         self.ui = self.Ui_Progress()
+        self.log_debug('Loading SetupUI')
         self.ui.setupUi(self)
-
+        self.log_debug('Loaded')
 
         '''
 
