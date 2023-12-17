@@ -768,15 +768,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.setupUi(self)
         self.log_debug('Loaded')
 
+
         self.threads = True
 
+        self.log_debug('Setting up message thread')
         # set up message thread
         self.message_thread = threading.Thread(target=self.process_messages)
         self.message_thread.daemon = True
         self.message_thread.start()
+        self.log_debug('message thread started')
 
-        
-
+    
 
         self.ui.info_label.setText('Initializing...')
 
@@ -911,6 +913,53 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(qt_pixmap))
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
+
+    def process_messages(self):
+        timeout = 0.0001
+
+        while self.threads:
+            try:
+                item = self.message_queue.get_nowait()
+            except queue.Empty:
+                if not self.threads:
+                    break
+                time.sleep(timeout)
+                continue
+            if item is None:
+                time.sleep(timeout)
+                continue
+            if not isinstance(item, dict):
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue
+
+            item_type = item.get('type')
+
+            if not item_type:
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue
+            elif item_type == 'info':
+                message = item.get('message')
+                self._info(f'{message}')
+            elif item_type == 'message':
+                message = item.get('message')
+                self._message(f'{message}')
+            elif item_type == 'image':
+                self.updateInterfaceImage.emit(item)
+            elif item_type == 'flow':
+                self.updateFlowImage.emit(item)
+            elif item_type == 'setText':
+                self.setText.emit(item)
+            elif item_type == 'mbox':
+                self.showMessageBox.emit(item)
+            else:
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue
+            
+            time.sleep(timeout)
+        return
 
     def close_application(self):
         import flame
