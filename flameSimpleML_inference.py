@@ -905,9 +905,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.processEvents()
         missing_requirements = self.check_requirements(self.framework.requirements)
 
-        pprint (missing_requirements)
-
-        '''
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
             python_executable_path = sys.executable
@@ -929,6 +926,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
 
+        '''
         self.parent_app.torch_device = self.set_torch_device()
 
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
