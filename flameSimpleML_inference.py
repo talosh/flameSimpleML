@@ -709,7 +709,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        
+
         self.name = self.__class__.__name__
 
         self.settings = kwargs.get('settings', dict())
@@ -718,6 +718,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.debug = self.framework.debug
         self.log_debug = self.framework.log_debug
         self.version = self.settings.get('version', 'UnknownVersion')
+        self.temp_folder = self.framework.temp_folder
 
         self.prefs = self.framework.prefs_dict(self.framework.prefs, self.name)
         self.prefs_user = self.framework.prefs_dict(self.framework.prefs_user, self.name)
@@ -728,6 +729,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.prefs_global['version'] = self.version
         self.framework.save_prefs()
         
+
+
         '''
 
         # Module defaults
