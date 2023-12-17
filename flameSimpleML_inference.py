@@ -1018,7 +1018,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             QtWidgets.QApplication.instance().processEvents()
             self.allEventsProcessed.emit()
             while not self.allEventsFlag:
-                time.sleep(0.0001)
+                time.sleep(1e-8)
         except:
             pass
 
