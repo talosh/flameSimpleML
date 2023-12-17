@@ -648,12 +648,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.end_frame_label.setAlignment(QtCore.Qt.AlignCenter)
             bottom_layout.addWidget(self.end_frame_label)
 
+            '''
             # TW Speed test field:
             if Progress.tw_speed:
                 self.tw_speed_input = self.FlameSlider(Progress.tw_speed, -9999, 9999, Progress.on_SpeedValueChange)
                 self.tw_speed_input.setContentsMargins(4, 0, 0, 0)
                 bottom_layout.addWidget(self.tw_speed_input, alignment=QtCore.Qt.AlignRight)
                 bottom_layout.addSpacing(4)
+            '''
 
             # mode selector button
             current_mode = Progress.parent_app.current_mode
