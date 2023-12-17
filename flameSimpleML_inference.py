@@ -1044,6 +1044,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             time.sleep(timeout)
         return
 
+    def stop_frame_rendering_thread(self):
+        self.info(f'Frame {self.current_frame}: Stopping...')
+        if isinstance(self.frame_thread, threading.Thread):
+            if self.frame_thread.is_alive():
+                self.rendering = False
+                self.frame_thread.join()
+
     def empty_torch_cache(self):
         import torch
         if sys.platform == 'darwin':
