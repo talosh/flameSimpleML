@@ -21,7 +21,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     allEventsProcessed = QtCore.Signal()
     updateInterfaceImage = QtCore.Signal(dict)
-    updateFlowImage = QtCore.Signal(dict)
     setText = QtCore.Signal(dict)
     showMessageBox = QtCore.Signal(dict)
     updateFramePositioner = QtCore.Signal()
@@ -754,7 +753,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # Connect signals to slots
         self.allEventsProcessed.connect(self.on_allEventsProcessed)
         self.updateInterfaceImage.connect(self.on_UpdateInterfaceImage)
-        self.updateFlowImage.connect(self.on_UpdateFlowImage)
         self.setText.connect(self.on_setText)
         self.showMessageBox.connect(self.on_showMessageBox)
         self.updateFramePositioner.connect(self.update_frame_positioner)
@@ -821,3 +819,75 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # this enables fallback to CPU on Macs
         os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
         '''
+
+    def on_allEventsProcessed(self):
+        self.allEventsFlag = True
+
+    def on_UpdateInterfaceImage(self, item):
+        self._update_interface_image(
+            item.get('image'),
+            item.get('image_label'),
+            item.get('text')
+        )
+
+    def on_setText(self, item):
+        widget_name = item.get('widget', 'unknown')
+        text = item.get('text', 'unknown')
+        if hasattr(self.ui, widget_name):
+            getattr(self.ui, widget_name).setText(text)
+        self.processEvents()
+
+    def on_showMessageBox(self, item):
+        message = item.get('message')
+        action = item.get('action', None)
+
+        mbox = QtWidgets.QMessageBox()
+        mbox.setWindowFlags(QtCore.Qt.Tool)
+        mbox.setWindowTitle(self.app_name)
+        mbox.setStyleSheet("""
+            QMessageBox {
+                background-color: #313131;
+                color: #9a9a9a;
+                text-align: center;
+            }
+            QMessageBox QPushButton {
+                width: 80px;
+                height: 24px;
+                color: #9a9a9a;
+                background-color: #424142;
+                border-top: 1px inset #555555;
+                border-bottom: 1px inset black
+            }
+            QMessageBox QPushButton:pressed {
+                font:italic;
+                color: #d9d9d9
+            }
+        """)
+
+        mbox.setText(message)
+        mbox.exec_()
+
+        if action and callable(action):
+            action()
+
+    def update_frame_positioner(self):
+        import numpy as np
+
+        label_width = self.ui.info_label.width()
+        label_height = self.ui.info_label.height()
+        margin = 4
+        # map x1 from [x,y] to [m, n]: m1 = m + (x1 - x) * (n - m) / (y - x)
+        marker_pos = 4 + (self.current_frame - self.min_frame) * (label_width - 8) / (self.max_frame - self.min_frame)
+        if marker_pos < margin:
+            marker_pos = margin
+        elif marker_pos > label_width - margin:
+            marker_pos = label_width - margin
+        bg = np.full((1, label_width, 3), [36, 36, 36], dtype=np.uint8)
+        bg[0, int(marker_pos), :] = [135, 122, 28]
+        bg = np.repeat(bg, label_height, axis=0)
+        qt_image = QtGui.QImage(bg.data, label_width, label_height, 3 * label_width, QtGui.QImage.Format_RGB888)
+        qt_pixmap = QtGui.QPixmap.fromImage(qt_image)
+        palette = QtGui.QPalette()
+        palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(qt_pixmap))
+        self.ui.info_label.setAutoFillBackground(True)
+        self.ui.info_label.setPalette(palette)
