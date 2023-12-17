@@ -723,8 +723,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.name = self.__class__.__name__
         self.selection = kwargs.get('selection')
 
-        pprint (self.selection)
-
         self.settings = kwargs.get('settings', dict())
         self.framework = flameAppFramework(settings = self.settings)
         self.app_name = self.framework.app_name
@@ -803,6 +801,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except:
             W = 1280
             H = 720
+
+        pprint (self.selection)
 
 
 
