@@ -901,6 +901,7 @@ class UNet_3PlusMemOpt(nn.Module):
         hd2_cat_cpu = torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)
         hd2_cat = hd2_cat_cpu.to(model_device)
 
+        torch.cuda.empty_cache()
         print ('hd2_cat:')
         allocated_memory = torch.cuda.memory_allocated(current_device)
         reserved_memory = torch.cuda.memory_reserved(current_device)
