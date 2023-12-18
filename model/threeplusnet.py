@@ -558,7 +558,7 @@ class UNet_3PlusMemOpt(nn.Module):
         del hd5_UT_hd4
         del h4
         torch.cuda.empty_cache()
-        
+
         '''
         print ('Decoder pass 01')
         allocated_memory = torch.cuda.memory_allocated(current_device)
@@ -611,6 +611,8 @@ class UNet_3PlusMemOpt(nn.Module):
             hd3_UT_hd2_cpu = hd3_UT_hd2.to('cpu')
             hd4_UT_hd2_cpu = hd4_UT_hd2.to('cpu')
             hd5_UT_hd2_cpu = hd5_UT_hd2.to('cpu')
+            hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
+                torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)))) # hd2->160*160*UpChannels
 
         print ('hello')    
 
