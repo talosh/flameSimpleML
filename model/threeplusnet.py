@@ -575,7 +575,7 @@ class UNet_3PlusMemOpt(nn.Module):
         hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
         hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
             torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
-        del hd5_UT_hd3
+        del h1_PT_hd2
         del h2_Cat_hd2
         del hd3_UT_hd2
         del hd4_UT_hd2
