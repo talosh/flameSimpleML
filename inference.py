@@ -102,7 +102,7 @@ if __name__ == '__main__':
             rgb_output = (output + 1) / 2
         
         res_img = denormalize(rgb_output[0])
-        res_img = res_img.cpu().detach().numpy().transpose(1, 2, 0)
+        res_img = res_img.cpu().detach().numpy().transpose(1, 2, 0)[:h, :w]
 
         output_file_name = os.path.basename(input_file_path)
         output_file_path = os.path.join(output_folder, output_file_name)
