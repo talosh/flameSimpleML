@@ -613,8 +613,25 @@ class UNet_3PlusMemOpt(nn.Module):
             hd5_UT_hd2_cpu = hd5_UT_hd2.to('cpu')
             hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
                 torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)))) # hd2->160*160*UpChannels
+            del h1_PT_hd2_cpu
+            del h2_Cat_hd2_cpu
+            del hd3_UT_hd2_cpu
+            del hd4_UT_hd2_cpu
+            del hd5_UT_hd2_cpu
 
-        print ('hello')    
+        del h1_PT_hd2
+        del hd3_UT_hd2
+        del hd3_UT_hd2
+        del hd4_UT_hd2
+        del hd5_UT_hd2
+        torch.cuda.empty_cache()
+        hd2 = hd2.to(model_device)
+
+        print ('Decoder pass 01')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
         hd2_UT_hd1 = self.hd2_UT_hd1_relu(self.hd2_UT_hd1_bn(self.hd2_UT_hd1_conv(self.hd2_UT_hd1(hd2))))
