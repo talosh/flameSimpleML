@@ -583,7 +583,14 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
         except:
-            print ('huipizda')
+            self.hd5_UT_hd2.to('cpu')
+            self.hd5_UT_hd2_conv.to('cpu')
+            self.hd5_UT_hd2_bn.to('cpu')
+            self.hd5_UT_hd2_relu.to('cpu')
+            hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5.to('cpu')))))
+            hd5_UT_hd2 = hd5_UT_hd2.to(model_device)
+
+        print ('hello')
         hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
             torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
             
