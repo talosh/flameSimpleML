@@ -87,7 +87,7 @@ def rgb_to_yuv(rgb):
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 2e-5
+lr = 4e-5
 batch_size = 2
 
 dataset = myDataset('test')
