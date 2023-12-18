@@ -45,7 +45,7 @@ def denormalize(image_array):
     return image_array
 
 if __name__ == '__main__':
-    parser = argparse. Argumentarser (description='Interpolation for a sequence of exr images')
+    parser = argparse. ArgumentParser (description='Interpolation for a sequence of exr images')
     parser.add_argument ('--input', dest='input', type=str, default=None)
     parser. add_argument('--output', dest='output', type=str, default=None)
 
