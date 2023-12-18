@@ -11,6 +11,7 @@ from torch.nn import functional as F
 from pprint import pprint
 
 from model.multiresnet import MultiResUnet
+from model.threeplusnet import UNet_3Plus
 
 def normalize(img):
     def custom_bend(x):
@@ -72,11 +73,12 @@ if __name__ == '__main__':
     padding = (0, pw - w, 0, ph - h)
 
     output_folder = os.path.abspath(args.output)
-    checkpoint = torch.load('train_log2/model2.pth')
+    # checkpoint = torch.load('train_log2/model2.pth')
+    checkpoint = torch.load('train_log/model.pth')
 
     device = torch.device('cuda')
-    model = MultiResUnet(3, 3)
-    model = model.cuda()
+    # model = MultiResUnet(3, 3)
+    model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
 
