@@ -691,13 +691,22 @@ class UNet_3PlusMemOpt(nn.Module):
             self.hd4_UT_hd1_bn.to('cpu')
             self.hd4_UT_hd1_relu.to('cpu')
             hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4.to('cpu')))))
-        
         del hd4
         hd4_UT_hd1 = hd4_UT_hd1.to(model_device)
-        
-        print ('hello')
 
-        hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
+        try:
+            hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
+        except:
+            self.hd5_UT_hd1.to('cpu')
+            self.hd5_UT_hd1_conv.to('cpu')
+            self.hd5_UT_hd1_bn.to('cpu')
+            self.hd5_UT_hd1_relu.to('cpu')
+            hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5.to('cpu')))))
+        del hd5
+        hd5_UT_hd1 = hd5_UT_hd1.to(model_device)
+
+        print ('hello')
+    
         hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(
             torch.cat((h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1), 1)))) # hd1->320*320*UpChannels
 
