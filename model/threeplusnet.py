@@ -577,7 +577,7 @@ class UNet_3PlusMemOpt(nn.Module):
         hd3 = self.relu3d_1(self.bn3d_1(self.conv3d_1(
             torch.cat((h1_PT_hd3, h2_PT_hd3, h3_Cat_hd3, hd4_UT_hd3, hd5_UT_hd3), 1)))) # hd3->80*80*UpChannels
         
-        del h1_PT_hd4
+        del h1_PT_hd3
         del h2_PT_hd3
         del h3_Cat_hd3
         del hd4_UT_hd3
