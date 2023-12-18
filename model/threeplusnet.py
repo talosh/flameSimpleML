@@ -591,6 +591,13 @@ class UNet_3PlusMemOpt(nn.Module):
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         hd5 = self.conv5(h5)  # h5->20*20*1024
+
+        print ('conv hd5:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
         del h5
         torch.cuda.empty_cache()
 
