@@ -234,59 +234,36 @@ class MultiResUnet(torch.nn.Module):
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation='None')
 
 	def forward(self, x : torch.Tensor)->torch.Tensor:
-		model_device = x.device
-		cpu_device = torch.device('cpu')
 
 		x_multires1 = self.multiresblock1(x)
-		del x
 		x_pool1 = self.pool1(x_multires1)
 		x_multires1 = self.respath1(x_multires1)
-		x_multires1.to(cpu_device)
 		
 		x_multires2 = self.multiresblock2(x_pool1)
-		del x_pool1
 		x_pool2 = self.pool2(x_multires2)
 		x_multires2 = self.respath2(x_multires2)
-		x_multires2.to(cpu_device)
 
 		x_multires3 = self.multiresblock3(x_pool2)
-		del x_pool2
 		x_pool3 = self.pool3(x_multires3)
 		x_multires3 = self.respath3(x_multires3)
-		x_multires3.to(cpu_device)
 
 		x_multires4 = self.multiresblock4(x_pool3)
-		del x_pool3
 		x_pool4 = self.pool4(x_multires4)
 		x_multires4 = self.respath4(x_multires4)
-		x_multires4.to(cpu_device)
 
 		x_multires5 = self.multiresblock5(x_pool4)
-		del x_pool4
 
 		up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
-		del x_multires5
-		del x_multires4
-		x_multires6 = self.multiresblock6(up6.to(model_device))
-		del up6
+		x_multires6 = self.multiresblock6(up6)
 
 		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
-		del x_multires6
-		del x_multires3
-		x_multires7 = self.multiresblock7(up7.to(model_device))
-		del up7
+		x_multires7 = self.multiresblock7(up7)
 
 		up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
-		del x_multires7
-		del x_multires2
-		x_multires8 = self.multiresblock8(up8.to(model_device))
-		del up8
+		x_multires8 = self.multiresblock8(up8)
 
 		up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
-		del x_multires8
-		del x_multires1
-		x_multires9 = self.multiresblock9(up9.to(model_device))
-		del up9
+		x_multires9 = self.multiresblock9(up9)
 
 		out =  self.conv_final(x_multires9)
 
