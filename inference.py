@@ -101,7 +101,8 @@ if __name__ == '__main__':
             output = model(input_tensor)
             rgb_output = output
         
-        res_img = denormalize(rgb_output[0])
+        # res_img = denormalize(rgb_output[0])
+        res_img = rgb_output[0]
         res_img = res_img.cpu().detach().numpy().transpose(1, 2, 0)
 
         output_file_name = os.path.basename(input_file_path)
