@@ -87,7 +87,7 @@ def rgb_to_yuv(rgb):
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 4e-5
+lr = 2e-5
 batch_size = 2
 
 dataset = myDataset('test')
@@ -111,7 +111,7 @@ model = MultiResUnet(3, 3).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
-optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-2)
+optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
 
 before = None
 after = None
