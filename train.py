@@ -110,7 +110,7 @@ model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
-optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.001)
+optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-5)
 
 before = None
 after = None
