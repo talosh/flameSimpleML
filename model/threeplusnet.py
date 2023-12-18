@@ -521,6 +521,7 @@ class UNet_3PlusMemOpt(nn.Module):
                 init_weights(m, init_type='kaiming')
 
     def forward(self, inputs):
+        model_device = inputs.device
         current_device = torch.cuda.current_device()
 
         print ('forward start:')
@@ -618,7 +619,16 @@ class UNet_3PlusMemOpt(nn.Module):
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         ## -------------Decoder-------------
+        h1 = h1_cpu.to(model_device)
         h1_PT_hd4 = self.h1_PT_hd4_relu(self.h1_PT_hd4_bn(self.h1_PT_hd4_conv(self.h1_PT_hd4(h1))))
+
+        print ('h1_PT_hd4:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+
         h2_PT_hd4 = self.h2_PT_hd4_relu(self.h2_PT_hd4_bn(self.h2_PT_hd4_conv(self.h2_PT_hd4(h2))))
         h3_PT_hd4 = self.h3_PT_hd4_relu(self.h3_PT_hd4_bn(self.h3_PT_hd4_conv(self.h3_PT_hd4(h3))))
         h4_Cat_hd4 = self.h4_Cat_hd4_relu(self.h4_Cat_hd4_bn(self.h4_Cat_hd4_conv(h4)))
