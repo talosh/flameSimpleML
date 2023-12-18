@@ -63,4 +63,17 @@ if __name__ == '__main__':
         if os.path.isfile(input_file_path):
             input_files.append(input_file_path)
 
-    
+    first_image = cv2.imread(input_files[0], cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH).copy()
+    h, w, _ = first_image.shape
+    ph = ((h - 1) // 64 + 1) * 64
+    pw = ((w - 1) // 64 + 1) * 64
+    padding = (0, pw - w, 0, ph - h)
+
+    output_folder = os.path.abspath(args.output)
+    checkpoint = torch.load('train_log2/model2.pth')
+
+    device = torch.device('cuda')
+    model = MultiResUnet(3, 3)
+    model = model.cuda()
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model.eval()
