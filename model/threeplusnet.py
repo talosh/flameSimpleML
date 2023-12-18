@@ -561,16 +561,21 @@ class UNet_3PlusMemOpt(nn.Module):
         hd5_UT_hd4_cpu = hd5_UT_hd4.cpu()
         del hd5_UT_hd4
         torch.cuda.empty_cache()
-        hd4_cat = torch.cat((h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4), 1)
-        # hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(
-        #     torch.cat((h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4), 1)))) # hd4->40*40*UpChannels
-        hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(hd4_cat.to(model_device)))) # hd4->40*40*UpChannels
-
+        hd4_cat_cpu = torch.cat((h1_PT_hd4_cpu, h2_PT_hd4_cpu, h3_PT_hd4_cpu, h4_Cat_hd4_cpu, hd5_UT_hd4_cpu), 1)
         del h1_PT_hd4_cpu
         del h2_PT_hd4_cpu
         del h3_PT_hd4_cpu
         del h4_Cat_hd4_cpu
         del hd5_UT_hd4_cpu
+
+        hd4_cat = hd4_cat_cpu.to(model_device)
+        del hd4_cat_cpu
+
+        # hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(
+        #     torch.cat((h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4), 1)))) # hd4->40*40*UpChannels
+        hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(hd4_cat))) # hd4->40*40*UpChannels
+        del hd4_cat
+        torch.cuda.empty_cache()
 
         h1_PT_hd3 = self.h1_PT_hd3_relu(self.h1_PT_hd3_bn(self.h1_PT_hd3_conv(self.h1_PT_hd3(h1))))
         h2_PT_hd3 = self.h2_PT_hd3_relu(self.h2_PT_hd3_bn(self.h2_PT_hd3_conv(self.h2_PT_hd3(h2))))
