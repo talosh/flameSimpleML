@@ -598,9 +598,11 @@ class UNet_3PlusMemOpt(nn.Module):
             self.conv2d_1.to('cpu')
             self.bn2d_1.to('cpu')
             self.relu2d_1.to('cpu')
-            hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
-                torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1).to('cpu')))) # hd2->160*160*UpChannels
-            hd2 = hd2.to(model_device)
+            h1_PT_hd2_cpu = h1_PT_hd2.to('cpu')
+            h2_Cat_hd2_cpu = h2_Cat_hd2.to('cpu')
+            hd3_UT_hd2_cpu = hd3_UT_hd2.to('cpu')
+            hd4_UT_hd2_cpu = hd4_UT_hd2.to('cpu')
+            hd5_UT_hd2_cpu = hd5_UT_hd2.to('cpu')
 
         print ('hello')    
 
