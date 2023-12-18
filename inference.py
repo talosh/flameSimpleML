@@ -6,7 +6,9 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 
-from print import print
+from torch.nn import functional as F
+
+from pprint import pprint
 
 from model.multiresnet import MultiResUnet
 
@@ -77,3 +79,18 @@ if __name__ == '__main__':
     model = model.cuda()
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
+
+    if not os.path.isdir(output_folder):
+        os.makedirs(output_folder)
+
+    for input_file_path in input_files:
+        print(input_file_path + ' ->>>>')
+        img0 = cv2.imread(input_file_path, cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH).copy()
+        img0 = torch.from_numpy(img0.copy()).permute (2, 0, 1)
+        img0 = img0.cuda()
+        img0 = normalize(img0)
+
+        imgo = F.pad(img0, padding)
+
+        input_tensor = img0.unsqueeze(0)
+        input_tensor.to(device)
