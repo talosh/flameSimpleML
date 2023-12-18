@@ -591,10 +591,11 @@ class UNet_3PlusMemOpt(nn.Module):
             hd5_UT_hd2 = hd5_UT_hd2.to(model_device)
             torch.cuda.empty_cache()
 
-        hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
-            torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
-
-        print ('hello')    
+        try:
+            hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
+                torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
+        except:
+            print ('hello')    
 
         h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
         hd2_UT_hd1 = self.hd2_UT_hd1_relu(self.hd2_UT_hd1_bn(self.hd2_UT_hd1_conv(self.hd2_UT_hd1(hd2))))
