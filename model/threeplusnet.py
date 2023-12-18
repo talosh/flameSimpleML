@@ -651,6 +651,7 @@ class UNet_3PlusMemOpt(nn.Module):
         h2_PT_hd4_cpu = h2_PT_hd4.to('cpu')
         del h2
         del h2_PT_hd4
+        torch.cuda.empty_cache()
 
         print ('del h2_PT_hd4:')
         allocated_memory = torch.cuda.memory_allocated(current_device)
@@ -658,7 +659,28 @@ class UNet_3PlusMemOpt(nn.Module):
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
+        h3 = h3_cpu.to(model_device)
         h3_PT_hd4 = self.h3_PT_hd4_relu(self.h3_PT_hd4_bn(self.h3_PT_hd4_conv(self.h3_PT_hd4(h3))))
+
+        print ('h3_PT_hd4:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+        h3_PT_hd4_cpu = h3_PT_hd4.to('cpu')
+        del h3
+        del h3_PT_hd4
+        torch.cuda.empty_cache()
+
+        print ('del h3_PT_hd4:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+
+
         h4_Cat_hd4 = self.h4_Cat_hd4_relu(self.h4_Cat_hd4_bn(self.h4_Cat_hd4_conv(h4)))
         del h4
         hd5_UT_hd4 = self.hd5_UT_hd4_relu(self.hd5_UT_hd4_bn(self.hd5_UT_hd4_conv(self.hd5_UT_hd4(hd5))))
