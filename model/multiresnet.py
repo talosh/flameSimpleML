@@ -26,7 +26,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 			padding_mode = 'reflect'
 			)
 		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 	
 	def forward(self,x):
 		x = self.conv1(x)
@@ -95,7 +95,7 @@ class Multiresblock(torch.nn.Module):
 		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
 		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
 
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
 
@@ -134,7 +134,7 @@ class Respath(torch.nn.Module):
 		self.shortcuts = torch.nn.ModuleList([])
 		self.convs = torch.nn.ModuleList([])
 		self.bns = torch.nn.ModuleList([])
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 
 		for i in range(self.respath_length):
 			if(i==0):
