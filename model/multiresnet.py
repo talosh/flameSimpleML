@@ -234,8 +234,11 @@ class MultiResUnet(torch.nn.Module):
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation='None')
 
 	def forward(self, x : torch.Tensor)->torch.Tensor:
+		model_device = x.device
+		cpu_device = torch.device('cpu')
 
 		x_multires1 = self.multiresblock1(x)
+		del x
 		x_pool1 = self.pool1(x_multires1)
 		x_multires1 = self.respath1(x_multires1)
 		
@@ -280,7 +283,7 @@ class MultiResUnet(torch.nn.Module):
 		del x_multires1
 		x_multires9 = self.multiresblock9(up9)
 		del up9
-		
+
 		out =  self.conv_final(x_multires9)
 
 		# print (f'\nmax: {torch.max(out):.4f}')
