@@ -900,6 +900,7 @@ class UNet_3PlusMemOpt(nn.Module):
 
         hd2_cat_cpu = torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)
         hd2_cat = hd2_cat_cpu.to(model_device)
+        hd2_conv = self.conv2d_1(hd2_cat)
 
         torch.cuda.empty_cache()
         print ('hd2_cat:')
@@ -908,7 +909,7 @@ class UNet_3PlusMemOpt(nn.Module):
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
-        hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(hd2_cat))) # hd2->160*160*UpChannels
+        # hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(hd2_cat))) # hd2->160*160*UpChannels
         hd2_cpu = hd2.to('cpu')
 
         del hd2
