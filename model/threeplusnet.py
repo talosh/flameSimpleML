@@ -811,17 +811,47 @@ class UNet_3PlusMemOpt(nn.Module):
         del h2_Cat_hd2
         torch.cuda.empty_cache()
 
+        hd3 = hd3_cpu.to(model_device)
         hd3_UT_hd2 = self.hd3_UT_hd2_relu(self.hd3_UT_hd2_bn(self.hd3_UT_hd2_conv(self.hd3_UT_hd2(hd3))))
-        hd4_UT_hd2 = self.hd4_UT_hd2_relu(self.hd4_UT_hd2_bn(self.hd4_UT_hd2_conv(self.hd4_UT_hd2(hd4))))
-        hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
-        hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
-            torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
-        del h1_PT_hd2
-        del h2_Cat_hd2
+        hd3_UT_hd2_cpu = hd3_UT_hd2.to('cpu')
+        del hd3
         del hd3_UT_hd2
+        torch.cuda.empty_cache()
+
+        hd4 = hd4_cpu.to(model_device)
+        hd4_UT_hd2 = self.hd4_UT_hd2_relu(self.hd4_UT_hd2_bn(self.hd4_UT_hd2_conv(self.hd4_UT_hd2(hd4))))
+        hd4_UT_hd2_cpu = hd4_UT_hd2.to('cpu')
+        del hd4
         del hd4_UT_hd2
+        torch.cuda.empty_cache()
+
+        hd5 = hd4_cpu.to(model_device)
+        hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
+        hd5_UT_hd2_cpu = hd5_UT_hd2.to('cpu')
+        del hd5
         del hd5_UT_hd2
         torch.cuda.empty_cache()
+
+        hd2_cat_cpu = torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)
+        hd2_cat = hd2_cat_cpu.to(model_device)
+        hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(hd2_cat))) # hd2->160*160*UpChannels
+        hd2_cpu = hd2.to('cpu')
+
+        del hd2
+        del hd2_cat
+        del hd2_cat_cpu
+        del h1_PT_hd2_cpu
+        del h2_Cat_hd2_cpu
+        del hd3_UT_hd2_cpu
+        del hd4_UT_hd2_cpu
+        del hd5_UT_hd2_cpu
+        torch.cuda.empty_cache()
+
+        print ('hd2_cpu:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
         del h1
