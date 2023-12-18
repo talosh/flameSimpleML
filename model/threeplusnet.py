@@ -825,7 +825,7 @@ class UNet_3PlusMemOpt(nn.Module):
         del hd4_UT_hd2
         torch.cuda.empty_cache()
 
-        hd5 = hd4_cpu.to(model_device)
+        hd5 = hd5_cpu.to(model_device)
         hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
         hd5_UT_hd2_cpu = hd5_UT_hd2.to('cpu')
         del hd5
