@@ -12,6 +12,7 @@ from pprint import pprint
 
 from model.multiresnet import MultiResUnet
 from model.threeplusnet import UNet_3Plus
+from model.threeplusnet import UNet_3PlusMemOpt
 
 def normalize(img):
     def custom_bend(x):
