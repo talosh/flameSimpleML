@@ -551,12 +551,14 @@ class UNet_3PlusMemOpt(nn.Module):
         hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(
             torch.cat((h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4), 1)))) # hd4->40*40*UpChannels
 
+        '''
         print ('Decoder pass 01')
         allocated_memory = torch.cuda.memory_allocated(current_device)
         reserved_memory = torch.cuda.memory_reserved(current_device)
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
+        '''
+        
         h1_PT_hd3 = self.h1_PT_hd3_relu(self.h1_PT_hd3_bn(self.h1_PT_hd3_conv(self.h1_PT_hd3(h1))))
         h2_PT_hd3 = self.h2_PT_hd3_relu(self.h2_PT_hd3_bn(self.h2_PT_hd3_conv(self.h2_PT_hd3(h2))))
         h3_Cat_hd3 = self.h3_Cat_hd3_relu(self.h3_Cat_hd3_bn(self.h3_Cat_hd3_conv(h3)))
@@ -564,12 +566,6 @@ class UNet_3PlusMemOpt(nn.Module):
         hd5_UT_hd3 = self.hd5_UT_hd3_relu(self.hd5_UT_hd3_bn(self.hd5_UT_hd3_conv(self.hd5_UT_hd3(hd5))))
         hd3 = self.relu3d_1(self.bn3d_1(self.conv3d_1(
             torch.cat((h1_PT_hd3, h2_PT_hd3, h3_Cat_hd3, hd4_UT_hd3, hd5_UT_hd3), 1)))) # hd3->80*80*UpChannels
-
-        print ('Decoder pass 02')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         try:
             h1_PT_hd2 = self.h1_PT_hd2_relu(self.h1_PT_hd2_bn(self.h1_PT_hd2_conv(self.h1_PT_hd2(h1))))
@@ -583,8 +579,11 @@ class UNet_3PlusMemOpt(nn.Module):
         h2_Cat_hd2 = self.h2_Cat_hd2_relu(self.h2_Cat_hd2_bn(self.h2_Cat_hd2_conv(h2)))
         hd3_UT_hd2 = self.hd3_UT_hd2_relu(self.hd3_UT_hd2_bn(self.hd3_UT_hd2_conv(self.hd3_UT_hd2(hd3))))
         hd4_UT_hd2 = self.hd4_UT_hd2_relu(self.hd4_UT_hd2_bn(self.hd4_UT_hd2_conv(self.hd4_UT_hd2(hd4))))
-        print ('hello')
-        hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
+
+        try:
+            hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
+        except:
+            print ('huipizda')
         hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
             torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
             
