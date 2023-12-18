@@ -672,9 +672,19 @@ class UNet_3PlusMemOpt(nn.Module):
         del hd2
         hd2_UT_hd1 = hd2_UT_hd1.to(model_device)
 
+        try:
+            hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3))))
+        except:
+            self.hd3_UT_hd1.to('cpu')
+            self.hd3_UT_hd1_conv.to('cpu')
+            self.hd3_UT_hd1_bn.to('cpu')
+            self.hd3_UT_hd1_relu.to('cpu')
+            hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3.to('cpu')))))
+        del hd3
+        hd3_UT_hd1 = hd3_UT_hd1.to(model_device)
+
         print ('hello')
 
-        hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3))))
         hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4))))
         hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
         hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(
