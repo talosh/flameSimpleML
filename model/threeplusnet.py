@@ -524,95 +524,25 @@ class UNet_3PlusMemOpt(nn.Module):
         model_device = inputs.device
         current_device = torch.cuda.current_device()
 
-        print ('forward start:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
         ## -------------Encoder-------------
         h1 = self.conv1(inputs)  # h1->320*320*64
-        del inputs
-        torch.cuda.empty_cache()
-
-        print ('del inputs:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         h2 = self.maxpool1(h1)
-        h1_cpu = h1.to('cpu')
-        del h1
-        torch.cuda.empty_cache()
-
-        print ('del h1:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
         h2 = self.conv2(h2)  # h2->160*160*128
 
         h3 = self.maxpool2(h2)
-        h2_cpu = h2.to('cpu')
-        del h2
-        torch.cuda.empty_cache()
-
-        print ('del h2:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
         h3 = self.conv3(h3)  # h3->80*80*256
 
         h4 = self.maxpool3(h3)
-        h3_cpu = h3.to('cpu')
-        del h3
-        torch.cuda.empty_cache()
+        h4 = self.conv4(h4)  # h4->40*40*512
 
-        print ('del h3:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
-        h4 = self.conv4(h4)  # hå4->40*40*512
         h5 = self.maxpool4(h4)
-
-        h4_cpu = h4.to('cpu')
-        del h4
-        torch.cuda.empty_cache()
-
-        print ('del h4:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
         hd5 = self.conv5(h5)  # h5->20*20*1024
-
-        print ('conv hd5:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         del h5
         torch.cuda.empty_cache()
 
-        print ('del h5:')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
-        hd5_cpu = hd5.to('cpu')
-        del hd5
-        torch.cuda.empty_cache()
-
-        print ('del hd5:')
+        print ('Encoder')
         allocated_memory = torch.cuda.memory_allocated(current_device)
         reserved_memory = torch.cuda.memory_reserved(current_device)
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
