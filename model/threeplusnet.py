@@ -552,6 +552,7 @@ class UNet_3PlusMemOpt(nn.Module):
         del h3_PT_hd4
         del h4_Cat_hd4
         del hd5_UT_hd4
+        torch.cuda.empty_cache()
 
         h1_PT_hd3 = self.h1_PT_hd3_relu(self.h1_PT_hd3_bn(self.h1_PT_hd3_conv(self.h1_PT_hd3(h1))))
         h2_PT_hd3 = self.h2_PT_hd3_relu(self.h2_PT_hd3_bn(self.h2_PT_hd3_conv(self.h2_PT_hd3(h2))))
@@ -566,6 +567,7 @@ class UNet_3PlusMemOpt(nn.Module):
         del h3_Cat_hd3
         del hd4_UT_hd3
         del hd5_UT_hd3
+        torch.cuda.empty_cache()
 
         h1_PT_hd2 = self.h1_PT_hd2_relu(self.h1_PT_hd2_bn(self.h1_PT_hd2_conv(self.h1_PT_hd2(h1))))
         h2_Cat_hd2 = self.h2_Cat_hd2_relu(self.h2_Cat_hd2_bn(self.h2_Cat_hd2_conv(h2)))
@@ -580,6 +582,7 @@ class UNet_3PlusMemOpt(nn.Module):
         del hd3_UT_hd2
         del hd4_UT_hd2
         del hd5_UT_hd2
+        torch.cuda.empty_cache()
 
         h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
         del h1
@@ -598,6 +601,7 @@ class UNet_3PlusMemOpt(nn.Module):
         del hd3_UT_hd1
         del hd4_UT_hd1
         del hd5_UT_hd1
+        torch.cuda.empty_cache()
 
         d1 = self.outconv1(hd1)  # d1->320*320*n_classes
         del hd1
