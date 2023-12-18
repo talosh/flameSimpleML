@@ -240,31 +240,47 @@ class MultiResUnet(torch.nn.Module):
 		x_multires1 = self.respath1(x_multires1)
 		
 		x_multires2 = self.multiresblock2(x_pool1)
+		del x_pool1
 		x_pool2 = self.pool2(x_multires2)
 		x_multires2 = self.respath2(x_multires2)
 
 		x_multires3 = self.multiresblock3(x_pool2)
+		del x_pool2
 		x_pool3 = self.pool3(x_multires3)
 		x_multires3 = self.respath3(x_multires3)
 
 		x_multires4 = self.multiresblock4(x_pool3)
+		del x_pool3
 		x_pool4 = self.pool4(x_multires4)
 		x_multires4 = self.respath4(x_multires4)
 
 		x_multires5 = self.multiresblock5(x_pool4)
+		del x_pool4
 
 		up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
+		del x_multires5
+		del x_multires4
 		x_multires6 = self.multiresblock6(up6)
+		del up6
 
 		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
+		del x_multires6
+		del x_multires3
 		x_multires7 = self.multiresblock7(up7)
+		del up7
 
 		up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
+		del x_multires7
+		del x_multires2
 		x_multires8 = self.multiresblock8(up8)
+		del up8
 
 		up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
+		del x_multires8
+		del x_multires1
 		x_multires9 = self.multiresblock9(up9)
-
+		del up9
+		
 		out =  self.conv_final(x_multires9)
 
 		# print (f'\nmax: {torch.max(out):.4f}')
