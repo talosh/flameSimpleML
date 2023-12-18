@@ -233,7 +233,7 @@ class MultiResUnet(torch.nn.Module):
 
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation='None')
 
-	def forward(self,x : torch.Tensor)->torch.Tensor:
+	def forward(self, x : torch.Tensor)->torch.Tensor:
 
 		x_multires1 = self.multiresblock1(x)
 		x_pool1 = self.pool1(x_multires1)

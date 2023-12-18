@@ -95,6 +95,8 @@ if __name__ == '__main__':
         input_tensor = img0.unsqueeze(0)
         input_tensor.to(device)
 
+        print (input_tensor.shape)
+
         with torch.no_grad():
             output = model(input_tensor)
             rgb_output = output
