@@ -620,7 +620,7 @@ class UNet_3PlusMemOpt(nn.Module):
             del hd5_UT_hd2_cpu
 
         del h1_PT_hd2
-        del hd3_UT_hd2
+        del h2_Cat_hd2
         del hd3_UT_hd2
         del hd4_UT_hd2
         del hd5_UT_hd2
