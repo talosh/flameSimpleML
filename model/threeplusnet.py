@@ -896,7 +896,9 @@ class UNet_3PlusMemOpt(nn.Module):
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
-        hd5_ut_conv = self.hd5_UT_hd2_conv(hd5_ut)
+        self.hd5_UT_hd2_conv.to('cpu')
+        hd5_ut_cpu = hd5_ut.to('cpu')
+        hd5_ut_conv_cpu = self.hd5_UT_hd2_conv(hd5_ut_cpu)
         del hd5_ut
         torch.cuda.empty_cache()
 
