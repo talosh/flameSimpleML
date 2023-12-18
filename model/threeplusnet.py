@@ -900,6 +900,8 @@ class UNet_3PlusMemOpt(nn.Module):
 
         hd2_cat_cpu = torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)
         hd2_cat = hd2_cat_cpu.to(model_device)
+        print ('before conv')
+        
         hd2_conv = self.conv2d_1(hd2_cat)
 
         torch.cuda.empty_cache()
