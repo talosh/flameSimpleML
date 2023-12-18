@@ -98,11 +98,10 @@ if __name__ == '__main__':
         input_tensor.to(device)
 
         with torch.no_grad():
-            output = model(input_tensor)
-            rgb_output = output
+            output = model(input_tensor*2 -1)
+            rgb_output = (output + 1) / 2
         
-        # res_img = denormalize(rgb_output[0])
-        res_img = rgb_output[0]
+        res_img = denormalize(rgb_output[0])
         res_img = res_img.cpu().detach().numpy().transpose(1, 2, 0)
 
         output_file_name = os.path.basename(input_file_path)
