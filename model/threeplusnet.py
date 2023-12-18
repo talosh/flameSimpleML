@@ -557,6 +557,13 @@ class UNet_3PlusMemOpt(nn.Module):
         h2_cpu = h2.to('cpu')
         del h2
         torch.cuda.empty_cache()
+
+        print ('del h2:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
         h3 = self.conv3(h3)  # h3->80*80*256
 
         h4 = self.maxpool3(h3)
