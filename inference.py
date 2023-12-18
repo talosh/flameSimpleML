@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     device = torch.device('cuda')
     # model = MultiResUnet(3, 3).to(device)
-    model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
+    model = UNet_3PlusMemOpt(3, 3, is_batchnorm=False).to(device)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
 
