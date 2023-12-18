@@ -521,8 +521,9 @@ class UNet_3PlusMemOpt(nn.Module):
                 init_weights(m, init_type='kaiming')
 
     def forward(self, inputs):
-        print ('forward start:')
         current_device = torch.cuda.current_device()
+
+        print ('forward start:')
         allocated_memory = torch.cuda.memory_allocated(current_device)
         reserved_memory = torch.cuda.memory_reserved(current_device)
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
@@ -532,6 +533,12 @@ class UNet_3PlusMemOpt(nn.Module):
         h1 = self.conv1(inputs)  # h1->320*320*64
         del inputs
         torch.cuda.empty_cache()
+
+        print ('del inputs:')
+        allocated_memory = torch.cuda.memory_allocated(current_device)
+        reserved_memory = torch.cuda.memory_reserved(current_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
         h2 = self.maxpool1(h1)
         h1_cpu = h1.to('cpu')
