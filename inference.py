@@ -94,3 +94,15 @@ if __name__ == '__main__':
 
         input_tensor = img0.unsqueeze(0)
         input_tensor.to(device)
+
+        with torch.no_grad():
+            output = model(input_tensor)
+            rgb_output = output
+        
+        res_img = denormalize(rgb_output[0])
+        res_img = res_img.cpu().detach().numpy().transpose(1, 2, 0)
+
+        output_file_name = os.path.basename(input_file_path)
+        output_file_path = os.path.join(output_folder, output_file_name)
+        cv2.imwrite(output_file_path, res_img, [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+        print(output_file_path)
