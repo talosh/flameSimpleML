@@ -92,7 +92,7 @@ if __name__ == '__main__':
         img0 = img0.cuda()
         img0 = normalize(img0)
 
-        imgo = F.pad(img0, padding)
+        img0 = F.pad(img0, padding)
 
         input_tensor = img0.unsqueeze(0)
         input_tensor.to(device)
