@@ -241,10 +241,10 @@ while epoch < num_epochs + 1:
             }, f'train_log/model_training.pth')
         # '''
 
+        print (f'\n{(time.time() - time_stamp):.2f}')
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{(time.time() - time_stamp):.2f} + {train_time:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
 
-        print (f'\n{(time.time() - time_stamp):.2f}')
 
 
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
