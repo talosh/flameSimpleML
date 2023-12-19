@@ -210,8 +210,10 @@ while epoch < num_epochs + 1:
             steps_loss.append(float(loss_l1))
 
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        # loss.backward()
+        # optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
         scaler.update()
 
         train_time_int = time.time() - time_stamp
