@@ -225,6 +225,7 @@ while epoch < num_epochs + 1:
         
         step = step + 1
 
+        '''
         if step % 5 == 1:
             sample_before = ((before[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/01_before.exr', sample_before[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
@@ -245,8 +246,8 @@ while epoch < num_epochs + 1:
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
+        '''
         
-        time_stamp = time.time()
     
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
