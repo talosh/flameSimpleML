@@ -251,9 +251,9 @@ while epoch < num_epochs + 1:
 
         # '''
         if step % 5 == 1:
-            before_clone = before[0].clone()
-            after_clone = after[0].clone()
-            rgb_output_clone = rgb_output[0].clone()
+            before_clone = before[0].clone().to('cpu', non_blocking = True)
+            after_clone = after[0].clone().to('cpu', non_blocking = True)
+            rgb_output_clone = rgb_output[0].clone().to('cpu', non_blocking = True)
             try:
                 save_img_queue.put([before_clone, after_clone, rgb_output_clone], block=False)
             except:
