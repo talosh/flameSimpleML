@@ -175,8 +175,8 @@ while epoch < num_epochs + 1:
         after = after.to(device, non_blocking = True)
         before = normalize(before)
         after = normalize(after)
-        data_time_int = time.time() - time_stamp
-        time_stamp = time.time()
+        # data_time_int = time.time() - time_stamp
+        # time_stamp = time.time()
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
@@ -188,21 +188,21 @@ while epoch < num_epochs + 1:
         rgb_before = before[:, :3, :, :]
         rgb_after = after[:, :3, :, :]
 
-        rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
-        rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
+        # rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        # rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
+        # rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
 
-        rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
-        rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
+        # rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        # rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
+        # rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
 
-        rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
+        # rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        # rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
         # loss = (rgb_output - rgb_after).abs().mean()
-        hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
-        yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
-        rgb_loss = criterion_mse(rgb_output, rgb_after)
+        # hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
+        # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
+        # rgb_loss = criterion_mse(rgb_output, rgb_after)
         loss = criterion_mse(rgb_output, rgb_after)
         loss_l1 = criterion_l1(rgb_output, rgb_after)
         epoch_loss.append(float(loss_l1))
@@ -219,12 +219,12 @@ while epoch < num_epochs + 1:
         '''
 
         train_time_int = time.time() - time_stamp
+        data_time_int = time.time() - time_stamp
         time_stamp = time.time()
 
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
         
-
         '''
         if step % 5 == 1:
             sample_before = ((before[0].cpu().detach().numpy().transpose(1,2,0)))
