@@ -92,7 +92,7 @@ lr = 4e-5
 batch_size = 2
 
 dataset = myDataset('test')
-data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
+data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=4, pin_memory=False)
 steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
@@ -164,9 +164,6 @@ time_stamp = time.time()
 epoch = current_epoch
 while epoch < num_epochs + 1:
     random.seed()
-    
-    print (data_loader[0])
-
     for batch_idx, (before, after) in enumerate(data_loader):
         time_stamp = time.time()
         if batch_idx < saved_batch_idx:
@@ -213,6 +210,8 @@ while epoch < num_epochs + 1:
         loss.backward()
         optimizer.step()
 
+        train_time = time.time() - train_time_stamp
+
         '''
         scaler.scale(loss).backward()
         scaler.step(optimizer)
@@ -242,7 +241,7 @@ while epoch < num_epochs + 1:
             }, f'train_log/model_training.pth')
         # '''
 
-        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{(time.time() - time_stamp):.2f} + {(time.time() - train_time_stamp):.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
+        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{(time.time() - time_stamp):.2f} + {train_time:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
 
 
