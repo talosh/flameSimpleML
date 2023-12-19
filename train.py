@@ -25,6 +25,7 @@ from dataset import myDataset
 
 device = torch.device('cuda')
 save_img_queue = queue.Queue(maxsize=8)
+torch.backends.cudnn.benchmark = True
 
 def normalize(img) :
     def custom_bend(x) :
