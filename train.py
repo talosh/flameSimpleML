@@ -243,6 +243,7 @@ while epoch < num_epochs + 1:
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
         # '''
+        print (time.time() - time_stamp)
         time_stamp = time.time()
         
     
