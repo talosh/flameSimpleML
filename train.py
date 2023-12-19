@@ -94,8 +94,7 @@ def save_images(save_img_queue):
         try:
             imgs = save_img_queue.get_nowait()
         except queue.Empty:
-            print ('hello')
-            time.sleep(1)
+            time.sleep(1e-4)
             continue
 
         sample_before = imgs[0].cpu().detach().numpy().transpose(1, 2, 0)
