@@ -131,7 +131,7 @@ def get_learning_rate(step):
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
 # model = MultiResUnet(3, 3).to(device)
-model = UNet_3Plus(3, 3, is_batchnorm=False).to(device, memory_format=torch.channels_last)
+model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-3)
@@ -202,8 +202,8 @@ while epoch < num_epochs + 1:
         after = after.to(device, non_blocking = True)
         before = normalize(before).unsqueeze(0)
         after = normalize(after).unsqueeze(0)
-        before = before.to(memory_format=torch.channels_last)
-        after = after.to(memory_format=torch.channels_last)
+        # before = before.to(memory_format=torch.channels_last)
+        # after = after.to(memory_format=torch.channels_last)
         data_time = time.time() - time_stamp
         time_stamp = time.time()
 
