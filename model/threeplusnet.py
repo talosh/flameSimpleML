@@ -624,6 +624,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             h1_PT_hd2 = self.h1_PT_hd2_relu(self.h1_PT_hd2_bn(self.h1_PT_hd2_conv(self.h1_PT_hd2(h1))))
         except:
+            print (' - level 02.1 - h1_PT_hd2 CPU')
             self.h1_PT_hd2_conv.to('cpu')
             self.h1_PT_hd2_bn.to('cpu')
             self.h1_PT_hd2_relu.to('cpu')
@@ -637,6 +638,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
         except:
+            print (' - level 02.5 - hd5_UT_hd2 CPU')
             self.hd5_UT_hd2.to('cpu')
             self.hd5_UT_hd2_conv.to('cpu')
             self.hd5_UT_hd2_bn.to('cpu')
@@ -649,6 +651,7 @@ class UNet_3PlusMemOpt(nn.Module):
             hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
                 torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
         except:
+            print (' - level 02.6 - hd2 CPU')
             self.conv2d_1.to('cpu')
             self.bn2d_1.to('cpu')
             self.relu2d_1.to('cpu')
@@ -686,6 +689,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
         except:
+            print (' - level 01.1 - h1_Cat_hd1 CPU')
             self.h1_Cat_hd1_conv.to('cpu')
             self.h1_Cat_hd1_bn.to('cpu')
             self.h1_Cat_hd1_relu.to('cpu')
@@ -697,6 +701,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             hd2_UT_hd1 = self.hd2_UT_hd1_relu(self.hd2_UT_hd1_bn(self.hd2_UT_hd1_conv(self.hd2_UT_hd1(hd2))))
         except:
+            print (' - level 01.2 - hd2_UT_hd1 CPU')
             self.hd2_UT_hd1.to('cpu')
             self.hd2_UT_hd1_conv.to('cpu')
             self.hd2_UT_hd1_bn.to('cpu')
@@ -709,6 +714,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3))))
         except:
+            print (' - level 01.3 - hd3_UT_hd1 CPU')
             self.hd3_UT_hd1.to('cpu')
             self.hd3_UT_hd1_conv.to('cpu')
             self.hd3_UT_hd1_bn.to('cpu')
@@ -720,6 +726,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4))))
         except:
+            print (' - level 01.4 - hd4_UT_hd1 CPU')
             self.hd4_UT_hd1.to('cpu')
             self.hd4_UT_hd1_conv.to('cpu')
             self.hd4_UT_hd1_bn.to('cpu')
@@ -731,6 +738,7 @@ class UNet_3PlusMemOpt(nn.Module):
         try:
             hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
         except:
+            print (' - level 01.5 - hd5_UT_hd1 CPU')
             self.hd5_UT_hd1.to('cpu')
             self.hd5_UT_hd1_conv.to('cpu')
             self.hd5_UT_hd1_bn.to('cpu')
@@ -743,6 +751,7 @@ class UNet_3PlusMemOpt(nn.Module):
             hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(
                 torch.cat((h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1), 1)))) # hd1->320*320*UpChannels
         except:
+            print (' - level 01.6 - hd1 CPU')
             h1_Cat_hd1_cpu = h1_Cat_hd1.to('cpu')
             hd2_UT_hd1_cpu = hd2_UT_hd1.to('cpu')
             hd3_UT_hd1_cpu = hd3_UT_hd1.to('cpu')
