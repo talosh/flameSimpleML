@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim 
 import torch.nn.functional as F 
 import torch.distributed as dist
+import threading
 
 # from torch.cuda.amp import autocast, GradScaler
 
@@ -85,6 +86,16 @@ def rgb_to_yuv(rgb):
     # yuv = yuv.permute(0, 3, 1, 2)
 
     return yuv
+
+def save_images(before, after, rgb_output):
+    sample_before = before.cpu().detach().numpy().transpose(1, 2, 0)
+    cv2.imwrite('test/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+    
+    sample_after = after.cpu().detach().numpy().transpose(1, 2, 0)
+    cv2.imwrite('test/02_after.exr', sample_after[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+    
+    sample_current = rgb_output.cpu().detach().numpy().transpose(1, 2, 0)
+    cv2.imwrite('test/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
 log_path = 'train_log'
 num_epochs = 4444
@@ -227,12 +238,19 @@ while epoch < num_epochs + 1:
 
         # '''
         if step % 5 == 1:
+            before_clone = before[0].clone()
+            after_clone = after[0].clone()
+            rgb_output_clone = rgb_output[0].clone()
+            thread = threading.Thread(target=save_images, args=(before_clone, after_clone, rgb_output_clone))
+            thread.start()
+            '''
             sample_before = ((before[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/01_before.exr', sample_before[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_after = ((after[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/02_after.exr', sample_after[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_current = ((rgb_output[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+            '''
 
         if (batch_idx + 2) % 100 == 1 and (batch_idx + 2) > 100:
             # print(f'\rBatch [{batch_idx + 1} / {len(data_loader)}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
