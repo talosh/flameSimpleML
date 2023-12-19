@@ -282,6 +282,7 @@ while epoch < num_epochs + 1:
         data_time += time.time() - time_stamp
         data_time_str = str(f'{data_time:.2f}')
         train_time_str = str(f'{train_time:.2f}')
+        loss_l1_str = str(f'{loss_l1.item():.8f}')
         # print (f'{(train_time):.2f}')
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {1}', end='')
         # print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time:.2f} + {train_time:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
