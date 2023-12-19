@@ -198,10 +198,12 @@ while epoch < num_epochs + 1:
     # random.seed()
     # for batch_idx, (before, after) in enumerate(data_loader):
 
-        before = before.to(device, memory_format=torch.channels_last, non_blocking = True)
-        after = after.to(device, memory_format=torch.channels_last, non_blocking = True)
+        before = before.to(device, non_blocking = True)
+        after = after.to(device, non_blocking = True)
         before = normalize(before).unsqueeze(0)
         after = normalize(after).unsqueeze(0)
+        before = before.to(memory_format=torch.channels_last)
+        after = after.to(memory_format=torch.channels_last)
         data_time = time.time() - time_stamp
         time_stamp = time.time()
 
