@@ -23,6 +23,7 @@ from model.threeplusnet import UNet_3Plus
 from dataset import myDataset
 
 device = torch.device('cuda')
+cv2.setNumThreads(0)
 
 def normalize(img) :
     def custom_bend(x) :
