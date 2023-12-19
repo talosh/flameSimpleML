@@ -74,8 +74,8 @@ if __name__ == '__main__':
     padding = (0, pw - w, 0, ph - h)
 
     output_folder = os.path.abspath(args.output)
-    # checkpoint = torch.load('train_log2/model2.pth')
     checkpoint = torch.load('train_log2/model2.pth')
+    # checkpoint = torch.load('train_log/model.pth')
 
     device = torch.device('cuda')
     model = MultiResUnet(3, 3).to(device)
