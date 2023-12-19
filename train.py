@@ -242,8 +242,8 @@ while epoch < num_epochs + 1:
             before_clone = before[0].clone()
             after_clone = after[0].clone()
             rgb_output_clone = rgb_output[0].clone()
-            thread = threading.Thread(target=save_images, args=(before_clone, after_clone, rgb_output_clone))
-            thread.start()
+            # thread = threading.Thread(target=save_images, args=(before_clone, after_clone, rgb_output_clone))
+            # thread.start()
             '''
             sample_before = ((before[0].cpu().detach().numpy().transpose(1,2,0)))
             cv2.imwrite('test/01_before.exr', sample_before[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
