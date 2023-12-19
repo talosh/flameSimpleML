@@ -175,7 +175,7 @@ while epoch < num_epochs + 1:
         before = normalize(before)
         after = normalize(after)
         data_time_int = time.time() - time_stamp
-        # time_stamp = time.time()
+        time_stamp = time.time()
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
