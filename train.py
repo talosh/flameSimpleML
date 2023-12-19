@@ -11,6 +11,8 @@ import torch.optim as optim
 import torch.nn.functional as F 
 import torch.distributed as dist
 
+from torch.cuda.amp import autocast, GradScaler
+
 from model.accnet_w import ACC_UNet_W
 from model.accnet import ACC_UNet
 from model.accnet_lite import ACC_UNet_Lite
@@ -106,11 +108,11 @@ def get_learning_rate(step):
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
 # model = MultiResUnet(3, 3).to(device)
-model = UNet_3Plus(3, 3, is_batchnorm=False).to(device).half()
-
+model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
 optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-3)
+scaler = GradScaler()
 
 before = None
 after = None
@@ -180,35 +182,37 @@ while epoch < num_epochs + 1:
         for param_group in optimizer.param_groups:
             param_group['lr'] = current_lr
 
-        rgb_output = (model((before*2 -1)) + 1) / 2
-        # rgb_output = (model(before) + 1) / 2
+        with autocast():
+            rgb_output = (model((before*2 -1)) + 1) / 2
+            # rgb_output = (model(before) + 1) / 2
 
-        rgb_before = before[:, :3, :, :]
-        rgb_after = after[:, :3, :, :]
+            rgb_before = before[:, :3, :, :]
+            rgb_after = after[:, :3, :, :]
 
-        rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
-        rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
+            rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+            rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
+            rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
 
-        rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
-        rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
+            rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+            rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
+            rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
 
-        rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
+            rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+            rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
-        # loss = (rgb_output - rgb_after).abs().mean()
-        hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
-        yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
-        rgb_loss = criterion_mse(rgb_output, rgb_after)
-        loss = criterion_mse(rgb_output, rgb_after)
-        loss_l1 = criterion_l1(rgb_output, rgb_after)
-        epoch_loss.append(float(loss_l1))
-        steps_loss.append(float(loss_l1))
+            # loss = (rgb_output - rgb_after).abs().mean()
+            hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
+            yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
+            rgb_loss = criterion_mse(rgb_output, rgb_after)
+            loss = criterion_mse(rgb_output, rgb_after)
+            loss_l1 = criterion_l1(rgb_output, rgb_after)
+            epoch_loss.append(float(loss_l1))
+            steps_loss.append(float(loss_l1))
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        scaler.update()
 
         train_time_int = time.time() - time_stamp
         time_stamp = time.time()
