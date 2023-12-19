@@ -11,6 +11,7 @@ import torch.optim as optim
 import torch.nn.functional as F 
 import torch.distributed as dist
 import threading
+import queue
 
 # from torch.cuda.amp import autocast, GradScaler
 
@@ -23,7 +24,7 @@ from model.threeplusnet import UNet_3Plus
 from dataset import myDataset
 
 device = torch.device('cuda')
-cv2.setNumThreads(0)
+save_img_queue = queue.Queue(maxsize=8)
 
 def normalize(img) :
     def custom_bend(x) :
@@ -242,6 +243,11 @@ while epoch < num_epochs + 1:
             before_clone = before[0].clone()
             after_clone = after[0].clone()
             rgb_output_clone = rgb_output[0].clone()
+            try:
+                save_img_queue.put([before_clone, after_clone, rgb_output_clone], block=False)
+            except:
+                pass
+            
             # thread = threading.Thread(target=save_images, args=(before_clone, after_clone, rgb_output_clone))
             # thread.start()
             '''
