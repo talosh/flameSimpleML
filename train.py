@@ -163,6 +163,12 @@ time_stamp = time.time()
 
 epoch = current_epoch
 while epoch < num_epochs + 1:
+
+    for i in range(len(dataset)):
+        ts = time.time()
+        single_data, single_target = dataset[i]
+        print (f'\n{(time.time() - ts):.2f}')
+
     random.seed()
     for batch_idx, (before, after) in enumerate(data_loader):
         time_stamp = time.time()
