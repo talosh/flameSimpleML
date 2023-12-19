@@ -141,6 +141,11 @@ class UNet_3Plus(nn.Module):
         self.h1_PT_hd4_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
         self.h1_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
         self.h1_PT_hd4_relu = nn.SELU(inplace=True)
+        self.h1_PT_hd4_sequental = nn.Sequential(
+            nn.MaxPool2d(8, 8, ceil_mode=True),
+            nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect'),
+            nn.SELU(inplace=True)
+        )
 
         # h2->160*160, hd4->40*40, Pooling 4 times
         self.h2_PT_hd4 = nn.MaxPool2d(4, 4, ceil_mode=True)
