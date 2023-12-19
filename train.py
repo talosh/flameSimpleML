@@ -105,7 +105,7 @@ def save_images(save_img_queue):
         sample_current = imgs[2].cpu().detach().numpy().transpose(1, 2, 0)
         cv2.imwrite('test/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
-save_thread = threading.Thread(target=save_images, args=(save_img_queue))
+save_thread = threading.Thread(target=save_images, args=(save_img_queue, ))
 save_thread.daemon = True
 save_thread.start()
 
