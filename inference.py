@@ -81,7 +81,7 @@ if __name__ == '__main__':
     model = MultiResUnet(3, 3).to(device)
     # model = UNet_3PlusMemOpt(3, 3, is_batchnorm=False).to(device)
     model.load_state_dict(checkpoint['model_state_dict'])
-    model.half()
+    # model.half()
     model.eval()
 
     if not os.path.isdir(output_folder):
@@ -97,7 +97,8 @@ if __name__ == '__main__':
         img0 = F.pad(img0, padding)
 
         input_tensor = img0.unsqueeze(0)
-        input_tensor = input_tensor.to(device, dtype=torch.half)
+        input_tensor = input_tensor.to(device)
+        # input_tensor = input_tensor.to(device, dtype=torch.half)
 
         with torch.no_grad():
             output = model(input_tensor*2 -1)
