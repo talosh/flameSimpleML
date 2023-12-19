@@ -164,28 +164,28 @@ time_stamp = time.time()
 epoch = current_epoch
 while epoch < num_epochs + 1:
 
-    for i in range(len(dataset)):
-        ts = time.time()
-        single_data, single_target = dataset[i]
-        print (f'\n{(time.time() - ts):.2f}')
-
-    random.seed()
-    for batch_idx, (before, after) in enumerate(data_loader):
-        time_stamp = time.time()
+    for batch_idx in range(len(dataset)):
         if batch_idx < saved_batch_idx:
             continue
         saved_batch_idx = 0
+
+        time_stamp = time.time()
+        before, after = dataset[batch_idx]
+
+    # random.seed()
+    # for batch_idx, (before, after) in enumerate(data_loader):
 
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
         before = normalize(before)
         after = normalize(after)
+        data_time = time.time() - time_stamp
+        time_stamp = time.time()
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
             param_group['lr'] = current_lr
 
-        train_time_stamp = time.time()
         optimizer.zero_grad()
         rgb_output = (model((before*2 -1)) + 1) / 2
         # rgb_output = (model(before) + 1) / 2
@@ -216,7 +216,8 @@ while epoch < num_epochs + 1:
         loss.backward()
         optimizer.step()
 
-        train_time = time.time() - train_time_stamp
+        train_time = time.time() - time_stamp
+        time_stamp = time.time()
 
         '''
         scaler.scale(loss).backward()
@@ -246,8 +247,8 @@ while epoch < num_epochs + 1:
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
         # '''
-
-        print (f'\n{(time.time() - time_stamp):.2f}')
+        data_time += time.time() - time_stamp
+        print (f'{(data_time):.2f}')
         # print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{(time.time() - time_stamp):.2f} + {train_time:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
 
