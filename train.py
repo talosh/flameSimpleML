@@ -166,6 +166,7 @@ while epoch < num_epochs + 1:
     random.seed()
 
     for batch_idx, (before, after) in enumerate(data_loader):
+        time_stamp = time.time()
         if batch_idx < saved_batch_idx:
             continue
         saved_batch_idx = 0
@@ -174,7 +175,6 @@ while epoch < num_epochs + 1:
         after = after.to(device, non_blocking = True)
         before = normalize(before)
         after = normalize(after)
-        data_time_int = time.time() - time_stamp
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
@@ -219,7 +219,6 @@ while epoch < num_epochs + 1:
 
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {(time.time() - train_time_stamp):.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
-        time_stamp = time.time()
 
         # '''
         if step % 5 == 1:
@@ -243,8 +242,8 @@ while epoch < num_epochs + 1:
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
         # '''
-        
-    
+        data_time_int = time.time() - time_stamp
+
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
     epoch_loss = []
