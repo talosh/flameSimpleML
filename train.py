@@ -106,7 +106,7 @@ def get_learning_rate(step):
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
 # model = MultiResUnet(3, 3).to(device)
-model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
+model = UNet_3Plus(3, 3, is_batchnorm=False).to(device).half()
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
@@ -169,8 +169,8 @@ while epoch < num_epochs + 1:
             continue
         saved_batch_idx = 0
 
-        before = before.to(device, non_blocking = True)
-        after = after.to(device, non_blocking = True)
+        before = before.to(device, dtype=torch.half, non_blocking = True)
+        after = after.to(device, dtype=torch.half, non_blocking = True)
         before = normalize(before)
         after = normalize(after)
         data_time_int = time.time() - time_stamp
