@@ -175,6 +175,7 @@ while epoch < num_epochs + 1:
         after = after.to(device, non_blocking = True)
         before = normalize(before)
         after = normalize(after)
+        data_time_int = time.time() - time_stamp
         time_stamp = time.time()
 
         current_lr = get_learning_rate(step)
@@ -245,8 +246,8 @@ while epoch < num_epochs + 1:
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log/model_training.pth')
         
-        data_time_int = time.time() - time_stamp
-
+        time_stamp = time.time()
+    
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
     epoch_loss = []
