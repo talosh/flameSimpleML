@@ -222,8 +222,8 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
 
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
-        
         step = step + 1
+        
 
         '''
         if step % 5 == 1:
