@@ -752,6 +752,9 @@ class UNet_3PlusMemOpt(nn.Module):
                 torch.cat((h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1), 1)))) # hd1->320*320*UpChannels
         except:
             print (' - level 01.6 - hd1 CPU')
+            self.conv1d_1.to('cpu')
+            self.bn1d_1.to('cpu')
+            self.relu1d_1.to('cpu')
             h1_Cat_hd1_cpu = h1_Cat_hd1.to('cpu')
             hd2_UT_hd1_cpu = hd2_UT_hd1.to('cpu')
             hd3_UT_hd1_cpu = hd3_UT_hd1.to('cpu')
