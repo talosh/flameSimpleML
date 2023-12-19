@@ -166,6 +166,8 @@ while epoch < num_epochs + 1:
     random.seed()
 
     for batch_idx, (before, after) in enumerate(data_loader):
+        time_stamp = time.time()
+
 
         if batch_idx < saved_batch_idx:
             continue
@@ -175,8 +177,8 @@ while epoch < num_epochs + 1:
         after = after.to(device, non_blocking = True)
         before = normalize(before)
         after = normalize(after)
-        # data_time_int = time.time() - time_stamp
-        # time_stamp = time.time()
+        data_time_int = time.time() - time_stamp
+        time_stamp = time.time()
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
@@ -219,8 +221,6 @@ while epoch < num_epochs + 1:
         '''
 
         train_time_int = time.time() - time_stamp
-        data_time_int = time.time() - time_stamp
-        time_stamp = time.time()
 
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
