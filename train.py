@@ -164,6 +164,8 @@ time_stamp = time.time()
 epoch = current_epoch
 while epoch < num_epochs + 1:
     random.seed()
+    
+    print (data_loader[0])
 
     for batch_idx, (before, after) in enumerate(data_loader):
         time_stamp = time.time()
