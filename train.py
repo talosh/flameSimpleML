@@ -89,10 +89,10 @@ def rgb_to_yuv(rgb):
 log_path = 'train_log'
 num_epochs = 4444
 lr = 4e-5
-batch_size = 2
+batch_size = 1
 
 dataset = myDataset('test')
-data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=4, pin_memory=False)
+data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=False)
 steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
