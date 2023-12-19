@@ -94,7 +94,8 @@ def save_images(save_img_queue):
         try:
             imgs = save_img_queue.get_nowait()
         except queue.Empty:
-            time.sleep(1e-4)
+            print ('hello')
+            time.sleep(1)
 
         sample_before = imgs[0].cpu().detach().numpy().transpose(1, 2, 0)
         cv2.imwrite('test/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
