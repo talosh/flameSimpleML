@@ -177,8 +177,8 @@ while epoch < num_epochs + 1:
 
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
-        before = normalize(before)
-        after = normalize(after)
+        before = normalize(before).unsqueeze(0)
+        after = normalize(after).unsqueeze(0)
         data_time = time.time() - time_stamp
         time_stamp = time.time()
 
