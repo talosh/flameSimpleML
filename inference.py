@@ -97,7 +97,7 @@ if __name__ == '__main__':
         img0 = F.pad(img0, padding)
 
         input_tensor = img0.unsqueeze(0)
-        input_tensor.to(device, dtype=torch.half)
+        input_tensor = input_tensor.to(device, dtype=torch.half)
 
         with torch.no_grad():
             output = model(input_tensor*2 -1)
