@@ -75,12 +75,13 @@ if __name__ == '__main__':
 
     output_folder = os.path.abspath(args.output)
     # checkpoint = torch.load('train_log2/model2.pth')
-    checkpoint = torch.load('train_log/model.pth')
+    checkpoint = torch.load('train_log2/model2.pth')
 
     device = torch.device('cuda')
-    # model = MultiResUnet(3, 3).to(device)
-    model = UNet_3PlusMemOpt(3, 3, is_batchnorm=False).to(device)
+    model = MultiResUnet(3, 3).to(device)
+    # model = UNet_3PlusMemOpt(3, 3, is_batchnorm=False).to(device)
     model.load_state_dict(checkpoint['model_state_dict'])
+    model.half()
     model.eval()
 
     if not os.path.isdir(output_folder):
@@ -96,13 +97,13 @@ if __name__ == '__main__':
         img0 = F.pad(img0, padding)
 
         input_tensor = img0.unsqueeze(0)
-        input_tensor.to(device)
+        input_tensor.to(device, dtype=torch.half)
 
         with torch.no_grad():
             output = model(input_tensor*2 -1)
             rgb_output = (output + 1) / 2
         
-        res_img = denormalize(rgb_output[0])
+        res_img = denormalize(rgb_output[0].to(dtype=torch.float32))
         res_img = res_img.cpu().detach().numpy().transpose(1, 2, 0)[:h, :w]
 
         output_file_name = os.path.basename(input_file_path)
