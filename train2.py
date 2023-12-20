@@ -230,6 +230,9 @@ while epoch < num_epochs + 1:
         rgb_output = (model((before*2 -1)) + 1) / 2
         # rgb_output = (model(before) + 1) / 2
 
+        sample_current = rgb_output[0].cpu().detach().numpy().transpose(1, 2, 0)
+        cv2.imwrite('test2/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+
         rgb_before = before[:, :3, :, :]
         rgb_after = after[:, :3, :, :]
 
