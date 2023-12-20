@@ -109,6 +109,13 @@ save_thread = threading.Thread(target=save_images, args=(save_img_queue, ))
 save_thread.daemon = True
 save_thread.start()
 
+def read_images(read_image_queue):
+    while True:
+        for batch_idx in range(len(dataset)):
+            before, after = dataset[batch_idx]
+            read_image_queue.put([before, after])
+
+
 log_path = 'train_log'
 num_epochs = 4444
 lr = 2e-5
@@ -189,13 +196,14 @@ while epoch < num_epochs + 1:
     random.seed()
 
     for batch_idx in range(len(dataset)):
+        time_stamp = time.time()
+        before, after = read_image_queue.get()
 
         if batch_idx < saved_batch_idx:
             continue
         saved_batch_idx = 0
 
-        time_stamp = time.time()
-        before, after = dataset[batch_idx]
+        # before, after = dataset[batch_idx]
 
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
