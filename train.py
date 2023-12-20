@@ -24,8 +24,11 @@ from model.threeplusnet import UNet_3Plus
 from dataset import myDataset
 
 device = torch.device('cuda')
+read_image_queue = queue.Queue(maxsize=8)
 save_img_queue = queue.Queue(maxsize=8)
 torch.backends.cudnn.benchmark = True
+
+dataset = myDataset('test')
 
 def normalize(img) :
     def custom_bend(x) :
@@ -109,12 +112,21 @@ save_thread = threading.Thread(target=save_images, args=(save_img_queue, ))
 save_thread.daemon = True
 save_thread.start()
 
+def read_images(read_image_queue, dataset):
+    while True:
+        for batch_idx in range(len(dataset)):
+            before, after = dataset[batch_idx]
+            read_image_queue.put([before, after])
+
+read_thread = threading.Thread(target=read_images, args=(read_image_queue, dataset))
+read_thread.daemon = True
+read_thread.start()
+
 log_path = 'train_log'
 num_epochs = 4444
 lr = 4e-5
 batch_size = 1
 
-dataset = myDataset('test')
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=False)
 steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
@@ -188,12 +200,14 @@ epoch = current_epoch
 while epoch < num_epochs + 1:
 
     for batch_idx in range(len(dataset)):
-        if batch_idx < saved_batch_idx:
-            continue
+        time_stamp = time.time()
+        before, after = read_image_queue.get()
+
+        # if batch_idx < saved_batch_idx:
+        #     continue
         saved_batch_idx = 0
 
-        time_stamp = time.time()
-        before, after = dataset[batch_idx]
+        # before, after = dataset[batch_idx]
 
     # random.seed()
     # for batch_idx, (before, after) in enumerate(data_loader):
