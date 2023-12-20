@@ -268,11 +268,11 @@ while epoch < num_epochs + 1:
 
         if step % 5 == 1:
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-            cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+            cv2.imwrite('test/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_after = rgb_after[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-            cv2.imwrite('test2/02_after.exr', sample_after[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+            cv2.imwrite('test/02_after.exr', sample_after[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-            cv2.imwrite('test2/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+            cv2.imwrite('test/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
 
             '''
             before_clone = before[0].clone().to('cpu', non_blocking = True)
@@ -283,7 +283,7 @@ while epoch < num_epochs + 1:
             except:
                 pass
             '''
-            
+
         data_time += time.time() - time_stamp
         data_time_str = str(f'{data_time:.2f}')
         train_time_str = str(f'{train_time:.2f}')
