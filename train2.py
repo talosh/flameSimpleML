@@ -232,6 +232,8 @@ while epoch < num_epochs + 1:
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
         loss = criterion_mse(rgb_output, rgb_after)
         loss_l1 = criterion_l1(rgb_output, rgb_after)
+        loss_l1_str = str(f'{loss_l1.item():.8f}')
+
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
 
