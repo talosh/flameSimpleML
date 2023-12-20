@@ -28,7 +28,6 @@ save_img_queue = queue.Queue(maxsize=8)
 torch.backends.cudnn.benchmark = True
 
 dataset = myDataset('test')
-data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 
 def normalize(img) :
     def custom_bend(x) :
@@ -125,7 +124,8 @@ read_thread.start()
 log_path = 'train_log'
 num_epochs = 4444
 lr = 2e-5
-batch_size = 2
+batch_size = 1
+data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 
 steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
