@@ -266,7 +266,7 @@ while epoch < num_epochs + 1:
         scaler.update()
         '''
 
-        if step % 5 == 1:
+        if step % 20 == 1:
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_after = rgb_after[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
