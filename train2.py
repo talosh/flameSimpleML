@@ -10,6 +10,8 @@ import torch.nn as nn
 import torch.optim as optim 
 import torch.nn.functional as F 
 import torch.distributed as dist
+import threading
+import queue
 
 from model.accnet_w import ACC_UNet_W
 from model.accnet import ACC_UNet
@@ -21,6 +23,8 @@ from dataset import myDataset
 
 torch.cuda.set_device(1)
 device = torch.device('cuda:1')
+save_img_queue = queue.Queue(maxsize=8)
+torch.backends.cudnn.benchmark = True
 
 def normalize(img) :
     def custom_bend(x) :
@@ -84,6 +88,25 @@ def rgb_to_yuv(rgb):
     # yuv = yuv.permute(0, 3, 1, 2)
 
     return yuv
+
+def save_images(save_img_queue):
+    while True:
+        try:
+            imgs = save_img_queue.get_nowait()
+        except queue.Empty:
+            time.sleep(1e-4)
+            continue
+
+        sample_before = imgs[0].cpu().detach().numpy().transpose(1, 2, 0)
+        cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+        sample_after = imgs[1].cpu().detach().numpy().transpose(1, 2, 0)
+        cv2.imwrite('test2/02_after.exr', sample_after[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+        sample_current = imgs[2].cpu().detach().numpy().transpose(1, 2, 0)
+        cv2.imwrite('test2/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+
+save_thread = threading.Thread(target=save_images, args=(save_img_queue, ))
+save_thread.daemon = True
+save_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
@@ -164,67 +187,68 @@ epoch = current_epoch
 while epoch < num_epochs + 1:
     random.seed()
 
-    for batch_idx, (before, after) in enumerate(data_loader):
+    for batch_idx in range(len(dataset)):
 
         if batch_idx < saved_batch_idx:
             continue
         saved_batch_idx = 0
 
+        time_stamp = time.time()
+        before, after = dataset[batch_idx]
+
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
-        before = normalize(before)
-        after = normalize(after)
-        data_time_int = time.time() - time_stamp
+        before = normalize(before).unsqueeze(0)
+        after = normalize(after).unsqueeze(0)
+
+        data_time = time.time() - time_stamp
         time_stamp = time.time()
 
         current_lr = get_learning_rate(step)
         for param_group in optimizer.param_groups:
             param_group['lr'] = current_lr
 
+        optimizer.zero_grad()
         rgb_output = (model((before*2 -1)) + 1) / 2
         # rgb_output = (model(before) + 1) / 2
 
         rgb_before = before[:, :3, :, :]
         rgb_after = after[:, :3, :, :]
 
-        rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
-        rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
+        # rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        # rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
+        # rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
 
-        rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
-        rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
+        # rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        # rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
+        # rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
 
-        rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
+        # rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
+        # rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
 
         # loss = (rgb_output - rgb_after).abs().mean()
-        hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
-        yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
-        rgb_loss = criterion_mse(rgb_output, rgb_after)
+        # hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
+        # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
+        # rgb_loss = criterion_mse(rgb_output, rgb_after)
         loss = criterion_mse(rgb_output, rgb_after)
         loss_l1 = criterion_l1(rgb_output, rgb_after)
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
 
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        train_time_int = time.time() - time_stamp
+        train_time = time.time() - time_stamp
         time_stamp = time.time()
 
-        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_int:.2f} + {train_time_int:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
-        
-        step = step + 1
-
         if step % 40 == 1:
-            sample_before = ((before[0].cpu().detach().numpy().transpose(1,2,0)))
-            cv2.imwrite('test2/01_before.exr', sample_before[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
-            sample_after = ((after[0].cpu().detach().numpy().transpose(1,2,0)))
-            cv2.imwrite('test2/02_after.exr', sample_after[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
-            sample_current = ((rgb_output[0].cpu().detach().numpy().transpose(1,2,0)))
-            cv2.imwrite('test2/03_output.exr', sample_current[:,:,:3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+            before_clone = before[0].clone().to('cpu', non_blocking = True)
+            after_clone = after[0].clone().to('cpu', non_blocking = True)
+            rgb_output_clone = rgb_output[0].clone().to('cpu', non_blocking = True)
+            try:
+                save_img_queue.put([before_clone, after_clone, rgb_output_clone], block=False)
+            except:
+                pass
 
         if (batch_idx + 2) % 100 == 1 and (batch_idx + 2) > 100:
             # print(f'\rBatch [{batch_idx + 1} / {len(data_loader)}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
@@ -238,6 +262,13 @@ while epoch < num_epochs + 1:
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, f'train_log2/model2_training.pth')
+
+        data_time += time.time() - time_stamp
+        data_time_str = str(f'{data_time:.2f}')
+        train_time_str = str(f'{train_time:.2f}')
+
+        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
+        step = step + 1
 
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
