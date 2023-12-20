@@ -221,7 +221,7 @@ while epoch < num_epochs + 1:
         for param_group in optimizer.param_groups:
             param_group['lr'] = current_lr
 
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
         rgb_output = (model((before*2 -1)) + 1) / 2
         # rgb_output = (model(before) + 1) / 2
 
