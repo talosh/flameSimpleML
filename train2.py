@@ -265,25 +265,23 @@ while epoch < num_epochs + 1:
             except:
                 pass
 
-        if (batch_idx + 2) % 100 == 1 and (batch_idx + 2) > 100:
-            # print(f'\rBatch [{batch_idx + 1} / {len(data_loader)}], Minimum L1 loss: {min(steps_loss):.8f} Avg L1 loss: {(sum(steps_loss) / len(steps_loss)):.8f}, Maximum L1 loss: {max(steps_loss):.8f}')
-            torch.save({
-                'step': step,
-                'steps_loss': steps_loss,
-                'epoch': epoch,
-                'epoch_loss': epoch_loss,
-                'batch_idx': batch_idx,
-                'lr': optimizer.param_groups[0]['lr'],
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-            }, f'train_log2/model2_training.pth')
-
         data_time += time.time() - time_stamp
         data_time_str = str(f'{data_time:.2f}')
         train_time_str = str(f'{train_time:.2f}')
 
         print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
         step = step + 1
+
+    torch.save({
+        'step': step,
+        'steps_loss': steps_loss,
+        'epoch': epoch,
+        'epoch_loss': epoch_loss,
+        'batch_idx': batch_idx,
+        'lr': optimizer.param_groups[0]['lr'],
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+    }, f'train_log2/model2_training.pth')
 
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
