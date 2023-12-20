@@ -156,7 +156,7 @@ rgb_after_masked = None
 
 step = 0
 current_epoch = 0
-saved_batch_idx = 0
+# saved_batch_idx = 0
 
 steps_loss = []
 epoch_loss = []
@@ -179,8 +179,8 @@ try:
     print (f'step: {step}')
     current_epoch = checkpoint['epoch']
     print (f'epoch: {current_epoch + 1}')
-    saved_batch_idx = checkpoint['batch_idx']
-    print (f'saved batch index: {saved_batch_idx}')
+    # saved_batch_idx = checkpoint['batch_idx']
+    # print (f'saved batch index: {saved_batch_idx}')
 except Exception as e:
     print (f'unable to set step and epoch: {e}')
 
@@ -205,7 +205,7 @@ while epoch < num_epochs + 1:
 
         # if batch_idx < saved_batch_idx:
         #    continue
-        saved_batch_idx = 0
+        # saved_batch_idx = 0
 
         # before, after = dataset[batch_idx]
 
@@ -277,7 +277,7 @@ while epoch < num_epochs + 1:
         'steps_loss': steps_loss,
         'epoch': epoch,
         'epoch_loss': epoch_loss,
-        'batch_idx': batch_idx,
+        # 'batch_idx': batch_idx,
         'lr': optimizer.param_groups[0]['lr'],
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
