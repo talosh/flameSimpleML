@@ -203,6 +203,11 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         before, after = read_image_queue.get()
 
+        sample_before = before.cpu().detach().numpy().transpose(1, 2, 0)
+        cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+        sample_after = after.cpu().detach().numpy().transpose(1, 2, 0)
+        cv2.imwrite('test2/02_after.exr', sample_after[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+
         # if batch_idx < saved_batch_idx:
         #    continue
         # saved_batch_idx = 0
@@ -257,13 +262,16 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
 
         if step % 40 == 1:
-
+            pass
+            
+            '''
             sample_before = before[0].to('cpu', non_blocking = True).detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_after = after[0].to('cpu', non_blocking = True).detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test2/02_after.exr', sample_after[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_current = rgb_output[0].to('cpu', non_blocking = True).detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test2/03_output.exr', sample_current[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
+            '''
 
             '''
             before_clone = before[0].clone().to('cpu', non_blocking = True)
