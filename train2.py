@@ -199,8 +199,8 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         before, after = read_image_queue.get()
 
-        if batch_idx < saved_batch_idx:
-            continue
+        # if batch_idx < saved_batch_idx:
+        #    continue
         saved_batch_idx = 0
 
         # before, after = dataset[batch_idx]
