@@ -100,8 +100,8 @@ class Multiresblock(torch.nn.Module):
 	def forward(self,x):
 
 		shrtct = self.shortcut(x)
-		del x
 		a = self.conv_3x3(x)
+		del x
 		b = self.conv_5x5(a)
 		c = self.conv_7x7(b)
 
