@@ -115,6 +115,9 @@ def read_images(read_image_queue):
             before, after = dataset[batch_idx]
             read_image_queue.put([before, after])
 
+read_thread = threading.Thread(target=read_images, args=(read_image_queue, ))
+read_thread.daemon = True
+read_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
