@@ -147,7 +147,9 @@ model = MultiResUnet(3, 3).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
-optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0)
+# optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0)
+optimizer = optim.SGD(model.parameters(), lr=lr)
+
 
 before = None
 after = None
