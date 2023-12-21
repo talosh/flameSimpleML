@@ -172,8 +172,9 @@ except Exception as e:
     print (f'unable to load saved model: {e}')
 
 try:
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    print ('loaded optimizer state')
+    pass
+    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    # print ('loaded optimizer state')
 except Exception as e:
     print (f'unable to load optimizer state: {e}')
 
