@@ -124,7 +124,7 @@ read_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 9e-6
+lr = 4e-5
 batch_size = 1
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 
@@ -147,7 +147,7 @@ model = MultiResUnet(3, 3).to(device)
 
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
-optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0)
 
 before = None
 after = None
