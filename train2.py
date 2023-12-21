@@ -30,6 +30,9 @@ torch.backends.cudnn.benchmark = True
 
 dataset = myDataset('test')
 
+def moving_average(data, window_size):
+    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+
 def normalize(img) :
     def custom_bend(x) :
         linear_part = x
@@ -306,7 +309,8 @@ while epoch < num_epochs + 1:
         'optimizer_state_dict': optimizer.state_dict(),
     }, f'train_log2/model2_training.pth')
 
-    print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {(sum(epoch_loss) / len(epoch_loss)):.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
+    smoothed_loss = np.mean(moving_average(epoch_loss, 9))
+    print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {smoothed_loss:.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
     steps_loss = []
     epoch_loss = []
     epoch = epoch + 1
