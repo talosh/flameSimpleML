@@ -7,7 +7,8 @@ import numpy as np
 import math
 import torch 
 import torch.nn as nn 
-import torch.optim as optim 
+# import torch.optim as optim
+import torch_optimizer as optim
 import torch.nn.functional as F 
 import torch.distributed as dist
 import threading
@@ -151,8 +152,9 @@ model = MultiResUnet(3, 3).to(device)
 criterion_mse = nn.MSELoss()
 criterion_l1 = nn.L1Loss()
 # optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0)
-optimizer = optim.SGD(model.parameters(), lr=lr)
-
+# optimizer = optim.SGD(model.parameters(), lr=lr)
+optimizer = optim.Yogi(model.parameters(), lr=lr)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
 
 before = None
 after = None
@@ -311,6 +313,7 @@ while epoch < num_epochs + 1:
 
     smoothed_loss = np.mean(moving_average(epoch_loss, 9))
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {smoothed_loss:.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
+    scheduler.step(smoothed_loss)
     steps_loss = []
     epoch_loss = []
     epoch = epoch + 1
