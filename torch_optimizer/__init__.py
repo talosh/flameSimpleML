@@ -16,9 +16,9 @@ __ https://pytorch.org/docs/stable/optim.html#module-torch.optim
 """
 from typing import Dict, List, Type
 
-from pytorch_ranger import Ranger, RangerQH, RangerVA
+# from pytorch_ranger import Ranger, RangerQH, RangerVA
 from torch.optim.optimizer import Optimizer
-
+'''
 from .a2grad import A2GradExp, A2GradInc, A2GradUni
 from .accsgd import AccSGD
 from .adabelief import AdaBelief
@@ -44,6 +44,7 @@ from .sgdp import SGDP
 from .sgdw import SGDW
 from .shampoo import Shampoo
 from .swats import SWATS
+'''
 from .yogi import Yogi
 
 __all__ = (
@@ -83,7 +84,7 @@ __all__ = (
 )
 __version__ = "0.3.1a0"
 
-
+'''
 _package_opts = [
     AdaBelief,
     AccSGD,
@@ -110,6 +111,11 @@ _package_opts = [
     Shampoo,
     Yogi,
     Lion,
+]  # type: List[Type[Optimizer]]
+'''
+
+_package_opts = [
+    Yogi,
 ]  # type: List[Type[Optimizer]]
 
 
