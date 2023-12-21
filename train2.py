@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn 
 # import torch.optim as optim
 import torch_optimizer as optim
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch.nn.functional as F 
 import torch.distributed as dist
 import threading
@@ -154,7 +155,7 @@ criterion_l1 = nn.L1Loss()
 # optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0)
 # optimizer = optim.SGD(model.parameters(), lr=lr)
 optimizer = optim.Yogi(model.parameters(), lr=lr)
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
+scheduler = ReduceLROnPlateau(optimizer, 'min')
 
 before = None
 after = None
