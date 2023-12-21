@@ -182,7 +182,7 @@ class MultiResUnet(torch.nn.Module):
 	Returns:
 		[keras model] -- MultiResUNet model
 	'''
-	def __init__(self, input_channels, num_classes, alpha=1.67):
+	def __init__(self, input_channels, num_classes, alpha=1.69):
 		super().__init__()
 		
 		self.alpha = alpha
