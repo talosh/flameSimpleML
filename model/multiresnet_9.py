@@ -83,7 +83,7 @@ class Multiresblock(torch.nn.Module):
 		filt_cnt_5x5 = int(self.W*0.333)
 		filt_cnt_7x7 = int(self.W*0.5)
 		filt_cnt_9x9 = int(self.W)
-		num_out_filters = filt_cnt_3x3 + filt_cnt_5x5 + filt_cnt_7x7 # + filt_cnt_9x9
+		num_out_filters = filt_cnt_3x3 + filt_cnt_5x5 + filt_cnt_7x7 + filt_cnt_9x9
 		
 		self.shortcut = Conv2d_batchnorm(num_in_channels ,num_out_filters , kernel_size = (1,1), activation='None')
 
