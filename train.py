@@ -254,7 +254,7 @@ while epoch < num_epochs + 1:
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
         loss = criterion_mse(rgb_output, rgb_after)
         loss_l1 = criterion_l1(rgb_output, rgb_after)
-        loss_l1_str = str(f'{loss_l1.item():.8f}')
+        loss_l1_str = str(f'{loss_l1.item():.4f}')
 
         epoch_loss.append(float(loss_l1))
         steps_loss.append(float(loss_l1))
@@ -309,7 +309,7 @@ while epoch < num_epochs + 1:
     }, f'train_log/model_training.pth')
 
     smoothed_loss = np.mean(moving_average(epoch_loss, 9))
-    print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.8f} Avg L1 loss: {smoothed_loss:.8f}, Maximum L1 loss: {max(epoch_loss):.8f}')
+    print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
     scheduler.step(smoothed_loss)
     steps_loss = []
     epoch_loss = []
