@@ -141,8 +141,10 @@ def get_learning_rate(step):
         mul = step / 99
         return lr * mul
     else:
-        mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
-        return (lr - 4e-7) * mul + 4e-7
+        return lr
+        # mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
+        # return (lr - 4e-7) * mul + 4e-7
+
     
 # model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
