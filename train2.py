@@ -24,7 +24,7 @@ from model.threeplusnet import UNet_3Plus
 from dataset import myDataset
 
 torch.cuda.set_device(1)
-device = torch.device('cuda:1')
+device = torch.device('cuda:0')
 read_image_queue = queue.Queue(maxsize=8)
 save_img_queue = queue.Queue(maxsize=8)
 torch.backends.cudnn.enabled = True
