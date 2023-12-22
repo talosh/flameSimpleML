@@ -313,7 +313,7 @@ while epoch < num_epochs + 1:
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
     }, f'train_log2/model2_training.pth')
-
+    
     smoothed_loss = np.mean(moving_average(epoch_loss, 9))
     print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
     scheduler.step(smoothed_loss)
