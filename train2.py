@@ -18,7 +18,7 @@ import queue
 from model.accnet_w import ACC_UNet_W
 from model.accnet import ACC_UNet
 from model.accnet_lite import ACC_UNet_Lite
-from model.multiresnet_9 import MultiResUnet
+from model.multiresnet import MultiResUnet
 from model.threeplusnet import UNet_3Plus
 
 from dataset import myDataset
