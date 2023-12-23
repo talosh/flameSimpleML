@@ -306,7 +306,7 @@ while epoch < num_epochs + 1:
         hours = int((epoch_time % (24 * 3600)) // 3600)
         minutes = int((epoch_time % 3600) // 60)
 
-        print (f'\rEpoch [{epoch + 1} / {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
+        print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
         step = step + 1
 
     torch.save({
@@ -325,7 +325,7 @@ while epoch < num_epochs + 1:
     days = int(epoch_time // (24 * 3600))
     hours = int((epoch_time % (24 * 3600)) // 3600)
     minutes = int((epoch_time % 3600) // 60)
-    print(f'\rEpoch [{epoch + 1} / {days:02}d {hours:02}:{minutes:02}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
+    print(f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
     scheduler.step(smoothed_loss)
     steps_loss = []
     epoch_loss = []
