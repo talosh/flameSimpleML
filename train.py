@@ -137,8 +137,8 @@ steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
 def get_learning_rate(step):
-    if step < 2999:
-        mul = step / 2999
+    if step < steps_per_epoch:
+        mul = step / steps_per_epoch
         return lr * mul
     else:
         mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
