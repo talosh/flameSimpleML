@@ -179,6 +179,11 @@ try:
 except Exception as e:
     print (f'unable to load saved model: {e}')
 
+try:
+    start_timestamp = checkpoint.get('start_timestamp')
+except:
+    pass
+
 '''
 try:
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -209,7 +214,8 @@ except Exception as e:
 time_stamp = time.time()
 
 epoch = current_epoch
-start_timestamp = time.time()
+if not start_timestamp:
+    start_timestamp = time.time()
 while epoch < num_epochs + 1:
     random.seed()
 
@@ -314,6 +320,7 @@ while epoch < num_epochs + 1:
         'steps_loss': steps_loss,
         'epoch': epoch,
         'epoch_loss': epoch_loss,
+        'start_timestamp': start_timestamp,
         # 'batch_idx': batch_idx,
         'lr': optimizer.param_groups[0]['lr'],
         'model_state_dict': model.state_dict(),
