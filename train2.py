@@ -182,8 +182,7 @@ except Exception as e:
 try:
     start_timestamp = checkpoint.get('start_timestamp')
 except:
-    pass
-
+    start_timestamp = time.time()
 '''
 try:
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -214,8 +213,6 @@ except Exception as e:
 time_stamp = time.time()
 
 epoch = current_epoch
-if not start_timestamp:
-    start_timestamp = time.time()
 while epoch < num_epochs + 1:
     random.seed()
 
