@@ -137,8 +137,8 @@ steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
 def get_learning_rate(step):
-    if step < 999:
-        mul = step / 999
+    if step < 2999:
+        mul = step / 2999
         return lr * mul
     else:
         mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
@@ -202,6 +202,8 @@ except Exception as e:
 time_stamp = time.time()
 
 epoch = current_epoch
+start_timestamp = time.time()
+
 while epoch < num_epochs + 1:
 
     for batch_idx in range(len(dataset)):
@@ -292,8 +294,13 @@ while epoch < num_epochs + 1:
         data_time += time.time() - time_stamp
         data_time_str = str(f'{data_time:.2f}')
         train_time_str = str(f'{train_time:.2f}')
-        # print (f'{(train_time):.2f}')
-        print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
+
+        epoch_time = time.time() - start_timestamp
+        days = int(epoch_time // (24 * 3600))
+        hours = int((epoch_time % (24 * 3600)) // 3600)
+        minutes = int((epoch_time % 3600) // 60)
+
+        print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
         # print (f'\rEpoch [{epoch + 1} / {num_epochs}], Time:{data_time:.2f} + {train_time:.2f}, Batch [{batch_idx + 1} / {len(data_loader)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1.item():.8f}', end='')
         step = step + 1
 
@@ -309,7 +316,7 @@ while epoch < num_epochs + 1:
     }, f'train_log/model_training.pth')
 
     smoothed_loss = np.mean(moving_average(epoch_loss, 9))
-    print(f'\rEpoch [{epoch + 1} / {num_epochs}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
+    print(f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
     scheduler.step(smoothed_loss)
     steps_loss = []
     epoch_loss = []
