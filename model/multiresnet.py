@@ -23,8 +23,8 @@ class Conv2d_batchnorm(torch.nn.Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'reflect',
-			bias=False
+			padding_mode = 'replicate',
+			# bias=False
 			)
 		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
 		self.act = torch.nn.SELU()
@@ -74,7 +74,7 @@ class Multiresblock(torch.nn.Module):
 	
 	'''
 
-	def __init__(self, num_in_channels, num_filters, alpha=1.69):
+	def __init__(self, num_in_channels, num_filters, alpha=1.67):
 	
 		super().__init__()
 		self.alpha = alpha
@@ -179,7 +179,7 @@ class MultiResUnet(torch.nn.Module):
 	Returns:
 		[keras model] -- MultiResUNet model
 	'''
-	def __init__(self, input_channels, num_classes, alpha=1.69):
+	def __init__(self, input_channels, num_classes, alpha=1.67):
 		super().__init__()
 		
 		self.alpha = alpha
