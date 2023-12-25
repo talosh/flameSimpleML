@@ -83,7 +83,7 @@ class Multiresblock(torch.nn.Module):
 		filt_cnt_3x3 = int(self.W*0.167)
 		filt_cnt_5x5 = int(self.W*0.333)
 		filt_cnt_7x7 = int(self.W*0.5)
-		filt_cnt_9x9 = int(self.W)
+		filt_cnt_9x9 = int(self.W*0.69)
 		num_out_filters = filt_cnt_3x3 + filt_cnt_5x5 + filt_cnt_7x7 + filt_cnt_9x9
 		
 		self.shortcut = Conv2d_batchnorm(num_in_channels ,num_out_filters , kernel_size = (1,1), activation='None')
@@ -190,51 +190,51 @@ class MultiResUnet(torch.nn.Module):
 		
 		# Encoder Path
 		self.multiresblock1 = Multiresblock(input_channels,32)
-		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)+int(32*self.alpha)
+		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha*0.5)+int(32*self.alpha*0.69)
 		self.pool1 =  torch.nn.MaxPool2d(2)
 		self.respath1 = Respath(self.in_filters1,32,respath_length=4)
 
 		self.multiresblock2 = Multiresblock(self.in_filters1,32*2)
-		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)+int(32*2*self.alpha)
+		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)+int(32*2*self.alpha*0.69)
 		self.pool2 =  torch.nn.MaxPool2d(2)
 		self.respath2 = Respath(self.in_filters2,32*2,respath_length=3)
 	
 	
 		self.multiresblock3 =  Multiresblock(self.in_filters2,32*4)
-		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)+int(32*4*self.alpha)
+		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)+int(32*4*self.alpha*0.69)
 		self.pool3 =  torch.nn.MaxPool2d(2)
 		self.respath3 = Respath(self.in_filters3,32*4,respath_length=2)
 	
 	
 		self.multiresblock4 = Multiresblock(self.in_filters3,32*8)
-		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)+int(32*8*self.alpha)
+		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)+int(32*8*self.alpha*0.69)
 		self.pool4 =  torch.nn.MaxPool2d(2)
 		self.respath4 = Respath(self.in_filters4,32*8,respath_length=1)
 	
 	
 		self.multiresblock5 = Multiresblock(self.in_filters4,32*16)
-		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)+int(32*16*self.alpha)
+		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)+int(32*16*self.alpha*0.69)
 	 
 		# Decoder path
 		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
 		self.concat_filters1 = 32*8*2
 		self.multiresblock6 = Multiresblock(self.concat_filters1,32*8)
-		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)+int(32*8*self.alpha)
+		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)+int(32*8*self.alpha*0.69)
 
 		self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
 		self.concat_filters2 = 32*4*2
 		self.multiresblock7 = Multiresblock(self.concat_filters2,32*4)
-		self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)+int(32*4*self.alpha)
+		self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)+int(32*4*self.alpha*0.69)
 	
 		self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
 		self.concat_filters3 = 32*2 *2
 		self.multiresblock8 = Multiresblock(self.concat_filters3,32*2)
-		self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)+int(32*2*self.alpha)
+		self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)+int(32*2*self.alpha*0.69)
 	
 		self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
 		self.concat_filters4 = 32 *2
 		self.multiresblock9 = Multiresblock(self.concat_filters4,32)
-		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)+int(32*self.alpha)
+		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)+int(32*self.alpha*0.69)
 
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation='None')
 
