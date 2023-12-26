@@ -158,6 +158,9 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         before = librosa.stft(source_audio_segments[batch_idx], center=False)
         after = librosa.stft(target_audio_segments[batch_idx], center=False)
+
+        print (f'before shape: {before.shape}')
+
         before = torch.from_numpy(before).float() / 255.
         after = torch.from_numpy(after).float() / 255.
         
