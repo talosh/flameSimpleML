@@ -60,7 +60,7 @@ source_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC_Cam.wav'
 target_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC.wav'
 
 segment_duration = 1.0  # seconds
-stride = 0.1  # seconds
+stride = 0.05  # seconds
 
 source_audio_segments, sr = fetch_segments(source_file_path, segment_duration, stride)
 target_audio_segments, sr = fetch_segments(target_file_path, segment_duration, stride)
