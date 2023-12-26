@@ -236,6 +236,8 @@ class MultiResUnet(torch.nn.Module):
 
 	def forward(self, x : torch.Tensor)->torch.Tensor:
 
+		print (x.shape)
+
 		x_multires1 = self.multiresblock1(x)
 		x_pool1 = self.pool1(x_multires1)
 		x_multires1 = self.respath1(x_multires1)
