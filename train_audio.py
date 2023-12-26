@@ -158,6 +158,9 @@ def read_samples(read_samples_queue, source_audio_segments, target_audio_segment
             before = np.stack((np.abs(before), np.angle(before)), axis=0)
             after= np.stack((np.abs(after), np.angle(after)), axis=0)
 
+            before = torch.from_numpy(before).float()
+            after = torch.from_numpy(after).float()
+
             # print (f'before shape: {before.shape}')
 
             read_samples_queue.put([before, after])
@@ -176,8 +179,6 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         before, after = read_samples_queue.get()
 
-        before = torch.from_numpy(before).float()
-        after = torch.from_numpy(after).float()
         
         # if batch_idx < saved_batch_idx:
         #    continue
