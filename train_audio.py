@@ -226,6 +226,9 @@ while epoch < num_epochs + 1:
         
         if step % 40 == 1:
             sample_before = before[0].clone().cpu().detach().numpy()
+            sample_before_real_part = sample_before[0]
+            sample_before_imaginary_part = sample_before[1]
+
             print (sample_before.shape)
             '''
             [:, 1:-1]
