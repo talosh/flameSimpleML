@@ -60,7 +60,7 @@ source_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC_Cam.wav'
 target_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC.wav'
 
 segment_duration = 1.0  # seconds
-stride = 0.5  # seconds
+stride = 0.1  # seconds
 
 source_audio_segments, sr = fetch_segments(source_file_path, segment_duration, stride)
 target_audio_segments, sr = fetch_segments(target_file_path, segment_duration, stride)
@@ -68,7 +68,7 @@ target_audio_segments, sr = fetch_segments(target_file_path, segment_duration, s
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 4e-3
+lr = 4e-5
 batch_size = 1
 
 steps_per_epoch = len(source_audio_segments)
