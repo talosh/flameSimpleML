@@ -239,13 +239,12 @@ while epoch < num_epochs + 1:
             output_audio_after = librosa.istft(sample_after, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/02_after.wav', output_audio_after, sr)
 
-            '''
             sample_current = output[0].clone().cpu().detach().numpy()
-            
-            
-            output_audio_current = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
+            sample_current_real_part = sample_current[0]
+            sample_current_imaginary_part = sample_current[1]
+            sample_current = sample_current_real_part + 1j * sample_current_imaginary_part            
+            output_audio_current = librosa.istft(sample_current, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/03_output.wav', output_audio_current, sr)
-            '''
             
         '''
         sample_before = before[0].to('cpu', non_blocking = True).detach().numpy().transpose(1, 2, 0)
