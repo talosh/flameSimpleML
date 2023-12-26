@@ -36,8 +36,8 @@ for i, segment in enumerate(audio_segments):
     # model
 
     # output_spectrogram = librosa.db_to_amplitude(seg_spectrogram_db)
-    output_audio = librosa.istft(seg_spectrogram)
-    processed_audio_segments.append(output_audio, center=False)
+    output_audio = librosa.istft(seg_spectrogram, center=False)
+    processed_audio_segments.append(output_audio)
 
 concatenated_audio = np.concatenate(processed_audio_segments)
 output_path = '/mnt/StorageMedia/dataset_audio/Test.wav'
