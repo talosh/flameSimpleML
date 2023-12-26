@@ -161,8 +161,8 @@ while epoch < num_epochs + 1:
         before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
         after = np.pad(after, ((0, 0), (1, 1)), mode='constant', constant_values=0)
 
-        before = np.stack((np.real(before), np.imag(before)), axis=0)
-        after= np.stack((np.real(after), np.imag(after)), axis=0)
+        before = np.stack((np.abs(before), np.angle(before)), axis=0)
+        after= np.stack((np.abs(after), np.angle(after)), axis=0)
 
         # print (f'before shape: {before.shape}')
 
@@ -226,16 +226,16 @@ while epoch < num_epochs + 1:
         
         if step % 40 == 1:
             sample_before = before[0].clone().cpu().detach().numpy()[:, 1:-1]
-            sample_before_real_part = sample_before[0]
-            sample_before_imaginary_part = sample_before[1]
-            sample_before = sample_before_real_part + 1j * sample_before_imaginary_part
+            sample_before_mag = sample_before[0]
+            sample_before_phase = sample_before[1]
+            sample_before = sample_before_mag * np.exp (1j * sample_before_phase)
             output_audio_before = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/01_before.wav', output_audio_before, sr)
 
             sample_after = after[0].clone().cpu().detach().numpy()[:, 1:-1]
-            sample_after_real_part = sample_after[0]
-            sample_after_imaginary_part = sample_after[1]
-            sample_after = sample_after_real_part + 1j * sample_after_imaginary_part
+            sample_after_mag = sample_after[0]
+            sample_after_phase = sample_after[1]
+            sample_after = sample_after_mag * np.exp(1j * sample_after_phase)
             output_audio_after = librosa.istft(sample_after, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/02_after.wav', output_audio_after, sr)
 
