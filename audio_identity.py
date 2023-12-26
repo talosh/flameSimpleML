@@ -32,13 +32,21 @@ processed_audio_segments = []
 for i, segment in enumerate(audio_segments):
     seg_spectrogram = librosa.stft(segment, n_fft=2047, hop_length=45,center=False)
 
+    seg_real = np.real(seg_spectrogram)
+    seg_imag = np.imag(stft_matrix)
+    two_channel_stft = np.stack((seg_real, seg_imag), axis=-1)
+
+    real_part = two_channel_stft[:, :, 0]
+    imaginary_part = two_channel_stft[:, :, 1]
+
+    stft_matrix_recombined = real_part + 1j * imaginary_part
     # print (f'max: {np.max(seg_spectrogram)}, min: {np.min(seg_spectrogram)}')
     # seg_spectrogram_db = librosa.amplitude_to_db(abs(seg_spectrogram))
 
     # model
 
     # output_spectrogram = librosa.db_to_amplitude(seg_spectrogram_db)
-    output_audio = librosa.istft(seg_spectrogram, n_fft=2047, hop_length=45, center=False)
+    output_audio = librosa.istft(stft_matrix_recombined, n_fft=2047, hop_length=45, center=False)
     processed_audio_segments.append(output_audio)
 
 concatenated_audio = np.concatenate(processed_audio_segments)
