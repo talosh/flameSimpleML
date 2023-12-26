@@ -265,7 +265,7 @@ while epoch < num_epochs + 1:
         train_time = time.time() - time_stamp
         time_stamp = time.time()
         
-        if step % 40 == 1:
+        if step % 99 == 1:
             sample_before = before[0].clone().cpu().detach().numpy()[:, :-6]
             # sample_before_mag = sample_before[0]
             # sample_before_mag = ((sample_before_mag + 1) / 2) * 255
