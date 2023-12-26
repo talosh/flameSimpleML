@@ -32,7 +32,7 @@ processed_audio_segments = []
 for i, segment in enumerate(audio_segments):
     seg_spectrogram = librosa.stft(segment, n_fft=2047, hop_length=512,center=False)
 
-    print (f'shape: {seg_spectrogram.shape}')
+    # print (f'shape: {seg_spectrogram.shape}')
 
     seg_mag = np.abs(seg_spectrogram)
     seg_phase = np.angle(seg_spectrogram)
@@ -49,7 +49,7 @@ for i, segment in enumerate(audio_segments):
     
     # print (f'MAG: max: {np.max(mag)}, min: {np.min(mag)}, PHASE: max: {np.max(phase)}, min: {np.min(phase)}')
     
-    # seg_spectrogram_db = librosa.amplitude_to_db(abs(seg_spectrogram))
+    seg_spectrogram_db = librosa.amplitude_to_db(abs(seg_spectrogram))
 
     # model
 
