@@ -34,7 +34,7 @@ for i, segment in enumerate(audio_segments):
 
     seg_mag = np.abs(seg_spectrogram)
     seg_phase = np.angle(seg_spectrogram)
-    two_channel_stft = np.stack((seg_real, seg_imag), axis=0)
+    two_channel_stft = np.stack((seg_mag, seg_phase), axis=0)
 
     mag = two_channel_stft[0]
     phase = two_channel_stft[1]
