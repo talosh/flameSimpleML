@@ -28,7 +28,7 @@ import soundfile as sf
 
 # torch.cuda.set_device(1)
 device = torch.device('cuda:0')
-read_samples_queue = queue.Queue(maxsize=8)
+read_samples_queue = queue.Queue(maxsize=16)
 save_img_queue = queue.Queue(maxsize=8)
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
