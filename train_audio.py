@@ -173,8 +173,8 @@ while epoch < num_epochs + 1:
 
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
-        before = before.unsqueeze(0)
-        after = after.unsqueeze(0)
+        before = before.unsqueeze(0).unsqueeze(0)
+        after = after.unsqueeze(0).unsqueeze(0)
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
@@ -221,9 +221,9 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         
         if step % 40 == 1:
-            sample_before = before[0].clone().cpu().detach().numpy()
-            sample_after = after[0].clone().cpu().detach().numpy()
-            sample_current = output[0].clone().cpu().detach().numpy()
+            sample_before = before[0][0].clone().cpu().detach().numpy()
+            sample_after = after[0][0].clone().cpu().detach().numpy()
+            sample_current = output[0][0].clone().cpu().detach().numpy()
             output_audio_before = librosa.istft(sample_before, center=False)
             output_audio_after = librosa.istft(sample_before, center=False)
             output_audio_current = librosa.istft(sample_before, center=False)
