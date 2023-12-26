@@ -32,7 +32,7 @@ processed_audio_segments = []
 for i, segment in enumerate(audio_segments):
     seg_spectrogram = librosa.stft(segment, n_fft=2047, hop_length=45,center=False)
 
-    print (f'max: {np.max(seg_spectrogram)}, min: {np.min(seg_spectrogram)}')
+    # print (f'max: {np.max(seg_spectrogram)}, min: {np.min(seg_spectrogram)}')
     # seg_spectrogram_db = librosa.amplitude_to_db(abs(seg_spectrogram))
 
     # model
