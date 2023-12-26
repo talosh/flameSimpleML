@@ -159,8 +159,8 @@ def read_samples(read_samples_queue, source_audio_segments, target_audio_segment
             # before = np.stack(((np.abs(before) / 255) * 2 - 1, np.angle(before) / math.pi), axis=0)
             # after= np.stack(((np.abs(after) / 255) * 2 - 1, np.angle(after) / math.pi), axis=0)
             
-            before = np.stack((np.abs(before), np.angle(before)), axis=0)
-            after= np.stack((np.abs(after), np.angle(after)), axis=0)
+            before = np.stack((librosa.amplitude_to_db(np.abs(before)), np.angle(before)), axis=0)
+            after= np.stack((librosa.amplitude_to_db(np.abs(after)), np.angle(after)), axis=0)
 
             '''
             before = np.stack((np.real(before), np.imag(before)), axis=0)
@@ -271,7 +271,7 @@ while epoch < num_epochs + 1:
         
         if step % 40 == 1:
             sample_before = before[0].clone().cpu().detach().numpy()[:, 1:-1]
-            sample_before_mag = sample_before[0]
+            sample_before_mag = librosa.db_to_amplitude(sample_before[0])
             # sample_before_mag = ((sample_before_mag + 1) / 2) * 255
             sample_before_phase = sample_before[1] # * math.pi
             sample_before = sample_before_mag * np.exp(1j * sample_before_phase)
@@ -280,7 +280,7 @@ while epoch < num_epochs + 1:
             sf.write('test_audio2/01_before.wav', output_audio_before, sr)
 
             sample_after = after[0].clone().cpu().detach().numpy()[:, 1:-1]
-            sample_after_mag = sample_after[0]
+            sample_after_mag = librosa.db_to_amplitude(sample_after[0])
             # sample_after_mag = ((sample_after_mag + 1) / 2) * 255
             sample_after_phase = sample_after[1] # * math.pi
             sample_after = sample_after_mag * np.exp(1j * sample_after_phase)
@@ -289,7 +289,7 @@ while epoch < num_epochs + 1:
             sf.write('test_audio2/02_after.wav', output_audio_after, sr)
 
             sample_current = output[0].clone().cpu().detach().numpy()
-            sample_current_mag = sample_current[0]
+            sample_current_mag = librosa.db_to_amplitude(sample_current[0])
             # sample_current_mag = ((sample_current_mag + 1) / 2) * 255
             sample_current_phase = sample_current[1] # * math.pi
             sample_current = sample_current_mag * np.exp(1j * sample_current_phase)
