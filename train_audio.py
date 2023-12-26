@@ -87,7 +87,7 @@ def get_learning_rate(step):
 # model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
-model = MultiResUnet(1, 1).to(device)
+model = MultiResUnet(2, 2).to(device)
 # model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
 
 criterion_mse = nn.MSELoss()
@@ -161,12 +161,14 @@ while epoch < num_epochs + 1:
         before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
         after = np.pad(after, ((0, 0), (1, 1)), mode='constant', constant_values=0)
 
+        before = np.stack((np.real(before), np.imag(before)), axis=-1)
+        after= np.stack((np.real(after), np.imag(after)), axis=-1)
+
         print (f'before shape: {before.shape}')
 
-        before = torch.from_numpy(before).float() / 255.
-        after = torch.from_numpy(after).float() / 255.
+        before = torch.from_numpy(before).float()
+        after = torch.from_numpy(after).float()
         
-
         # if batch_idx < saved_batch_idx:
         #    continue
         # saved_batch_idx = 0
@@ -175,8 +177,8 @@ while epoch < num_epochs + 1:
 
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
-        before = before.unsqueeze(0).unsqueeze(0)
-        after = after.unsqueeze(0).unsqueeze(0)
+        before = before.unsqueeze(0)
+        after = after.unsqueeze(0)
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
@@ -222,16 +224,19 @@ while epoch < num_epochs + 1:
         train_time = time.time() - time_stamp
         time_stamp = time.time()
         
+        '''
         if step % 40 == 1:
-            sample_before = before[0][0].clone().cpu().detach().numpy()[:, 1:-1]
-            sample_after = after[0][0].clone().cpu().detach().numpy()[:, 1:-1]
-            sample_current = output[0][0].clone().cpu().detach().numpy()[:, 1:-1]
+            sample_before = before[0].clone().cpu().detach().numpy()
+            [:, 1:-1]
+            sample_after = after[0].clone().cpu().detach().numpy()
+            sample_current = output[0].clone().cpu().detach().numpy()
             output_audio_before = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
             output_audio_after = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
             output_audio_current = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/01_before.wav', output_audio_before, sr)
             sf.write('test_audio/02_after.wav', output_audio_after, sr)
             sf.write('test_audio/03_output.wav', output_audio_current, sr)
+        '''
             
         '''
         sample_before = before[0].to('cpu', non_blocking = True).detach().numpy().transpose(1, 2, 0)
