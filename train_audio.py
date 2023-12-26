@@ -28,7 +28,7 @@ import soundfile as sf
 
 # torch.cuda.set_device(1)
 device = torch.device('cuda:0')
-read_image_queue = queue.Queue(maxsize=8)
+read_samples_queue = queue.Queue(maxsize=8)
 save_img_queue = queue.Queue(maxsize=8)
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
@@ -147,6 +147,24 @@ try:
 except Exception as e:
     print (f'unable to load step and epoch loss statistics: {e}')
 
+def read_samples(read_samples_queue, source_audio_segments, target_audio_segments):
+    while True:
+        for batch_idx in range(len(dataset)):
+            before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
+            after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
+            before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+            after = np.pad(after, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+
+            before = np.stack((np.abs(before), np.angle(before)), axis=0)
+            after= np.stack((np.abs(after), np.angle(after)), axis=0)
+
+            # print (f'before shape: {before.shape}')
+
+            read_samples_queue.put([before, after])
+
+read_thread = threading.Thread(target=read_samples, args=(read_samples_queue, source_audio_segments, target_audio_segments))
+read_thread.daemon = True
+read_thread.start()
 
 time_stamp = time.time()
 
@@ -156,6 +174,23 @@ while epoch < num_epochs + 1:
 
     for batch_idx in range(len(source_audio_segments)):
         time_stamp = time.time()
+        before, after = read_samples_queue.get()
+
+        before = torch.from_numpy(before).float()
+        after = torch.from_numpy(after).float()
+        
+        # if batch_idx < saved_batch_idx:
+        #    continue
+        # saved_batch_idx = 0
+
+        # before, after = dataset[batch_idx]
+
+        before = before.to(device, non_blocking = True)
+        after = after.to(device, non_blocking = True)
+        before = before.unsqueeze(0)
+        after = after.unsqueeze(0)
+
+        '''
         before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
         after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
         before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
@@ -179,6 +214,7 @@ while epoch < num_epochs + 1:
         after = after.to(device, non_blocking = True)
         before = before.unsqueeze(0)
         after = after.unsqueeze(0)
+        '''
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
