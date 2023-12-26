@@ -68,7 +68,7 @@ target_audio_segments, sr = fetch_segments(target_file_path, segment_duration, s
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 4e-5
+lr = 4e-4
 batch_size = 1
 
 steps_per_epoch = len(source_audio_segments)
