@@ -31,7 +31,7 @@ processed_audio_segments = []
 
 for i, segment in enumerate(audio_segments):
     seg_spectrogram = librosa.stft(segment, center=False)
-    seg_spectrogram_db = librosa.amplitude_to_db(abs(seg_spectrogram))
+    seg_spectrogram_db = librosa.amplitude_to_db((seg_spectrogram))
 
     # model
 
