@@ -34,18 +34,17 @@ for i, segment in enumerate(audio_segments):
 
     # print (f'shape: {seg_spectrogram.shape}')
 
-    seg_mag = np.abs(seg_spectrogram)
+    seg_mag_db = librosa.amplitude_to_db(np.abs(seg_spectrogram)) / 10
     seg_phase = np.angle(seg_spectrogram)
-    two_channel_stft = np.stack((seg_mag, seg_phase), axis=0)
+    two_channel_stft = np.stack((seg_mag_db, seg_phase), axis=0)
 
-    mag = two_channel_stft[0]
+    mag_db = two_channel_stft[0]
     phase = two_channel_stft[1]
 
-    mag_db = librosa.amplitude_to_db(mag) / 10
 
-    mag_new = librosa.db_to_amplitude(mag_db * 10)
+    mag = librosa.db_to_amplitude(mag_db * 10)
 
-    stft_matrix_recombined = mag_new * np.exp(1j * phase)
+    stft_matrix_recombined = mag * np.exp(1j * phase)
     
     print (f'MAG: max: {np.max(mag_db)}, min: {np.min(mag_db)}, PHASE: max: {np.max(phase)}, min: {np.min(phase)}')
     
