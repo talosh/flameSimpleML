@@ -28,7 +28,7 @@ import soundfile as sf
 
 # torch.cuda.set_device(1)
 device = torch.device('cuda:0')
-read_samples_queue = queue.Queue(maxsize=16)
+read_samples_queue = queue.Queue(maxsize=4)
 save_img_queue = queue.Queue(maxsize=8)
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
@@ -161,6 +161,11 @@ def read_samples(read_samples_queue, source_audio_segments, target_audio_segment
             before = torch.from_numpy(before).float()
             after = torch.from_numpy(after).float()
 
+            before = before.to(device, non_blocking = True)
+            after = after.to(device, non_blocking = True)
+            before = before.unsqueeze(0)
+            after = after.unsqueeze(0)
+
             # print (f'before shape: {before.shape}')
 
             read_samples_queue.put([before, after])
@@ -185,11 +190,6 @@ while epoch < num_epochs + 1:
         # saved_batch_idx = 0
 
         # before, after = dataset[batch_idx]
-
-        before = before.to(device, non_blocking = True)
-        after = after.to(device, non_blocking = True)
-        before = before.unsqueeze(0)
-        after = after.unsqueeze(0)
 
         '''
         before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
