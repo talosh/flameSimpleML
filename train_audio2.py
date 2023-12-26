@@ -159,8 +159,8 @@ def read_samples(read_samples_queue, source_audio_segments, target_audio_segment
             # before = np.stack(((np.abs(before) / 255) * 2 - 1, np.angle(before) / math.pi), axis=0)
             # after= np.stack(((np.abs(after) / 255) * 2 - 1, np.angle(after) / math.pi), axis=0)
             
-            before_amp = librosa.amplitude_to_db(np.abs(before))
-            after_amp = librosa.amplitude_to_db(np.abs(after))
+            before_amp = librosa.amplitude_to_db(np.abs(before)) / 2.
+            after_amp = librosa.amplitude_to_db(np.abs(after)) / 2.
 
             before = np.stack((before_amp, np.angle(before)), axis=0)
             after= np.stack((after_amp, np.angle(after)), axis=0)
