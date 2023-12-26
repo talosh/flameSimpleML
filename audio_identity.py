@@ -33,7 +33,7 @@ for i, segment in enumerate(audio_segments):
     seg_spectrogram = librosa.stft(segment, n_fft=2047, hop_length=45,center=False)
 
     seg_real = np.real(seg_spectrogram)
-    seg_imag = np.imag(stft_matrix)
+    seg_imag = np.imag(seg_spectrogram)
     two_channel_stft = np.stack((seg_real, seg_imag), axis=-1)
 
     real_part = two_channel_stft[:, :, 0]
