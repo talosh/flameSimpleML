@@ -56,8 +56,8 @@ def fetch_segments(file_path, segment_duration, stride):
 
     return segments, sr
 
-source_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC.wav'
-target_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC_Cam.wav'
+source_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC_Cam.wav'
+target_file_path = '/mnt/StorageMedia/dataset_audio/PaddySYNC.wav'
 
 segment_duration = 1.0  # seconds
 stride = 0.5  # seconds
