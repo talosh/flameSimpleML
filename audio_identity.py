@@ -47,7 +47,7 @@ for i, segment in enumerate(audio_segments):
 
     stft_matrix_recombined = mag_new * np.exp(1j * phase)
     
-    print (f'MAG: max: {np.max(mag)}, min: {np.min(mag)}, PHASE: max: {np.max(phase)}, min: {np.min(phase)}')
+    print (f'MAG: max: {np.max(mag_db)}, min: {np.min(mag_db)}, PHASE: max: {np.max(phase)}, min: {np.min(phase)}')
     
     seg_spectrogram_db = librosa.amplitude_to_db(abs(seg_spectrogram))
 
