@@ -30,7 +30,9 @@ audio_segments, sr = fetch_segments(file_path, segment_duration, stride)
 processed_audio_segments = []
 
 for i, segment in enumerate(audio_segments):
-    seg_spectrogram = librosa.stft(segment, n_fft=2047, hop_length=45,center=False)
+    seg_spectrogram = librosa.stft(segment, n_fft=2047, hop_length=512,center=False)
+
+    print (f'shape: {seg_spectrogram.shape}')
 
     seg_mag = np.abs(seg_spectrogram)
     seg_phase = np.angle(seg_spectrogram)
@@ -52,7 +54,7 @@ for i, segment in enumerate(audio_segments):
     # model
 
     # output_spectrogram = librosa.db_to_amplitude(seg_spectrogram_db)
-    output_audio = librosa.istft(stft_matrix_recombined, n_fft=2047, hop_length=45, center=False)
+    output_audio = librosa.istft(stft_matrix_recombined, n_fft=2047, hop_length=512, center=False)
     processed_audio_segments.append(output_audio)
 
 concatenated_audio = np.concatenate(processed_audio_segments)
