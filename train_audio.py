@@ -236,7 +236,7 @@ while epoch < num_epochs + 1:
             sample_after_real_part = sample_after[0]
             sample_after_imaginary_part = sample_after[1]
             sample_after = sample_after_real_part + 1j * sample_after_imaginary_part
-            output_audio_after = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
+            output_audio_after = librosa.istft(sample_after, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/02_after.wav', output_audio_after, sr)
 
             '''
