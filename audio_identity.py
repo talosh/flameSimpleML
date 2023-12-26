@@ -41,9 +41,9 @@ for i, segment in enumerate(audio_segments):
     mag = two_channel_stft[0]
     phase = two_channel_stft[1]
 
-    mag_db = librosa.amplitude_to_db(mag)
+    mag_db = librosa.amplitude_to_db(mag) / 10
 
-    mag_new = librosa.db_to_amplitude(mag_db)
+    mag_new = librosa.db_to_amplitude(mag_db * 10)
 
     stft_matrix_recombined = mag_new * np.exp(1j * phase)
     
