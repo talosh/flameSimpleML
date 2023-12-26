@@ -156,8 +156,8 @@ while epoch < num_epochs + 1:
 
     for batch_idx in range(len(source_audio_segments)):
         time_stamp = time.time()
-        before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, center=False)
-        after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, center=False)
+        before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=1024, center=False)
+        after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=1024, center=False)
 
         print (f'before shape: {before.shape}')
 
