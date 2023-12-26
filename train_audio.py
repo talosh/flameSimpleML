@@ -164,7 +164,7 @@ while epoch < num_epochs + 1:
         before = np.stack((np.real(before), np.imag(before)), axis=0)
         after= np.stack((np.real(after), np.imag(after)), axis=0)
 
-        print (f'before shape: {before.shape}')
+        # print (f'before shape: {before.shape}')
 
         before = torch.from_numpy(before).float()
         after = torch.from_numpy(after).float()
@@ -224,9 +224,10 @@ while epoch < num_epochs + 1:
         train_time = time.time() - time_stamp
         time_stamp = time.time()
         
-        '''
         if step % 40 == 1:
             sample_before = before[0].clone().cpu().detach().numpy()
+            print (sample_before.shape)
+            '''
             [:, 1:-1]
             sample_after = after[0].clone().cpu().detach().numpy()
             sample_current = output[0].clone().cpu().detach().numpy()
@@ -236,7 +237,7 @@ while epoch < num_epochs + 1:
             sf.write('test_audio/01_before.wav', output_audio_before, sr)
             sf.write('test_audio/02_after.wav', output_audio_after, sr)
             sf.write('test_audio/03_output.wav', output_audio_current, sr)
-        '''
+            '''
             
         '''
         sample_before = before[0].to('cpu', non_blocking = True).detach().numpy().transpose(1, 2, 0)
