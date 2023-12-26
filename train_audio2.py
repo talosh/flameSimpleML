@@ -150,10 +150,10 @@ except Exception as e:
 def read_samples(read_samples_queue, source_audio_segments, target_audio_segments):
     while True:
         for batch_idx in range(len(source_audio_segments)):
-            before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
-            after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
-            before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
-            after = np.pad(after, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+            before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=512, center=False)
+            after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=512, center=False)
+            before = np.pad(before, ((0, 0), (0, 6)), mode='constant', constant_values=0)
+            after = np.pad(after, ((0, 0), (0, 6)), mode='constant', constant_values=0)
 
             
             # before = np.stack(((np.abs(before) / 255) * 2 - 1, np.angle(before) / math.pi), axis=0)
@@ -270,31 +270,31 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         
         if step % 40 == 1:
-            sample_before = before[0].clone().cpu().detach().numpy()[:, 1:-1]
+            sample_before = before[0].clone().cpu().detach().numpy()[:, :-6]
             sample_before_mag = librosa.db_to_amplitude(sample_before[0])
             # sample_before_mag = ((sample_before_mag + 1) / 2) * 255
             sample_before_phase = sample_before[1] # * math.pi
             sample_before = sample_before_mag * np.exp(1j * sample_before_phase)
             # sample_before = sample_before[0] + 1j * sample_before[1]
-            output_audio_before = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
+            output_audio_before = librosa.istft(sample_before, n_fft=2047, hop_length=512, center=False)
             sf.write('test_audio2/01_before.wav', output_audio_before, sr)
 
-            sample_after = after[0].clone().cpu().detach().numpy()[:, 1:-1]
+            sample_after = after[0].clone().cpu().detach().numpy()[:, :-6]
             sample_after_mag = librosa.db_to_amplitude(sample_after[0])
             # sample_after_mag = ((sample_after_mag + 1) / 2) * 255
             sample_after_phase = sample_after[1] # * math.pi
             sample_after = sample_after_mag * np.exp(1j * sample_after_phase)
             # sample_after = sample_after[0] + 1j * sample_after[1]
-            output_audio_after = librosa.istft(sample_after, n_fft=2047, hop_length=45, center=False)
+            output_audio_after = librosa.istft(sample_after, n_fft=2047, hop_length=512, center=False)
             sf.write('test_audio2/02_after.wav', output_audio_after, sr)
 
-            sample_current = output[0].clone().cpu().detach().numpy()
+            sample_current = output[0].clone().cpu().detach().numpy()[:, :-6]
             sample_current_mag = librosa.db_to_amplitude(sample_current[0])
             # sample_current_mag = ((sample_current_mag + 1) / 2) * 255
             sample_current_phase = sample_current[1] # * math.pi
             sample_current = sample_current_mag * np.exp(1j * sample_current_phase)
             # sample_current = sample_current[0] + 1j * sample_current[1]
-            output_audio_current = librosa.istft(sample_current, n_fft=2047, hop_length=45, center=False)
+            output_audio_current = librosa.istft(sample_current, n_fft=2047, hop_length=512, center=False)
             sf.write('test_audio2/03_output.wav', output_audio_current, sr)
             
         '''
