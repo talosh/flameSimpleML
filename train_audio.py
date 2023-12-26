@@ -161,8 +161,8 @@ while epoch < num_epochs + 1:
         before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
         after = np.pad(after, ((0, 0), (1, 1)), mode='constant', constant_values=0)
 
-        before = np.stack((np.real(before), np.imag(before)), axis=-1)
-        after= np.stack((np.real(after), np.imag(after)), axis=-1)
+        before = np.stack((np.real(before), np.imag(before)), axis=0)
+        after= np.stack((np.real(after), np.imag(after)), axis=0)
 
         print (f'before shape: {before.shape}')
 
