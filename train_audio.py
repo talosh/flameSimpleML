@@ -225,19 +225,19 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         
         if step % 40 == 1:
-            sample_before = before[0].clone().cpu().detach().numpy()
+            sample_before = before[0].clone().cpu().detach().numpy()[:, 1:-1]
             sample_before_real_part = sample_before[0]
             sample_before_imaginary_part = sample_before[1]
+            sample_before = sample_before_real_part + 1j * sample_before_imaginary_part
+            output_audio_before = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
+            sf.write('test_audio/01_before.wav', output_audio_before, sr)
 
-            print (sample_before.shape)
             '''
-            [:, 1:-1]
             sample_after = after[0].clone().cpu().detach().numpy()
             sample_current = output[0].clone().cpu().detach().numpy()
-            output_audio_before = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
+            
             output_audio_after = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
             output_audio_current = librosa.istft(sample_before, n_fft=2047, hop_length=45, center=False)
-            sf.write('test_audio/01_before.wav', output_audio_before, sr)
             sf.write('test_audio/02_after.wav', output_audio_after, sr)
             sf.write('test_audio/03_output.wav', output_audio_current, sr)
             '''
