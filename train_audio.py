@@ -281,7 +281,7 @@ while epoch < num_epochs + 1:
             sample_current_mag = sample_current[0]
             sample_current_mag = ((sample_current_mag + 1) / 2) * 255
             sample_current_phase = sample_current[1] * math.pi
-            sample_current = sample_current_mag * (1j * sample_current_phase)            
+            sample_current = sample_current_mag * np.exp(1j * sample_current_phase)            
             output_audio_current = librosa.istft(sample_current, n_fft=2047, hop_length=45, center=False)
             sf.write('test_audio/03_output.wav', output_audio_current, sr)
             
