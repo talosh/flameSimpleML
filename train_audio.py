@@ -158,6 +158,8 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
         before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
         after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
+        before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+        after = np.pad(after, ((0, 0), (1, 1)), mode='constant', constant_values=0)
 
         print (f'before shape: {before.shape}')
 
