@@ -149,7 +149,7 @@ except Exception as e:
 
 def read_samples(read_samples_queue, source_audio_segments, target_audio_segments):
     while True:
-        for batch_idx in range(len(dataset)):
+        for batch_idx in range(len(source_audio_segments)):
             before = librosa.stft(source_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
             after = librosa.stft(target_audio_segments[batch_idx], n_fft=2047, hop_length=45, center=False)
             before = np.pad(before, ((0, 0), (1, 1)), mode='constant', constant_values=0)
