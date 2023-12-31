@@ -929,10 +929,21 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.clips_parent = self.selection[0].parent
         duration = self.selection[0].duration.frame
         relative_start_frame = self.selection[0].start_time.get_value().relative_frame
-        # relative_end_frame = self.selection[0].start_time.get_value().relative_frame
 
-        print (f'dur: {duration}, rel st frame: {relative_start_frame}')
-        pprint ((self.selection[0].attributes))
+        self.min_frame = relative_start_frame
+        self.max_frame = relative_start_frame + duration - 1
+        self.message_queue.put(
+            {'type': 'setText',
+            'widget': 'cur_frame_label',
+            'text': str(self.min_frame)}
+        )
+        self.message_queue.put(
+            {'type': 'setText',
+            'widget': 'end_frame_label',
+            'text': str(self.max_frame)}
+        )
+
+
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
