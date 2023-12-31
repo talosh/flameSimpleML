@@ -1264,6 +1264,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import flame
 
         if model_number == 99: # load model code
+            self.hide()
             flame.browser.show(
                 title = "Select Model",
                 extension = "pth",
@@ -1271,6 +1272,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 multi_selection = False)
 
             print (f'Browser selection: {flame.browser.selection}')
+            self.show()
 
     def process_messages(self):
         timeout = 0.0001
