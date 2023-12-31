@@ -762,6 +762,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.min_frame = 1
         self.max_frame = 99
         self.current_frame = 1
+        self.input_channels = 3
+        self.output_channels = 3
 
         # mouse position on a press event
         self.mousePressPos = None
@@ -1183,7 +1185,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             import numpy as np
 
             clip = selection[0]
-            self.destination_node_name = clip.name.get_value() + '_TWML'
+            self.destination_node_name = clip.name.get_value() + '_ML'
             destination_node_id = ''
 
             server_handle = WireTapServerHandle('localhost')
@@ -1197,10 +1199,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.bits_per_channel = bits_per_channel
             self.format_tag = fmt.formatTag()
             self.fmt = fmt
-
-            pprint (dir(fmt))
-
-            print (fmt.numChannels())
 
             return
 
