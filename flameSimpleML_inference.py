@@ -946,7 +946,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         )
 
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
-
+        self.create_temp_library(self.selection)
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
@@ -1138,6 +1138,27 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
             self.frame_thread.daemon = True
             self.frame_thread.start()
+
+    def create_temp_library(self, selection):        
+        try:
+            import flame
+
+            clip = selection[0]
+            temp_library_name = self.app_name + '_' + self.sanitized(clip.name.get_value()) + '_' + self.framework.create_timestamp_uid()
+            self.temp_library_name = temp_library_name
+            self.temp_library = flame.projects.current_project.create_shared_library(temp_library_name)
+            flame.execute_shortcut('Save Project')
+            flame.projects.current_project.refresh_shared_libraries()
+            return self.temp_library
+        
+        except Exception as e:
+            message_string = f'Unable to create temp shared library:\n"{e}"'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': self.close_application}
+            )
+            return None
 
     def process_messages(self):
         timeout = 0.0001

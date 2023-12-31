@@ -415,3 +415,11 @@ class flameAppFramework(object):
 
         result = exp.sub('_', stripped_name)
         return re.sub('_\_+', '_', result)
+
+    def create_timestamp_uid(self):
+        import uuid
+        from datetime import datetime
+        
+        uid = ((str(uuid.uuid1()).replace('-', '')).upper())
+        timestamp = (datetime.now()).strftime('%Y%b%d_%H%M').upper()
+        return timestamp + '_' + uid[:3]
