@@ -743,6 +743,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.prefs_user['version'] = self.version
         self.prefs_global['version'] = self.version
         self.framework.save_prefs()
+
+        self.model_state_dict_path = self.prefs.get('model_state_dict_path')
         
         self.message_queue = queue.Queue()
         self.frames_to_save_queue = queue.Queue(maxsize=8)
@@ -943,6 +945,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'text': str(self.max_frame)}
         )
 
+        self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
 
 
         '''
