@@ -1266,9 +1266,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if model_number == 99: # load model code
             self.hide()
             flame.browser.show(
-                title = "Select Model",
-                extension = "pth",
-                default_path = "/",
+                title = 'Select Model',
+                extension = 'pth',
+                default_path = self.prefs.get('model_state_dict_path', os.path.expanduser('~')),
                 multi_selection = False)
 
             print (f'Browser selection: {flame.browser.selection}')
