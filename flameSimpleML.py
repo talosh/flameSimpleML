@@ -1,8 +1,10 @@
 import os
 import sys
+import importlib
 from pprint import pprint
 
 from flameSimpleML_inference import flameSimpleMLInference
+importlib.reload(flameSimpleMLInference)
 
 settings = {
     'menu_group_name': 'Simple ML',
