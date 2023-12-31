@@ -961,7 +961,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
 
-        self.setup_model_menu()
+        self.fill_model_menu()
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
@@ -1245,16 +1245,23 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         return destination_node_id
 
     def fill_model_menu(self):
-        # set up flow res menu
-        flow_res_menu = QtWidgets.QMenu(self)
-        for flow_res in sorted(self.parent_app.flow_res.keys(), reverse=True):
-            code = self.parent_app.flow_res.get(flow_res, 1.0)
-            action = flow_res_menu.addAction(code)
-            x = lambda chk=False, flow_res=flow_res: self.parent_app.select_flow_res(flow_res)
-            action.triggered[()].connect(x)
-        self.ui.flow_res_selector.setMenu(flow_res_menu)
-        self.ui.flow_res_selector.setText(self.parent_app.flow_res.get(self.parent_app.flow_scale, 'Use Full Resolution'))
+        
+        model_menu_items = self.prefs.get('recent_models')
+        current_model = self.prefs.get('current_model', 99)
+        if not isinstance(model_menu_items, dict):
+            model_menu_items = {99: 'Load Model ... '}
 
+        model_menu = QtWidgets.QMenu(self)
+        for model_number in sorted(model_menu_items.keys(), reverse=True):
+            code = model_menu_items.get(model_number, 99)
+            action = model_menu.addAction(code)
+            x = lambda chk=False, model_number=model_number: self.select_model(model_number)
+            action.triggered[()].connect(x)
+        self.ui.model_selector.setMenu(model_menu)
+        self.ui.model_selector.setText(self.model_menu_items.get(current_model, 'Load Model ... '))
+
+    def select_model(self, model_number):
+        print (f'Model number: {model_number}')
 
     def process_messages(self):
         timeout = 0.0001
