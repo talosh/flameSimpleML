@@ -15,6 +15,16 @@ try:
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
 
+from adsk.libwiretapPythonClientAPI import (
+    WireTapClient,
+    WireTapServerId,
+    WireTapServerHandle,
+    WireTapNodeHandle,
+    WireTapClipFormat,
+    WireTapInt,
+    WireTapStr,
+)
+
 from pprint import pprint, pformat
 
 class flameSimpleMLInference(QtWidgets.QWidget):
@@ -947,6 +957,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
+        self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
+        self.destination_node_id = self.create_destination_node(
+            self.selection,
+            duration
+            )
+        if not self.destination_node_id:
+            return
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
@@ -1159,6 +1176,78 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': self.close_application}
             )
             return None
+
+    def create_destination_node(self, selection, num_frames):
+        try:
+            import flame
+            import numpy as np
+
+            clip = selection[0]
+            self.destination_node_name = clip.name.get_value() + '_TWML'
+            destination_node_id = ''
+
+            server_handle = WireTapServerHandle('localhost')
+            clip_node_id = clip.get_wiretap_node_id()
+            clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
+            fmt = WireTapClipFormat()
+            if not clip_node_handle.getClipFormat(fmt):
+                raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
+            
+            bits_per_channel = fmt.bitsPerPixel() // fmt.numChannels()
+            self.bits_per_channel = bits_per_channel
+            self.format_tag = fmt.formatTag()
+            self.fmt = fmt
+
+            pprint (dir(fmt))
+
+            return
+
+            self.temp_library.release_exclusive_access()
+            node_id = self.temp_library.get_wiretap_node_id()
+            parent_node_handle = WireTapNodeHandle(server_handle, node_id)
+            destination_node_handle = WireTapNodeHandle()
+
+            if not parent_node_handle.createClipNode(
+                self.destination_node_name,  # display name
+                fmt,  # clip format
+                "CLIP",  # extended (server-specific) type
+                destination_node_handle,  # created node returned here
+            ):
+                raise Exception(
+                    "Unable to create clip node: %s." % parent_node_handle.lastError()
+                )
+
+            if not destination_node_handle.setNumFrames(int(num_frames)):
+                raise Exception(
+                    "Unable to set the number of frames: %s." % clip_node_handle.lastError()
+                )
+            
+            dest_fmt = WireTapClipFormat()
+            if not destination_node_handle.getClipFormat(dest_fmt):
+                raise Exception(
+                    "Unable to obtain clip format: %s." % clip_node_handle.lastError()
+                )
+            
+            '''
+            metadata = dest_fmt.metaData()
+            metadata_tag = dest_fmt.metaDataTag()
+            metadata = metadata.replace('<ProxyFormat>default</ProxyFormat>', '<ProxyFormat>none</ProxyFormat>')
+            destination_node_handle.setMetaData(metadata_tag, metadata)
+            '''
+
+            destination_node_id = destination_node_handle.getNodeId().id()
+
+        except Exception as e:
+            self.message('Error creating destination wiretap node: %s' % e)
+            return None
+        finally:
+            server_handle = None
+            clip_node_handle = None
+            parent_node_handle = None
+            destination_node_handle = None
+
+        return destination_node_id
+
 
     def process_messages(self):
         timeout = 0.0001
