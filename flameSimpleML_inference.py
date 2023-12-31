@@ -685,7 +685,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             '''
 
             # Model selector button
-            self.model_selector = QtWidgets.QPushButton('Load Model...')
+            self.model_selector = QtWidgets.QPushButton('Load Model ...')
             self.model_selector.setContentsMargins(10, 4, 10, 4)
             self.set_selector_button_style(self.model_selector)
             bottom_layout.addWidget(self.model_selector, alignment=QtCore.Qt.AlignRight)
@@ -1258,7 +1258,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             x = lambda chk=False, model_number=model_number: self.select_model(model_number)
             action.triggered[()].connect(x)
         self.ui.model_selector.setMenu(model_menu)
-        self.ui.model_selector.setText(self.model_menu_items.get(current_model, 'Load Model ... '))
+        self.ui.model_selector.setText(model_menu_items.get(current_model, 'Load Model ... '))
 
     def select_model(self, model_number):
         print (f'Model number: {model_number}')
