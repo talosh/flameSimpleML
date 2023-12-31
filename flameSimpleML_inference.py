@@ -1200,7 +1200,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             pprint (dir(fmt))
 
-            print (fmt.numChannels)
+            print (fmt.numChannels())
 
             return
 
