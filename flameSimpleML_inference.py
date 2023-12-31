@@ -1261,7 +1261,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.model_selector.setText(model_menu_items.get(current_model, 'Load Model ... '))
 
     def select_model(self, model_number):
-        print (f'Model number: {model_number}')
+        import flame
+
+        if model_number == 99: # load model code
+            flame.browser.show(
+                title = "Select Model",
+                extension = "pth",
+                default_path = "/",
+                multi_selection = False)
+
+            print (f'Browser selection: {flame.browser.selection}')
 
     def process_messages(self):
         timeout = 0.0001
