@@ -932,6 +932,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         print (f'dur: {duration}, rel st frame: {relative_start_frame}')
         print ('huipizda')
+        print ('dhzigurda')
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
