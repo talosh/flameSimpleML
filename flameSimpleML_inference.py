@@ -1200,6 +1200,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             pprint (dir(fmt))
 
+            print (fmt.numChannels)
+
             return
 
             self.temp_library.release_exclusive_access()
