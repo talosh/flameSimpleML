@@ -416,6 +416,23 @@ class flameAppFramework(object):
         result = exp.sub('_', stripped_name)
         return re.sub('_\_+', '_', result)
 
+    def sanitized(self, text):
+        import re
+
+        if text is None:
+            return None
+        
+        text = text.strip()
+        exp = re.compile(u'[^\w\.-]', re.UNICODE)
+
+        if isinstance(text, str):
+            result = exp.sub('_', text)
+        else:
+            decoded = text.decode('utf-8')
+            result = exp.sub('_', decoded).encode('utf-8')
+
+        return re.sub('_\_+', '_', result)
+
     def create_timestamp_uid(self):
         import uuid
         from datetime import datetime

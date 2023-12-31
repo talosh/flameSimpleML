@@ -1144,7 +1144,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             import flame
 
             clip = selection[0]
-            temp_library_name = self.app_name + '_' + self.sanitized(clip.name.get_value()) + '_' + self.framework.create_timestamp_uid()
+            temp_library_name = self.app_name + '_' + self.framework.sanitized(clip.name.get_value()) + '_' + self.framework.create_timestamp_uid()
             self.temp_library_name = temp_library_name
             self.temp_library = flame.projects.current_project.create_shared_library(temp_library_name)
             flame.execute_shortcut('Save Project')
