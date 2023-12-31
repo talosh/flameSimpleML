@@ -684,14 +684,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             bottom_layout.addSpacing(4)
             '''
 
-            # flow res selector button
-            self.flow_res_selector = QtWidgets.QPushButton('Use Full Resolution')
-            self.flow_res_selector.setContentsMargins(10, 4, 10, 4)
-            self.set_selector_button_style(self.flow_res_selector)
-            bottom_layout.addWidget(self.flow_res_selector, alignment=QtCore.Qt.AlignRight)
+            # Model selector button
+            self.model_selector = QtWidgets.QPushButton('Load Model...')
+            self.model_selector.setContentsMargins(10, 4, 10, 4)
+            self.set_selector_button_style(self.model_selector)
+            bottom_layout.addWidget(self.model_selector, alignment=QtCore.Qt.AlignRight)
             bottom_layout.addSpacing(4)
 
-            # Create a new QPushButton
+            # Render button
             self.render_button = QtWidgets.QPushButton("Render")
             self.render_button.clicked.connect(Progress.render)
             self.render_button.setContentsMargins(4, 4, 10, 4)
@@ -722,7 +722,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         def set_selector_button_style(self, button):
             button.setMinimumSize(QtCore.QSize(150, 28))
-            button.setMaximumSize(QtCore.QSize(150, 28))
+            # button.setMaximumSize(QtCore.QSize(150, 28))
             button.setFocusPolicy(QtCore.Qt.NoFocus)
             button.setStyleSheet('QPushButton {color: rgb(154, 154, 154); background-color: rgb(44, 54, 68); border: none; font: 14px}'
             'QPushButton:hover {border: 1px solid rgb(90, 90, 90)}'
@@ -960,12 +960,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
-        self.destination_node_id = self.create_destination_node(
-            self.selection,
-            duration
-            )
-        if not self.destination_node_id:
-            return
+
+        self.setup_model_menu()
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
@@ -1247,6 +1243,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             destination_node_handle = None
 
         return destination_node_id
+
+    def fill_model_menu(self):
+        # set up flow res menu
+        flow_res_menu = QtWidgets.QMenu(self)
+        for flow_res in sorted(self.parent_app.flow_res.keys(), reverse=True):
+            code = self.parent_app.flow_res.get(flow_res, 1.0)
+            action = flow_res_menu.addAction(code)
+            x = lambda chk=False, flow_res=flow_res: self.parent_app.select_flow_res(flow_res)
+            action.triggered[()].connect(x)
+        self.ui.flow_res_selector.setMenu(flow_res_menu)
+        self.ui.flow_res_selector.setText(self.parent_app.flow_res.get(self.parent_app.flow_scale, 'Use Full Resolution'))
 
 
     def process_messages(self):
