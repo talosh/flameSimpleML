@@ -926,6 +926,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
 
+        self.clips_parent = self.selection[0].parent
+        duration = self.selection[0].duration.frame
+        relative_start_frame = self.selection[0].start_time.get_value().relative_frame
+
+        print (f'dur: {duration}, rel st frame: {relative_start_frame}')
+
         '''
         self.parent_app.torch_device = self.set_torch_device()
 
@@ -1093,6 +1099,29 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(qt_pixmap))
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
+
+    def set_current_frame(self, new_current_frame, render = True):
+        self.current_frame = new_current_frame
+        self.message_queue.put(
+            {'type': 'setText',
+            'widget': 'cur_frame_label',
+            'text': str(self.current_frame)}
+        )
+        self.info('Frame ' + str(self.current_frame))
+        self.updateFramePositioner.emit()
+        self.processEvents()
+        
+        if render:
+            self.stop_frame_rendering_thread()
+
+            self.message_queue.put(
+                {'type': 'setText',
+                'widget': 'render_button',
+                'text': 'Stop'}
+            )
+            self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
+            self.frame_thread.daemon = True
+            self.frame_thread.start()
 
     def process_messages(self):
         timeout = 0.0001
