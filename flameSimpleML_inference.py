@@ -931,6 +931,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         relative_start_frame = self.selection[0].start_time.get_value().relative_frame
 
         print (f'dur: {duration}, rel st frame: {relative_start_frame}')
+        print ('huipizda')
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
