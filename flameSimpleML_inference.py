@@ -1185,7 +1185,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         num_channels = 0
         for clip in selection:
             clip_node_id = clip.get_wiretap_node_id()
-            print (clip_node_id)
             server_handle = WireTapServerHandle('localhost')
             clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
             fmt = WireTapClipFormat()
@@ -1196,7 +1195,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     'message': message_string,
                     'action': None}
                 )
-                num_channels += fmt.numChannels()
+            num_channels += fmt.numChannels()
         return num_channels
     
     def create_destination_node(self, selection, num_frames):
