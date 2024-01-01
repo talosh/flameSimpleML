@@ -1191,10 +1191,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             version = clip.versions[0]
             track = version.tracks[0]
             segment = track.segments[0]
-            pprint (dir(segment))
-            pprint (segment.attributes)
-            pprint (segment.matte_channel)
-            pprint (segment.rgb_channel)
 
 
             self.destination_node_name = clip.name.get_value() + '_ML'
@@ -1212,6 +1208,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.format_tag = fmt.formatTag()
             self.fmt = fmt
 
+            print (self.format_tag)
+            print (dir(fmt))
             print (f'num channels: {fmt.numChannels()}')
 
             return
