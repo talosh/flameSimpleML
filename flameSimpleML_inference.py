@@ -1192,6 +1192,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             track = version.tracks[0]
             segment = track.segments[0]
             pprint (dir(segment))
+            pprint (segment.attributes)
 
 
             self.destination_node_name = clip.name.get_value() + '_ML'
