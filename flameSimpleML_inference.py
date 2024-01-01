@@ -1184,6 +1184,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def get_total_channels_number(self, selection):
         num_channels = 0
         for clip in selection:
+            print (clip)
             clip_node_id = clip.get_wiretap_node_id()
             server_handle = WireTapServerHandle('localhost')
             clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
