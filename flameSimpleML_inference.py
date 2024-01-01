@@ -972,7 +972,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.message_queue.put(
                 {'type': 'mbox',
                 'message': message_string,
-                'action': self.close_application}
+                'action': None}
             )
         self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
 
