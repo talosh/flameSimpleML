@@ -755,6 +755,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.framework.save_prefs()
 
         self.model_state_dict_path = self.prefs.get('model_state_dict_path')
+        self.model_state_dict = None
         
         self.message_queue = queue.Queue()
         self.frames_to_save_queue = queue.Queue(maxsize=8)
@@ -962,6 +963,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
 
         self.fill_model_menu()
+
+        if self.model_state_dict_path:
+            self.load_model_dict(self.model_state_dict_path)
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
@@ -1269,7 +1273,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import flame
 
         if model_number == 99: # load model code
-            selected_model_path = None
+            selected_model_dict_path = None
             self.hide()
             flame.browser.show(
                 title = 'Select flameSimpleML Model:',
@@ -1277,11 +1281,27 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 default_path = self.prefs.get('model_state_dict_path', os.path.expanduser('~')),
                 multi_selection = False)
             if len(flame.browser.selection) > 0:
-                selected_model_path = flame.browser.selection[0]
+                selected_model_dict_path = flame.browser.selection[0]
             self.show()
+            if not self.load_model_dict(selected_model_dict_path):
+                return
+            # self.add_model_to_menu(selected_model_dict_path)
 
-            print (f'Selected model path: {selected_model_path}')
+    def load_model_dict(self, selected_model_dict_path):
+        import torch
+        
+        self.message_queue.put({'type': 'info', 'message': 'Loading model state dict...'})
 
+        try:
+            x = 1 / 0
+            torch.load(selected_model_dict_path)
+        except Exception as e:
+            message_string = f'Unable to load model state dict:\n{selected_model_dict_path}\n\n{e}'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
 
     def process_messages(self):
         timeout = 0.0001
