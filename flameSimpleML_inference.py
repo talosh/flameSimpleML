@@ -1291,9 +1291,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import torch
 
         try:
-            self.message_queue.put({'type': 'info', 'message': 'Loading model state dict...'})
+            self.message_queue.put({'type': 'info', 'message': f'Loading model state dict {selected_model_dict_path}'})
             self.model_state_dict = torch.load(selected_model_dict_path)
-            self.message_queue.put({'type': 'info', 'message': 'Model state dict loaded'})
+            self.message_queue.put({'type': 'info', 'message': f'Model state dict loaded from {selected_model_dict_path}'})
             return self.model_state_dict
         except Exception as e:
             message_string = f'Unable to load model state dict:\n{selected_model_dict_path}\n\n{e}'
