@@ -739,6 +739,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.settings = kwargs.get('settings', dict())
         self.framework = flameAppFramework(settings = self.settings)
         self.app_name = self.framework.app_name
+        self.log = self.framework.log
         self.debug = self.framework.debug
         self.log_debug = self.framework.log_debug
         self.version = self.settings.get('version', 'UnknownVersion')
@@ -756,6 +757,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.model_state_dict_path = self.prefs.get('model_state_dict_path')
         self.model_state_dict = None
+        self.models_folder = os.path.join(
+            os.path.dirname(__file__),
+            'models'
+        )
+        self.models = {}
         
         self.message_queue = queue.Queue()
         self.frames_to_save_queue = queue.Queue(maxsize=8)
@@ -957,6 +963,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'widget': 'end_frame_label',
             'text': str(self.max_frame)}
         )
+
+        self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
+        self.models = self.scan_models(self.models_folder)
+        self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
+
+        pprint (self.models)
 
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
@@ -1277,6 +1289,29 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         return destination_node_id
 
+    def scan_models(self, folder_path):
+        import importlib.util
+
+        def import_model_from_file(file_path):
+            module_name = os.path.splitext(os.path.basename(file_path))[0]
+            spec = importlib.util.spec_from_file_location(module_name, file_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return getattr(module, 'Model', None)
+
+        model_dict = {}
+        for filename in os.listdir(folder_path):
+            if filename.endswith('.py'):
+                file_path = os.path.join(folder_path, filename)
+                ModelClass = import_model_from_file(file_path)
+                if ModelClass:
+                    try:
+                        model_name = ModelClass.get_name()  # Assuming get_name() is the static method
+                        model_dict[model_name] = ModelClass.get_model()
+                    except Exception as e:
+                        self.log(f'Error loading model from {file_path}: {e}')
+        return model_dict
+
     def fill_model_menu(self):
         
         model_menu_items = self.prefs.get('recent_models')
@@ -1320,10 +1355,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # self.add_model_to_menu(selected_model_dict_path)
 
     def load_model(self, model_state_dict):
-        model_name = model_state_dict.get('model_name', 'MultiRes')
-        model_version = model_state_dict.get('model_version', 1)
+        model_name = model_state_dict.get('model_name', 'MultiRes_v001')
         print (model_name)
-        print (model_version)
 
     def load_model_state_dict(self, selected_model_dict_path):
         import torch
