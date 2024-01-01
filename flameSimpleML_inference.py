@@ -1320,7 +1320,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # self.add_model_to_menu(selected_model_dict_path)
 
     def load_model(self, model_state_dict):
-        model_name = model_state_dict.get('model_name', 'MultiResUnet')
+        model_name = model_state_dict.get('model_name', 'MultiRes')
         model_version = model_state_dict.get('model_version', 1)
         print (model_name)
         print (model_version)
