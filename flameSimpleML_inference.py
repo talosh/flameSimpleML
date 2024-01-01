@@ -1208,8 +1208,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.format_tag = fmt.formatTag()
             self.fmt = fmt
 
-            print (self.format_tag)
-            print (dir(fmt))
+            pprint (self.format_tag)
+            pprint (dir(fmt))
             print (f'num channels: {fmt.numChannels()}')
 
             return
