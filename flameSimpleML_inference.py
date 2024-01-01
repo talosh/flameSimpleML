@@ -962,6 +962,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
 
+        self.create_destination_node(self.selection, duration)
+
         self.fill_model_menu()
 
         if self.model_state_dict_path:
