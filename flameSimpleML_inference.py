@@ -962,7 +962,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
 
-        self.create_destination_node(self.selection, duration)
+        print (f'total channels: {self.get_total_channels_number(self.selection)}')
 
         self.fill_model_menu()
 
@@ -1181,6 +1181,23 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return None
 
+    def get_total_channels_number(self, selection):
+        num_channels = 0
+        for clip in selection:
+            clip_node_id = clip.get_wiretap_node_id()
+            server_handle = WireTapServerHandle('localhost')
+            clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
+            fmt = WireTapClipFormat()
+            if not clip_node_handle.getClipFormat(fmt):
+                message_string = f'Unable to obtain clip format: {clip_node_handle.lastError()}'
+                self.message_queue.put(
+                    {'type': 'mbox',
+                    'message': message_string,
+                    'action': None}
+                )
+                num_channels += fmt.numChannels()
+        return num_channels
+    
     def create_destination_node(self, selection, num_frames):
         try:
             import flame
