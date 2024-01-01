@@ -965,7 +965,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         )
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
-        self.models = self.scan_models(self.models_folder)
+        try:
+            self.models = self.scan_models(self.models_folder)
+        except Exception as e:
+            message_string = f'Unable to load models from {self.models_folder}:\n"{e}"'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': self.close_application}
+            )
         self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
 
         pprint (self.models)
