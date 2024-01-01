@@ -1312,18 +1312,27 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if len(flame.browser.selection) > 0:
                 selected_model_dict_path = flame.browser.selection[0]
             self.show()
-            if not self.load_model_dict(selected_model_dict_path):
+            if not self.load_model_state_dict(selected_model_dict_path):
                 return
+            if not self.load_model(self.model_state_dict):
+                return
+
             # self.add_model_to_menu(selected_model_dict_path)
 
-    def load_model_dict(self, selected_model_dict_path):
+    def load_model(self, model_state_dict):
+        model_name = model_state_dict.get('model_name', 'MultiResUnet')
+        model_version = model_state_dict.get('model_version', 1)
+        print (model_name)
+        print (model_version)
+
+    def load_model_state_dict(self, selected_model_dict_path):
         import torch
 
         try:
             self.message_queue.put({'type': 'info', 'message': f'Loading model state dict {selected_model_dict_path}'})
             self.model_state_dict = torch.load(selected_model_dict_path)
             self.message_queue.put({'type': 'info', 'message': f'Model state dict loaded from {selected_model_dict_path}'})
-            return self.model_state_dict
+            return True
         except Exception as e:
             message_string = f'Unable to load model state dict:\n{selected_model_dict_path}\n\n{e}'
             self.message_queue.put(
@@ -1331,7 +1340,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': message_string,
                 'action': None}
             )
-            return None
+            return False
 
     def process_messages(self):
         timeout = 0.0001
