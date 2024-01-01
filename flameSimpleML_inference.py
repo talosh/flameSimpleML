@@ -1187,8 +1187,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             import numpy as np
 
             clip = selection[0]
+            version = clip.versions[0]
+            pprint (clip.version.attributes)
             # pprint (dir(clip))
-            pprint (dir(clip.versions[0]))
+            
+
 
             self.destination_node_name = clip.name.get_value() + '_ML'
             destination_node_id = ''
