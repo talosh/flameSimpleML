@@ -1269,15 +1269,19 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import flame
 
         if model_number == 99: # load model code
+            selected_model_path = None
             self.hide()
             flame.browser.show(
                 title = 'Select flameSimpleML Model:',
                 extension = 'pth',
                 default_path = self.prefs.get('model_state_dict_path', os.path.expanduser('~')),
                 multi_selection = False)
-
-            print (f'Browser selection: {flame.browser.selection}')
+            if len(flame.browser.selection) > 0:
+                selected_model_path = flame.browser.selection[0]
             self.show()
+
+            print (f'Selected model path: {selected_model_path}')
+
 
     def process_messages(self):
         timeout = 0.0001
