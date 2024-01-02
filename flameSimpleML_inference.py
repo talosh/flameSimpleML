@@ -833,7 +833,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             W = 1280
             H = 720
 
-        self.log_debug(f'using pyside6: {self.using_pyside6}')
+        self.log_debug(f'using PySide6: {self.using_pyside6}')
 
         def get_screen_geometry():
             if self.using_pyside6:
@@ -1006,6 +1006,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.load_model_dict(self.model_state_dict_path)
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
+
+        self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
+        self.frame_thread.daemon = True
+        self.frame_thread.start()
+
         self.set_current_frame(self.min_frame)
 
         '''
