@@ -12,8 +12,10 @@ from flameSimpleML_framework import flameAppFramework
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
+    using_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+    using_pyside6 = False
 
 from adsk.libwiretapPythonClientAPI import (
     WireTapClient,
@@ -731,8 +733,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'QPushButton::menu-indicator {image: none;}')
 
     def __init__(self, *args, **kwargs):
-        print ('hello')
         super().__init__()
+
+        self.using_pyside6 = using_pyside6
 
         self.name = self.__class__.__name__
         self.selection = kwargs.get('selection')
@@ -829,6 +832,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except:
             W = 1280
             H = 720
+
+        print (f'using using_pyside6: {self.using_pyside6}')
 
         desktop = QtWidgets.QApplication.desktop()
         screen_geometry = desktop.screenGeometry(desktop.primaryScreen())
