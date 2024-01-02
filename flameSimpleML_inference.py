@@ -762,6 +762,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'models'
         )
         self.models = {}
+        self.current_model = None
         
         self.message_queue = queue.Queue()
         self.frames_to_save_queue = queue.Queue(maxsize=8)
@@ -1312,7 +1313,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 ModelClass = import_model_from_file(file_path)
                 if ModelClass:
                     try:
-                        model_name = ModelClass.get_name()  # Assuming get_name() is the static method
+                        model_name = ModelClass.get_name()  # Assuming get_name() is the static method                            
                         model_dict[model_name] = ModelClass.get_model()
                     except Exception as e:
                         self.log(f'Error loading model from {file_path}: {e}')
@@ -1361,7 +1362,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # self.add_model_to_menu(selected_model_dict_path)
 
     def load_model(self, model_state_dict):
-        model_name = model_state_dict.get('model_name', 'MultiRes_v002')
+        model_name = model_state_dict.get('model_name', 'MultiRes_v001')
         if model_name not in self.models.keys():
             message_string = f'Unable to load model {model_name} - unknown model name.\n'
             message_string += f'Known models are:\n{", ".join(self.models.keys())}'
@@ -1370,7 +1371,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': message_string,
                 'action': None}
             )
-
+        input_channles = model_state_dict.get('input_channels', 3)
+        output_channels = model_state_dict.get('output_channels', 3)
+        self.current_model = self.models[model_name](input_channles, output_channels)
 
     def load_model_state_dict(self, selected_model_dict_path):
         import torch
