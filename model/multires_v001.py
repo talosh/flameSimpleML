@@ -40,7 +40,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 	
 	'''
 
-	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = True):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = True, inplace = False):
 		super().__init__()
 		layers = [
 			torch.nn.Conv2d(
@@ -57,7 +57,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 
 		if activation:
 			# layers.insert(2, torch.nn.ELU(inplace=True))
-			layers.append(torch.nn.SELU(inplace=True))
+			layers.append(torch.nn.SELU(inplace = inplace))
 		
 		self.layers = torch.nn.Sequential(*layers)
 	
