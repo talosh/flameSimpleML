@@ -1175,9 +1175,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             super().keyPressEvent(event)  # Pass the event to the parent's handler
 
     def left_arrow_pressed(self):
+        if self.rendering_by_render_button:
+            return
         self.set_current_frame(self.current_frame - 1 if self.current_frame > self.min_frame else self.min_frame)
 
     def right_arrow_pressed(self):
+        if self.rendering_by_render_button:
+            return
         self.set_current_frame(self.current_frame + 1 if self.current_frame < self.max_frame else self.max_frame)
 
     def on_allEventsProcessed(self):
