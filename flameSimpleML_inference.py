@@ -835,8 +835,19 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         print (f'using using_pyside6: {self.using_pyside6}')
 
-        desktop = QtWidgets.QApplication.desktop()
-        screen_geometry = desktop.screenGeometry(desktop.primaryScreen())
+        def get_screen_geometry():
+            if self.using_pyside6:
+                screen = QtGui.QGuiApplication.primaryScreen()
+                screen_geometry = screen.geometry()
+            else:
+                desktop = QtWidgets.QApplication.desktop()
+                screen_geometry = desktop.screenGeometry(desktop.primaryScreen())
+            return screen_geometry
+
+
+        # desktop = QtWidgets.QApplication.desktop()
+        # screen_geometry = desktop.screenGeometry(desktop.primaryScreen())
+        screen_geometry = get_screen_geometry()
 
         max_width = screen_geometry.width() * 0.88
         max_height = screen_geometry.height() * 0.88
