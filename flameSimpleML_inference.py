@@ -1641,6 +1641,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             pass
 
     def render_button(self):
+        print (f'render button text: {self.ui.render_button.text()}')
+        return
         self.log_debug(f'render: self.rendering: {self.rendering}')
         self.rendering = not self.rendering
         button_text = 'Stop' if self.rendering else 'Render'
