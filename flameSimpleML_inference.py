@@ -1337,7 +1337,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         return model_dict
 
     def fill_model_menu(self):
-        
         model_menu_items = self.prefs.get('recent_models')
         current_model = self.prefs.get('current_model', 99)
         if not isinstance(model_menu_items, dict):
@@ -1375,8 +1374,23 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return
             if not self.load_model(self.model_state_dict):
                 return
+            self.add_model_to_menu(selected_model_dict_path)
 
-            # self.add_model_to_menu(selected_model_dict_path)
+    def add_model_to_menu(self, selected_model_dict_path):
+        model_menu_items = self.prefs.get('recent_models')
+        new_model_menu_items = {}
+        if not isinstance(model_menu_items, dict):
+            model_menu_items = {99: 'Load Model ... '}
+        for key in model_menu_items.keys():
+            if key == 99:
+                new_model_menu_items[key] = model_menu_items[key]
+            else:
+                if key + 1 < 10:
+                    new_model_menu_items[key + 1] = model_menu_items[key]
+        new_model_menu_items[1] = selected_model_dict_path
+        self.prefs['recent_models'] = new_model_menu_items
+        self.framework.save_prefs()
+        self.fill_model_menu()
 
     def load_model(self, model_state_dict):
         model_name = model_state_dict.get('model_name', 'MultiRes_v001')
@@ -1403,7 +1417,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
             return False
-
 
     def load_model_state_dict(self, selected_model_dict_path):
         import torch
