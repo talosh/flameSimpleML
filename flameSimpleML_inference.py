@@ -1025,7 +1025,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
         self.destination_node_id = self.create_destination_node(
             self.selection,
-            len(self.frames_map.keys())
+            duration
             )
 
         print (f'total channels: {self.get_total_channels_number(self.selection)}')
