@@ -1155,14 +1155,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             action()
 
     def update_frame_positioner(self):
-        
-        print ('hello from update_frame_positioner')
-
         import numpy as np
 
         label_width = self.ui.info_label.width()
         label_height = self.ui.info_label.height()
         margin = 4
+
+        print ('hello from update_frame_positioner')
+        return
+
+
         # map x1 from [x,y] to [m, n]: m1 = m + (x1 - x) * (n - m) / (y - x)
         marker_pos = 4 + (self.current_frame - self.min_frame) * (label_width - 8) / (self.max_frame - self.min_frame)
         if marker_pos < margin:
