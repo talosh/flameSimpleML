@@ -1349,6 +1349,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             destination_node_id = ''
 
             clip = selection[0]
+
+            pprint (dir(clip))
+
             server_handle = WireTapServerHandle('localhost')
             clip_node_id = clip.get_wiretap_node_id()
             clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
