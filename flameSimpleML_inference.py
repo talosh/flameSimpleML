@@ -1377,7 +1377,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.current_model = self.models[model_name](input_channles, output_channels)
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
         except Exception as e:
-            message_string = f'Unable to load model state:\n{str(e)[:999]}'
+            message_string = f'Unable to load model state:\n{str(e)[:1999]}'
             self.message_queue.put(
                 {'type': 'mbox',
                 'message': message_string,
