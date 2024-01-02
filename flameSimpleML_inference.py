@@ -1179,7 +1179,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def right_arrow_pressed(self):
         self.set_current_frame(self.current_frame + 1 if self.current_frame < self.max_frame else self.max_frame)
 
-
     def on_allEventsProcessed(self):
         self.allEventsFlag = True
 
@@ -1253,7 +1252,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
 
-    def set_current_frame(self, new_current_frame, render = True):
+    def set_current_frame(self, new_current_frame, render = False):
         self.current_frame = new_current_frame
         self.message_queue.put(
             {'type': 'setText',
@@ -1265,8 +1264,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         if render:
             self.stop_frame_rendering_thread()
-
-            '''
             self.message_queue.put(
                 {'type': 'setText',
                 'widget': 'render_button',
@@ -1275,7 +1272,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
             self.frame_thread.daemon = True
             self.frame_thread.start()
-            '''
 
     def create_temp_library(self, selection):        
         try:
