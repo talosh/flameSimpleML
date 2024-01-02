@@ -1104,6 +1104,59 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except:
             pass
 
+    def mousePressEvent(self, event):
+        child = self.childAt(event.pos())
+        if child == self.ui.info_label:
+            self.mousePressPos = None
+            super().mousePressEvent(event)
+            return
+        elif child == self.ui.cur_frame_label:
+            self.set_current_frame(self.min_frame, render = False)
+            self.mousePressPos = None
+            super().mousePressEvent(event)
+            return
+        elif child == self.ui.end_frame_label:
+            self.set_current_frame(self.max_frame, render = False)
+            self.mousePressPos = None
+            super().mousePressEvent(event)
+            return
+
+        # Record the position at which the mouse was pressed.
+        self.mousePressPos = event.globalPos()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        child = self.childAt(event.pos())
+        if child == self.ui.info_label:
+            relative_pos = self.ui.info_label.mapFromParent(event.pos())
+            label_width = self.ui.info_label.width()
+            new_frame = int(self.min_frame + (relative_pos.x() - 0) * (self.max_frame - self.min_frame) / (label_width - 0))
+            self.set_current_frame(new_frame, render = False)
+            super().mouseReleaseEvent(event)
+            return
+        
+        if self.mousePressPos is not None:
+            # Calculate the new position of the window.
+            newPos = self.pos() + (event.globalPos() - self.mousePressPos)
+            # Move the window to the new position.
+            self.move(newPos)
+            # Update the position at which the mouse was pressed.
+            self.mousePressPos = event.globalPos()
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.mousePressPos = None
+        child = self.childAt(event.pos())
+        if child == self.ui.info_label:
+            relative_pos = self.ui.info_label.mapFromParent(event.pos())
+            label_width = self.ui.info_label.width()
+            new_frame = int(self.min_frame + (relative_pos.x() - 0) * (self.max_frame - self.min_frame) / (label_width - 0))
+            # print(f"Clicked on label at position: {relative_pos.x()}, {relative_pos.y()}")
+            # print (f'frame: {new_frame}')
+            self.set_current_frame(new_frame)
+
+        super().mouseReleaseEvent(event)
+
     def on_allEventsProcessed(self):
         self.allEventsFlag = True
 
@@ -1160,10 +1213,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         label_width = self.ui.info_label.width()
         label_height = self.ui.info_label.height()
         margin = 4
-
-        print ('hello from update_frame_positioner')
-        return
-
 
         # map x1 from [x,y] to [m, n]: m1 = m + (x1 - x) * (n - m) / (y - x)
         marker_pos = 4 + (self.current_frame - self.min_frame) * (label_width - 8) / (self.max_frame - self.min_frame)
