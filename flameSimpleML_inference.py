@@ -1185,11 +1185,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         )
         self.info('Frame ' + str(self.current_frame))
         self.updateFramePositioner.emit()
-        self.processEvents()
         
         if render:
             self.stop_frame_rendering_thread()
 
+            '''
             self.message_queue.put(
                 {'type': 'setText',
                 'widget': 'render_button',
@@ -1198,6 +1198,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
             self.frame_thread.daemon = True
             self.frame_thread.start()
+            '''
 
     def create_temp_library(self, selection):        
         try:
@@ -1532,9 +1533,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             pass
 
     def stop_frame_rendering_thread(self):
-        self.info(f'Frame {self.current_frame}: Stopping...')
         if isinstance(self.frame_thread, threading.Thread):
             if self.frame_thread.is_alive():
+                self.info(f'Frame {self.current_frame}: Stopping...')
                 self.rendering = False
                 self.frame_thread.join()
 
