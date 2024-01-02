@@ -810,6 +810,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_thread.start()
         self.log_debug('message thread started')
 
+        self.log_debug('starting interface image thread')
+        # set up message thread
+        self.interface_image_thread = threading.Thread(target=self.process_interface_images)
+        self.interface_image_thread.daemon = True
+        self.interface_image_thread.start()
+        self.log_debug('interface image thread started')
+
         self.log_debug('starting frame save thread')
         # set up save thread
         self.save_thread = threading.Thread(target=self.process_frames_to_save)
