@@ -1373,7 +1373,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         input_channles = model_state_dict.get('input_channels', 3)
         output_channels = model_state_dict.get('output_channels', 3)
-        self.current_model = self.models[model_name](input_channles, output_channels)
+        try:
+            self.current_model = self.models[model_name](input_channles, output_channels)
+            self.current_model.load_state_dict(model_state_dict['model_state_dict'])
+        except Exception as e:
+            message_string = f'Unable to load model state:\n{e}'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+
 
     def load_model_state_dict(self, selected_model_dict_path):
         import torch
