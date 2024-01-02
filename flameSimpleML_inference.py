@@ -976,8 +976,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
 
-        pprint (self.models)
-
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
@@ -1363,8 +1361,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # self.add_model_to_menu(selected_model_dict_path)
 
     def load_model(self, model_state_dict):
-        model_name = model_state_dict.get('model_name', 'MultiRes_v001')
-        print (model_name)
+        model_name = model_state_dict.get('model_name', 'MultiRes_v002')
+        if model_name not in self.models.keys():
+            message_string = f'Unable to load model {model_name} - unknown name'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+
 
     def load_model_state_dict(self, selected_model_dict_path):
         import torch
