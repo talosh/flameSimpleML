@@ -1659,7 +1659,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     'widget': 'render_button',
                     'text': 'Render'}
                 )
-
         return
 
         self.log_debug(f'render: self.rendering: {self.rendering}')
