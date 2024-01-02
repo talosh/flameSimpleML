@@ -1388,11 +1388,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': message_string,
                 'action': None}
             )
+            return False
         input_channles = model_state_dict.get('input_channels', 3)
         output_channels = model_state_dict.get('output_channels', 3)
         try:
             self.current_model = self.models[model_name](input_channles, output_channels)
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
+            return True
         except Exception as e:
             message_string = f'Unable to load model state:\n{e}'
             self.message_queue.put(
@@ -1400,6 +1402,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': message_string,
                 'action': None}
             )
+            return False
 
 
     def load_model_state_dict(self, selected_model_dict_path):
