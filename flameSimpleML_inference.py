@@ -1457,7 +1457,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.show()
             self.raise_()
             self.activateWindow()
-            
+
             if not selected_model_dict_path:
                 return False
             if not self.load_model_state_dict(selected_model_dict_path):
@@ -1721,6 +1721,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             {'type': 'info', 
             'message': f'Frame {self.current_frame}: reading source image data ...'}
             )
+        
+        '''
+        src_image_data = self.read_image_data_torch(
+            self.current_frame_data['incoming']['clip'], 
+            inc_frame_number
+            )
+        '''
 
         # self.rendering = True
 
