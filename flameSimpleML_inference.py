@@ -982,9 +982,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         for selected_item in self.selection:
             if selected_item.duration.frame != duration:
+                message_string = 'Please select input clips of the same length'
+                message_string += 'or use "mark in" and "mark out" to give segments of the same duration'
                 self.message_queue.put(
                     {'type': 'mbox',
-                    'message': 'Please select input clips of the same length',
+                    'message': message_string,
                     'action': self.close_application}
                 )
                 return
