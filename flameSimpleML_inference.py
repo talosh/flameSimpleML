@@ -778,6 +778,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.input_channels = 3
         self.output_channels = 3
 
+        self.destination_node_id = ''
+
         # mouse position on a press event
         self.mousePressPos = None
 
@@ -1021,6 +1023,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
+        self.destination_node_id = self.create_destination_node(
+            self.selection,
+            len(self.frames_map.keys())
+            )
 
         print (f'total channels: {self.get_total_channels_number(self.selection)}')
 
