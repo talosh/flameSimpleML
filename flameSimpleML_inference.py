@@ -1498,7 +1498,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return False
 
     def process_messages(self):
-        timeout = 0.0001
+        timeout = 1e-8
 
         while self.threads:
             try:
@@ -1542,8 +1542,41 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             time.sleep(timeout)
         return
 
+    def process_interface_images(self):
+        timeout = 1e-8
+        while self.threads:
+            try:
+                item = self.interface_image_queue.get_nowait()
+            except queue.Empty:
+                if not self.threads:
+                    break
+                time.sleep(timeout)
+                continue
+            if item is None:
+                time.sleep(timeout)
+                continue
+            if not isinstance(item, dict):
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue
+
+            item_type = item.get('type')
+
+            if not item_type:
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue
+            elif item_type == 'image':
+                self.updateInterfaceImage.emit(item)
+            else:
+                self.message_queue.task_done()
+                time.sleep(timeout)
+                continue            
+            time.sleep(timeout)
+        return
+
     def process_frames_to_save(self):
-        timeout = 0.0001
+        timeout = 1e-8
 
         while self.threads:
             try:
