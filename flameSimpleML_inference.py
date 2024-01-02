@@ -1165,6 +1165,21 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         super().mouseReleaseEvent(event)
 
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Left:
+            self.left_arrow_pressed()
+        elif event.key() == QtCore.Qt.Key_Right:
+            self.right_arrow_pressed()
+        else:
+            super().keyPressEvent(event)  # Pass the event to the parent's handler
+
+    def left_arrow_pressed(self):
+        self.set_current_frame(self.current_frame - 1 if self.current_frame > self.min_frame else self.min_frame)
+
+    def right_arrow_pressed(self):
+        self.set_current_frame(self.current_frame + 1 if self.current_frame < self.max_frame else self.max_frame)
+
+
     def on_allEventsProcessed(self):
         self.allEventsFlag = True
 
