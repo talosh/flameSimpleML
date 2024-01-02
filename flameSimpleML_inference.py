@@ -1005,6 +1005,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if self.model_state_dict_path:
             self.load_model_dict(self.model_state_dict_path)
 
+        self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
+        self.set_current_frame(self.min_frame)
+
         '''
         self.parent_app.torch_device = self.set_torch_device()
 
