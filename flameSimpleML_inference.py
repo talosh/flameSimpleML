@@ -769,6 +769,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.current_model = None
         
         self.message_queue = queue.Queue()
+        self.interface_image_queue = queue.Queue(maxsize=8)
         self.frames_to_save_queue = queue.Queue(maxsize=8)
 
         self.min_frame = 1
