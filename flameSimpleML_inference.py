@@ -1699,11 +1699,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.frame_thread.join()
 
     def stop_render_loop_thread(self):
-        if isinstance(self.frame_thread, threading.Thread):
-            if self.frame_thread.is_alive():
-                self.info(f'Frame {self.current_frame}: Stopping...')
+        if isinstance(self.render_loop_thread, threading.Thread):
+            if self.render_loop_thread.is_alive():
+                self.info(f'Frame {self.current_frame}: Stopping render loop thread ...')
                 self.rendering = False
-                self.frame_thread.join()
+                self.render_loop_thread.join()
 
     def _process_current_frame(self, single_frame=False):
         
@@ -1711,7 +1711,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import torch
 
         timestamp = time.time()
-        print ('hello from _process_current_frame')
+
+        self.message_queue.put(
+            {'type': 'info', 
+            'message': f'Frame {self.current_frame}: reading source image data ...'}
+            )
 
         # self.rendering = True
 
