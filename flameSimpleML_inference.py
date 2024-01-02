@@ -1366,7 +1366,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             known_models = str(pformat(self.models.keys()))
             print (known_models)
             message_string = f'Unable to load model {model_name} - unknown model name.\n'
-            message_string += f'Known models are: {known_models}'
+            message_string += f'Known models are:\n{known_models}'
             self.message_queue.put(
                 {'type': 'mbox',
                 'message': message_string,
