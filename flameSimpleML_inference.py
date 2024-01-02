@@ -1363,7 +1363,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def load_model(self, model_state_dict):
         model_name = model_state_dict.get('model_name', 'MultiRes_v002')
         if model_name not in self.models.keys():
-            message_string = f'Unable to load model {model_name} - unknown name'
+            message_string = f'Unable to load model {model_name} - unknown model name'
             self.message_queue.put(
                 {'type': 'mbox',
                 'message': message_string,
