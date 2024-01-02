@@ -1455,6 +1455,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if len(flame.browser.selection) > 0:
                 selected_model_dict_path = flame.browser.selection[0]
             self.show()
+            self.raise_()
+            self.activateWindow()
+            
             if not selected_model_dict_path:
                 return False
             if not self.load_model_state_dict(selected_model_dict_path):
