@@ -1651,7 +1651,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
             self.render_loop()
         else:
-            pass
+            self.stop_render_loop_thread()
+            self.stop_frame_rendering_thread()
+            self.rendering_by_render_button = False
+            self.message_queue.put(
+                    {'type': 'setText',
+                    'widget': 'render_button',
+                    'text': 'Render'}
+                )
 
         return
 
