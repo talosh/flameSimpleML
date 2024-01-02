@@ -1269,9 +1269,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'widget': 'render_button',
                 'text': 'Stop'}
             )
-            self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
-            self.frame_thread.daemon = True
-            self.frame_thread.start()
+
+        self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
+        self.frame_thread.daemon = True
+        self.frame_thread.start()
 
     def create_temp_library(self, selection):        
         try:
