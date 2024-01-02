@@ -1155,6 +1155,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             action()
 
     def update_frame_positioner(self):
+        
+        print ('hello from update_frame_positioner')
+
         import numpy as np
 
         label_width = self.ui.info_label.width()
