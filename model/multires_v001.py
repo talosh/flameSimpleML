@@ -49,7 +49,8 @@ class Conv2d_batchnorm(torch.nn.Module):
 				kernel_size=kernel_size, 
 				stride=stride, 
 				padding = 'same',
-				padding_mode = 'reflect'
+				padding_mode = 'reflect',
+				bias=False
 			),
 			torch.nn.BatchNorm2d(num_out_filters),
 		]
