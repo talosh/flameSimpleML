@@ -833,7 +833,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             W = 1280
             H = 720
 
-        print (f'using using_pyside6: {self.using_pyside6}')
+        self.log_debug(f'using pyside6: {self.using_pyside6}')
 
         def get_screen_geometry():
             if self.using_pyside6:
