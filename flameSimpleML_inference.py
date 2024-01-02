@@ -695,7 +695,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             # Render button
             self.render_button = QtWidgets.QPushButton("Render")
-            self.render_button.clicked.connect(Progress.render)
+            self.render_button.clicked.connect(Progress.render_button)
             self.render_button.setContentsMargins(4, 4, 10, 4)
             self.set_button_style(self.render_button)
             bottom_layout.addWidget(self.render_button, alignment=QtCore.Qt.AlignRight)
@@ -783,6 +783,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.frame_thread = None
         self.rendering = False
+        self.rendering_by_render_button = False
 
         # A flag to check if all events have been processed
         self.allEventsFlag = False
@@ -1638,6 +1639,27 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             QtWidgets.QApplication.instance().processEvents()
         except:
             pass
+
+    def render_button(self):
+        self.log_debug(f'render: self.rendering: {self.rendering}')
+        self.rendering = not self.rendering
+        button_text = 'Stop' if self.rendering else 'Render'
+        self.message_queue.put(
+                {'type': 'setText',
+                'widget': 'render_button',
+                'text': button_text}
+            )
+
+        self.processEvents()
+        '''
+        self.ui.render_button.setText(button_text)
+        QtWidgets.QApplication.instance().processEvents()
+        time.sleep(0.001)
+        self.ui.render_button.setText(button_text)
+        QtWidgets.QApplication.instance().processEvents()
+        '''
+        if self.rendering:
+            self.render_loop()
 
     def stop_frame_rendering_thread(self):
         if isinstance(self.frame_thread, threading.Thread):
