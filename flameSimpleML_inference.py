@@ -1641,8 +1641,20 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             pass
 
     def render_button(self):
-        print (f'render button text: {self.ui.render_button.text()}')
+        if self.ui.render_button.text() == 'Render':
+            self.stop_frame_rendering_thread()
+            self.rendering_by_render_button = True
+            self.message_queue.put(
+                    {'type': 'setText',
+                    'widget': 'render_button',
+                    'text': 'Stop'}
+                )
+            self.render_loop()
+        else:
+            pass
+
         return
+
         self.log_debug(f'render: self.rendering: {self.rendering}')
         self.rendering = not self.rendering
         button_text = 'Stop' if self.rendering else 'Render'
@@ -1662,6 +1674,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         '''
         if self.rendering:
             self.render_loop()
+
+    def render_loop(self):
+        return
+        self.render_loop_thread = threading.Thread(target=self._render_loop)
+        self.render_loop_thread.daemon = True
+        self.render_loop_thread.start()
 
     def stop_frame_rendering_thread(self):
         if isinstance(self.frame_thread, threading.Thread):
