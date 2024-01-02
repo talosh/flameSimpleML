@@ -1370,11 +1370,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if len(flame.browser.selection) > 0:
                 selected_model_dict_path = flame.browser.selection[0]
             self.show()
+            if not selected_model_dict_path:
+                return False
             if not self.load_model_state_dict(selected_model_dict_path):
-                return
+                return False
             if not self.load_model(self.model_state_dict):
-                return
+                return False
             self.add_model_to_menu(selected_model_dict_path)
+            return selected_model_dict_path
 
     def add_model_to_menu(self, selected_model_dict_path):
         model_menu_items = self.prefs.get('recent_models')
