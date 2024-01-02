@@ -885,6 +885,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # show window and fix its size
         self.setWindowTitle(self.app_name + ' ' + self.version)
         self.show()
+        self.raise_()
+        self.activateWindow()
         self.setFixedSize(self.size())
 
         QtCore.QTimer.singleShot(99, self.after_show)
