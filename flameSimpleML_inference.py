@@ -980,6 +980,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         duration = self.selection[0].duration.frame
         relative_start_frame = self.selection[0].start_time.get_value().relative_frame
 
+        for selected_item in self.selection:
+            if selected_item.duration.frame != duration:
+                self.message_queue.put(
+                    {'type': 'mbox',
+                    'message': 'Please select input clips of the same length',
+                    'action': self.close_application}
+                )
+                return
+
         self.min_frame = relative_start_frame
         self.max_frame = relative_start_frame + duration - 1
         self.message_queue.put(
@@ -1005,6 +1014,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
 
+        self.frames_map = self.compose_frames_map(self.selection)
+
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
@@ -1018,6 +1029,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
         self.set_current_frame(self.min_frame)
+
+        # self.frames_map = self.compose_frames_map(self.selection)
 
         '''
         self.parent_app.torch_device = self.set_torch_device()
@@ -1648,6 +1661,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             QtWidgets.QApplication.instance().processEvents()
         except:
             pass
+
+    def compose_frames_map(self, selection):
+        pass
 
     def render_button(self):
         if self.ui.render_button.text() == 'Render':
