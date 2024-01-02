@@ -805,3 +805,7 @@ class Model:
     @staticmethod
     def get_model():
         return UNet_3PlusMemOpt
+
+    @staticmethod
+    def get_train_model():
+        return UNet_3Plus
