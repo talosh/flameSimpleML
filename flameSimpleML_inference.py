@@ -1649,14 +1649,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def fill_model_menu(self):
         model_menu_items = self.prefs.get('recent_models')
-        current_model = self.prefs.get('current_model', '99')
+        current_model = self.prefs.get('current_model', 99)
         if not isinstance(model_menu_items, dict):
-            model_menu_items = {'99': 'Load Model ... '}
-        if '99' not in model_menu_items.keys():
-            model_menu_items['99'] = 'Load Model ... '
+            model_menu_items = {99: 'Load Model ... '}
+        if 99 not in model_menu_items.keys():
+            model_menu_items[99] = 'Load Model ... '
 
         model_menu = QtWidgets.QMenu(self)
         for model_number in sorted(model_menu_items.keys(), reverse=False):
+            print (f'model number: {model_number}, type: {type(model_number)}')
             model_file_name = os.path.basename(model_menu_items.get(model_number, str()))
             model_name, _ = os.path.splitext(model_file_name)
             code = model_name
