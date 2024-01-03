@@ -770,8 +770,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.torch_device = 'cpu'
         
         self.message_queue = queue.Queue()
-        self.interface_image_queue = queue.Queue(maxsize=8)
-        self.frames_to_save_queue = queue.Queue(maxsize=8)
+        self.interface_image_queue = queue.Queue(maxsize=9)
+        self.frames_to_save_queue = queue.Queue(maxsize=9)
 
         self.min_frame = 1
         self.max_frame = 99
@@ -1273,6 +1273,118 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'text': text
         }
         self.interface_image_queue.put(item)
+
+    def _update_interface_image(self, array, image_label, text = None):
+        import numpy as np
+        import torch
+
+        if array is None:
+            image_label.clear()
+            return
+        
+        if isinstance(array, torch.Tensor):
+            # colourmanagement should go here
+            if (array.dtype == torch.float16) or (array.dtype == torch.float32):
+                img_torch = torch.clip(array, 0, 1) * 255
+                img_torch = img_torch.byte()
+                img = img_torch.cpu().detach().numpy()
+                del img_torch
+            else:
+                img_torch = array.byte()
+                img = img_torch.cpu().detach().numpy()
+                del img_torch
+        else:
+            # colourmanagement should go here
+            if (array.dtype == np.float16) or (array.dtype == np.float32):
+                img = np.clip(array, 0, 1) * 255
+                img = img.astype(np.uint8)
+            else:
+                img = array.astype(np.uint8)
+        
+        img_contiguous = img.copy(order='C')
+
+        # Convert the numpy array to a QImage
+        height, width, _ = img_contiguous.shape
+        bytes_per_line = 3 * width
+        qt_image = QtGui.QImage(img_contiguous.data, width, height, bytes_per_line, QtGui.QImage.Format_RGB888)
+        qt_pixmap = QtGui.QPixmap.fromImage(qt_image)
+        parent_frame = image_label.parent()
+        scaled_pixmap = qt_pixmap.scaled(
+            parent_frame.size() * 0.9, 
+            QtCore.Qt.KeepAspectRatio, 
+            QtCore.Qt.SmoothTransformation)
+        if text:
+            margin = 4
+            origin_x = 2
+            origin_y = 2
+
+            painter = QtGui.QPainter(scaled_pixmap)
+            font = QtGui.QFont("Discreet", 12)
+            painter.setFont(font)
+            
+            '''
+            metrics = QtGui.QFontMetrics(font)
+            text_width = metrics.horizontalAdvance(text)
+            text_height = metrics.height()
+            rect_x = origin_x
+            rect_y = scaled_pixmap.height() - text_height - margin * 2 - origin_y
+            rect_width = text_width + margin * 2 + 2
+            rect_height = text_height + margin * 2
+            color = QtGui.QColor(0, 0, 0)
+            radius = 2
+            painter.setBrush(color)
+            painter.setOpacity(0.2)
+            painter.drawRoundedRect(rect_x, rect_y, rect_width, rect_height, radius, radius)
+            '''
+
+            painter.setOpacity(1.0)
+            painter.setPen(QtGui.QColor(255, 255, 255))
+            text_x = margin + origin_x
+            text_y = scaled_pixmap.height() - margin -origin_y
+            painter.drawText(text_x, text_y, text)
+            painter.end()
+
+        image_label.setPixmap(scaled_pixmap)
+        self.processEvents()
+
+        del img
+        del img_contiguous
+        del qt_pixmap
+
+        '''
+        QtWidgets.QApplication.instance().processEvents()
+        time.sleep(0.001)
+        image_label.setPixmap(scaled_pixmap)
+        QtWidgets.QApplication.instance().processEvents()
+        '''
+
+    def update_interface_image_torch(self, array, image_label, text = None):
+        import torch
+        import torch.nn.functional as F
+
+        if self.message_queue.qsize() > 8:
+            return
+
+        if array is None:
+            image_label.clear()
+            return
+
+        label_size = image_label.size()
+        h, w, d = array.shape
+        scale_factor = min((0.99 * label_size.height())/h, (0.99 * label_size.width())/w)
+        array = array.permute(2, 0, 1).unsqueeze(0)
+        array = F.interpolate(array, scale_factor=scale_factor, mode="bilinear", align_corners=False)
+        array = array.squeeze(0).permute(1, 2, 0)
+
+        item = {
+            'type': 'image',
+            'image': array,
+            'image_label': image_label,
+            'text': text
+        }
+
+        self.ui_images_queue.put(item)
+
 
     def update_frame_positioner(self):
         import numpy as np
