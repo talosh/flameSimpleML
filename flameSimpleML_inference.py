@@ -2067,6 +2067,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             ph = ((h - 1) // 64 + 1) * 64
             pw = ((w - 1) // 64 + 1) * 64
             padding = (0, pw - w, 0, ph - h)
+            print(f'src shape before padding: {src_image_data.shape}')
             src_image_data = F.pad(src_image_data, padding)
             src_image_data = src_image_data.unsqueeze(0)
             src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
