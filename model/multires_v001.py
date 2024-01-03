@@ -151,22 +151,15 @@ class Multiresblock_MemOpt(torch.nn.Module):
 		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
-
 		shrtct = self.shortcut(x)
 		a = self.conv_3x3(x)
-		del x
 		b = self.conv_5x5(a)
-		x = torch.cat([a,b],axis=1)
-		del a
 		c = self.conv_7x7(b)
-		del b
-		x = torch.cat([x, c],axis=1)
 
-		# x = torch.cat([a,b,c],axis=1)
+		x = torch.cat([a,b,c],axis=1)
 		x = x + shrtct
-		del shrtct
 		x = self.act(x)
-	
+
 		return x
 
 class Respath(torch.nn.Module):
@@ -384,7 +377,6 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 		self.pool4 =  torch.nn.MaxPool2d(2)
 		self.respath4 = Respath_MemOpt(self.in_filters4,32*8,respath_length=1)
 	
-	
 		self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
 	 
@@ -477,7 +469,6 @@ class Model:
 
     @staticmethod
     def get_model():
-        # return MultiResUnet_MemOpt
         return MultiResUnet_MemOpt
 	
     @staticmethod
