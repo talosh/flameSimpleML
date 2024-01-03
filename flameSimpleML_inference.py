@@ -1640,7 +1640,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def fill_model_menu(self):
         model_menu_items = self.prefs.get('recent_models')
-        current_model = self.prefs.get('current_model', 99)
+        current_model = self.prefs.get('current_model', '99')
         if not isinstance(model_menu_items, dict):
             model_menu_items = {99: 'Load Model ... '}
 
@@ -1668,7 +1668,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         import flame
 
-        if model_number == 99: # load model code
+        if model_number == '99': # load model code
             
             print ('hello')
 
