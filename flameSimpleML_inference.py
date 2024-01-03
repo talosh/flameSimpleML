@@ -1653,6 +1653,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             x = lambda chk=False, model_number=model_number: self.select_model(model_number)
             action.triggered[()].connect(x)
         self.ui.model_selector.setMenu(model_menu)
+        self.ui.model_selector.se
 
     def select_model(self, model_number):
         
