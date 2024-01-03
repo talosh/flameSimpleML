@@ -400,27 +400,29 @@ class MultiResUnet_MemOpt(Module):
 			self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
 		except:
 			print ('encoder failed')
+		try:
+			# Decoder path
+			self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
+			self.concat_filters1 = 32*8 *2
+			self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
+			self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 
-		# Decoder path
-		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
-		self.concat_filters1 = 32*8 *2
-		self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
-		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
-
-		self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
-		self.concat_filters2 = 32*4 *2
-		self.multiresblock7 = Multiresblock_MemOpt(self.concat_filters2,32*4)
-		self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
-	
-		self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
-		self.concat_filters3 = 32*2 *2
-		self.multiresblock8 = Multiresblock_MemOpt(self.concat_filters3,32*2)
-		self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
-	
-		self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
-		self.concat_filters4 = 32 *2
-		self.multiresblock9 = Multiresblock_MemOpt(self.concat_filters4,32)
-		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
+			self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
+			self.concat_filters2 = 32*4 *2
+			self.multiresblock7 = Multiresblock_MemOpt(self.concat_filters2,32*4)
+			self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
+		
+			self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
+			self.concat_filters3 = 32*2 *2
+			self.multiresblock8 = Multiresblock_MemOpt(self.concat_filters3,32*2)
+			self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
+		
+			self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
+			self.concat_filters4 = 32 *2
+			self.multiresblock9 = Multiresblock_MemOpt(self.concat_filters4,32)
+			self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
+		except:
+			print ('decoder failed')
 
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation=False)
 
