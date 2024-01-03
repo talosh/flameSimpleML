@@ -413,6 +413,7 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 	def forward(self, x : torch.Tensor)->torch.Tensor:
 		try:
 			x_multires1 = self.multiresblock1(x)
+			print ('x_m1')
 			x_pool1 = self.pool1(x_multires1)
 			x_multires1 = self.respath1(x_multires1)
 			
@@ -460,7 +461,6 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 		except:
 			print ('mem exception')
 			x_multires1 = self.multiresblock1(x)
-			print ('x_m1')
 			del x
 			x_pool1 = self.pool1(x_multires1)
 			x_multires1 = self.respath1(x_multires1)
