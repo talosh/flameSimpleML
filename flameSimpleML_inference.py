@@ -2017,11 +2017,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.render_loop_thread.join()
 
     def _process_current_frame(self, single_frame=False):
-        
-        import numpy as np
-        import torch
-        from torch.nn import functional as F
-
         timestamp = time.time()
 
         self.message_queue.put(
@@ -2075,12 +2070,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         if res_image_data is not None:
             self.update_interface_image_torch(
-                    result_image[:, :, :3],
+                    res_image_data[:, :, :3],
                     self.ui.image_res_label,
                     text = 'Frame: ' + str(self.current_frame)
                 )
 
-    def apply_model(self, src_image_data):        
+    def apply_model(self, src_image_data):
+        import torch
+        from torch.nn import functional as F
+     
         self.message_queue.put(
             {'type': 'info', 
             'message': f'Frame {self.current_frame}: Processing...'}
