@@ -787,6 +787,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.frame_thread = None
         self.rendering = False
         self.rendering_by_render_button = False
+        self.view_mode = 'F4'
 
         # A flag to check if all events have been processed
         self.allEventsFlag = False
@@ -1745,8 +1746,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.selection, 
             self.current_frame
             )
-        
-        print (src_image_data.shape)
+
+
 
         # self.rendering = True
 
