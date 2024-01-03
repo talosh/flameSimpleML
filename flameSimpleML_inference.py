@@ -1956,6 +1956,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 text = 'Frame: ' + str(self.current_frame)
             )
             return
+        
+        
 
         # self.rendering = True
 
