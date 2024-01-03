@@ -2074,7 +2074,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
             output = self.current_model(src_image_data*2 -1)
             rgb_output = (output[0] + 1) / 2
-            
+            rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
             result_image = rgb_output.to(dtype=torch.float32)
             self.update_interface_image_torch(
                     result_image[:, :, :3],
