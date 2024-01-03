@@ -34,6 +34,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     allEventsProcessed = QtCore.Signal()
     updateInterfaceImage = QtCore.Signal(dict)
     setText = QtCore.Signal(dict)
+    setMenu = QtCore.Signal(dict)
     showMessageBox = QtCore.Signal(dict)
     updateFramePositioner = QtCore.Signal()
 
@@ -795,6 +796,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.allEventsProcessed.connect(self.on_allEventsProcessed)
         self.updateInterfaceImage.connect(self.on_UpdateInterfaceImage)
         self.setText.connect(self.on_setText)
+        self.setMenu.connect(self.on_setMenu)
         self.showMessageBox.connect(self.on_showMessageBox)
         self.updateFramePositioner.connect(self.update_frame_positioner)
 
@@ -1237,6 +1239,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             getattr(self.ui, widget_name).setText(text)
         self.processEvents()
 
+    def on_setMenu(self, item):
+        widget_name = item.get('widget', 'unknown')
+        menu = item.get('menu', 'unknown')
+        if hasattr(self.ui, widget_name):
+            getattr(self.ui, widget_name).setMenu(menu)
+        self.processEvents()
+
     def on_showMessageBox(self, item):
         message = item.get('message')
         action = item.get('action', None)
@@ -1654,10 +1663,19 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             action = model_menu.addAction(code)
             x = lambda chk=False, model_number=model_number: self.select_model(model_number)
             action.triggered[()].connect(x)
-        self.ui.model_selector.setMenu(model_menu)
+        self.message_queue.put(
+            {'type': 'setMenu',
+            'widget': 'model_selector',
+            'menu': model_menu}
+        )
+        # self.ui.model_selector.setMenu(model_menu)
         current_model_path = model_menu_items.get(current_model)
         if not current_model_path:
-            self.ui.model_selector.setText('Load Model ... ')
+            self.message_queue.put(
+                {'type': 'setText',
+                'widget': 'model_selector',
+                'text': 'Load Model ... '}
+            )
         else:
             current_model_filename = os.path.basename(current_model_path)
             current_model_name, _ = os.path.splitext(current_model_filename)
@@ -1687,11 +1705,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             if not selected_model_dict_path:
                 return False
-            if not self.load_model_state_dict(selected_model_dict_path):
-                return False
-            if not self.load_model(self.model_state_dict):
-                return False
-            self.add_model_to_menu(selected_model_dict_path)
         else:
             model_menu_items = self.prefs.get('recent_models')
             selected_model_dict_path = model_menu_items.get(model_number)
@@ -1710,6 +1723,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'widget': 'model_selector',
                 'text': current_model_name}
             )
+
+    def _add_model_to_menu(self, selected_model_dict_path):
+        if not self.load_model_state_dict(selected_model_dict_path):
+            return False
+        if not self.load_model(self.model_state_dict):
+            return False
+        self.add_model_to_menu(selected_model_dict_path)
 
     def add_model_to_menu(self, selected_model_dict_path):
         model_menu_items = self.prefs.get('recent_models')
@@ -1821,6 +1841,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.updateInterfaceImage.emit(item)
             elif item_type == 'setText':
                 self.setText.emit(item)
+            elif item_type == 'setMenu':
+                self.setMenu.emit(item)
             elif item_type == 'mbox':
                 self.showMessageBox.emit(item)
             else:
