@@ -1696,12 +1696,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if not isinstance(model_menu_items, dict):
             model_menu_items = {99: 'Load Model ... '}
         for key in model_menu_items.keys():
-            if key == 99:
+            if key == '99':
                 new_model_menu_items[key] = model_menu_items[key]
             else:
-                if key + 1 < 10:
-                    new_model_menu_items[key + 1] = model_menu_items[key]
-        new_model_menu_items[1] = selected_model_dict_path
+                try:
+                    if int(key) + 1 < 10:
+                        new_model_menu_items[f'{int(key) + 1}'] = model_menu_items[key]
+                except:
+                    pass
+                
+        new_model_menu_items['1'] = selected_model_dict_path
         self.prefs['recent_models'] = new_model_menu_items
         self.prefs['current_model'] = '1'
         self.framework.save_prefs()
