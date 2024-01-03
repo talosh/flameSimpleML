@@ -760,7 +760,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.framework.save_prefs()
 
         self.model_state_dict_path = self.prefs.get('model_state_dict_path')
-        self.model_state_dict = None
+        self.model_state_dict = {}
         self.models_folder = os.path.join(
             os.path.dirname(__file__),
             'models'
@@ -1345,7 +1345,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             import flame
             import numpy as np
 
-            self.destination_node_name = clip.name.get_value() + '_ML'
+            model_name = self.model_state_dict.get('model_name', 'UnknownModel')
+            self.destination_node_name = clip.name.get_value() + f'_{model_name}_ML'
             destination_node_id = ''
             server_handle = WireTapServerHandle('localhost')
             clip_node_id = clip.get_wiretap_node_id()
