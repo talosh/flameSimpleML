@@ -1348,6 +1348,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             clip = selection[0]
             self.destination_node_name = clip.name.get_value() + '_ML'
             destination_node_id = ''
+            print (f'wiretap storage: {clip.get_wiretap_storage_id()}')
+            return
             pprint (dir(clip))
 
             server_handle = WireTapServerHandle('localhost')
