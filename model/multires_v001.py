@@ -467,11 +467,10 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 			try:
 				x_multires1 = self.multiresblock1(x)
 			except:
-				self.multiresblock1 = self.multiresblock1.cpu()
-				self.multiresblock1 = self.multiresblock1.to(dtype=torch.float32)
+				self.multiresblock1 = self.multiresblock1.to(device = 'cpu', dtype=torch.float32)
 				x_multires1 = self.multiresblock1(x.to(device = 'cpu', dtype=torch.float32))
-				print ('hello!')
 				del x
+
 				x_multires1 = x_multires1.to(device=device, dtype=torch.half)
 			print ('x_m1')
 			x_pool1 = self.pool1(x_multires1)
