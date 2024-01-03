@@ -1723,7 +1723,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.delete_destination_node(self.destination_node_id)
             self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
             self.destination_node_id = self.create_destination_node(
-                self.selection,
+                self.selection[0],
                 self.selection[0].duration.frame
                 )
             return True
