@@ -760,7 +760,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.prefs_global['version'] = self.version
         self.framework.save_prefs()
 
-        self.model_state_dict_path = self.prefs.get('model_state_dict_path')
+        self.model_state_dict_path = None
+        current_model_index = self.prefs.get('current_model_index')
+        if current_model_index:
+            model_menu_items = self.prefs.get('recent_models')
+            if model_menu_items:
+                self.model_state_dict_path = model_menu_items.get(current_model_index)
+
         self.model_state_dict = {}
         self.models_folder = os.path.join(
             os.path.dirname(__file__),
@@ -1649,7 +1655,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def fill_model_menu(self):
         model_menu_items = self.prefs.get('recent_models')
-        current_model = self.prefs.get('current_model', '99')
+        current_model_index = self.prefs.get('current_model_index', '99')
         if not isinstance(model_menu_items, dict):
             model_menu_items = {'99': 'Load Model ... '}
             self.prefs['recent_models'] = model_menu_items
@@ -1673,7 +1679,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'menu': model_menu}
         )
         # self.ui.model_selector.setMenu(model_menu)
-        current_model_path = model_menu_items.get(current_model)
+        current_model_path = model_menu_items.get(current_model_index)
         if not current_model_path:
             self.message_queue.put(
                 {'type': 'setText',
@@ -1721,7 +1727,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return False
             if not self.load_model(self.model_state_dict):
                 return False
-            self.prefs['current_model'] = model_number
+            self.prefs['current_model_index'] = model_number
             self.framework.save_prefs()
             current_model_filename = os.path.basename(selected_model_dict_path)
             current_model_name, _ = os.path.splitext(current_model_filename)
@@ -1761,7 +1767,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 
         new_model_menu_items['1'] = selected_model_dict_path
         self.prefs['recent_models'] = new_model_menu_items
-        self.prefs['current_model'] = '1'
+        self.prefs['current_model_index'] = '1'
         self.framework.save_prefs()
         self.fill_model_menu()
 
