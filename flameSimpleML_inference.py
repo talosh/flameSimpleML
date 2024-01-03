@@ -2059,29 +2059,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         
         try:
-            self.message_queue.put(
-                {'type': 'info', 
-                'message': f'Frame {self.current_frame}: Processing...'}
-                )
-            
-            h, w, _ = src_image_data.shape
-            ph = ((h - 1) // 64 + 1) * 64
-            pw = ((w - 1) // 64 + 1) * 64
-            padding = (0, pw - w, 0, ph - h)
-            src_image_data = src_image_data.permute (2, 0, 1)
-            src_image_data = F.pad(src_image_data, padding)
-            src_image_data = src_image_data.unsqueeze(0)
-            src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
-            output = self.current_model(src_image_data*2 -1)
-            rgb_output = (output[0] + 1) / 2
-            rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
-            result_image = rgb_output.to(dtype=torch.float32)
-            self.update_interface_image_torch(
-                    result_image[:, :, :3],
-                    self.ui.image_res_label,
-                    text = 'Frame: ' + str(self.current_frame)
-                )
+            res_image_data = self.apply_model(src_image_data)
         except Exception as e:
+            res_image_data = None
             self.message_queue.put(
                 {'type': 'info', 
                 'message': f'Frame {self.current_frame}'}
@@ -2092,7 +2072,32 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': message_string,
                 'action': None}
             )
+        
+        if res_image_data is not None:
+            self.update_interface_image_torch(
+                    result_image[:, :, :3],
+                    self.ui.image_res_label,
+                    text = 'Frame: ' + str(self.current_frame)
+                )
 
+    def apply_model(self, src_image_data):        
+        self.message_queue.put(
+            {'type': 'info', 
+            'message': f'Frame {self.current_frame}: Processing...'}
+            )
+        
+        h, w, _ = src_image_data.shape
+        ph = ((h - 1) // 64 + 1) * 64
+        pw = ((w - 1) // 64 + 1) * 64
+        padding = (0, pw - w, 0, ph - h)
+        src_image_data = src_image_data.permute (2, 0, 1)
+        src_image_data = F.pad(src_image_data, padding)
+        src_image_data = src_image_data.unsqueeze(0)
+        src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+        output = self.current_model(src_image_data*2 -1)
+        rgb_output = (output[0] + 1) / 2
+        rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
+        result_image = rgb_output.to(dtype=torch.float32)
 
         # self.rendering = True
 
