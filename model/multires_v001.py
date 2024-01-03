@@ -176,9 +176,16 @@ class Multiresblock_MemOpt(Module):
 			del a_cpu, b_cpu, c_cpu
 			x_cpu = x_cpu + shrtct_cpu
 			x_cpu = self.act(x_cpu)
-			x = x_cpu.to(device)
-			del x_cpu
-			return x
+			try:
+				torch.cuda.empty_cache()
+			except:
+				pass
+			try:
+				x = x_cpu.to(device)
+				del x_cpu
+				return x
+			except:
+				return x_cpu
 
 class Respath(Module):
 	'''
