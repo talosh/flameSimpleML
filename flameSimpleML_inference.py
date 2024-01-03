@@ -1943,7 +1943,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         if self.current_model is None:
             self.update_interface_image(
-                src_image_data,
+                src_image_data[:3],
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
             )
