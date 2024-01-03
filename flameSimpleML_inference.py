@@ -724,7 +724,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'QToolTip {color: rgb(170, 170, 170); background-color: rgb(71, 71, 71); border: 10px solid rgb(71, 71, 71)}')
 
         def set_selector_button_style(self, button):
-            button.setMinimumSize(QtCore.QSize(220, 28))
+            button.setMinimumSize(QtCore.QSize(190, 28))
             # button.setMaximumSize(QtCore.QSize(150, 28))
             button.setFocusPolicy(QtCore.Qt.NoFocus)
             button.setStyleSheet('QPushButton {color: rgb(154, 154, 154); background-color: rgb(44, 54, 68); border: none; font: 14px}'
