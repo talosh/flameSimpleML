@@ -1645,7 +1645,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             model_menu_items = {99: 'Load Model ... '}
 
         model_menu = QtWidgets.QMenu(self)
-        for model_number in sorted(model_menu_items.keys(), reverse=True):
+        for model_number in sorted(model_menu_items.keys(), reverse=False):
             code = model_menu_items.get(model_number, 99)
             action = model_menu.addAction(code)
             x = lambda chk=False, model_number=model_number: self.select_model(model_number)
