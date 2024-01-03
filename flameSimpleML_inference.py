@@ -1685,6 +1685,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.activateWindow()
             self.processEvents()
 
+            time.sleep(1)
+
             if not selected_model_dict_path:
                 return False
             if not self.load_model_state_dict(selected_model_dict_path):
