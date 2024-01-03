@@ -1045,7 +1045,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.fill_model_menu()
 
         if self.model_state_dict_path:
-            self.load_model_dict(self.model_state_dict_path)
+            self.load_model_state_dict(self.model_state_dict_path)
+            if self.model_state_dict:
+                self.load_model(self.model_state_dict)
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
         self.set_current_frame(self.min_frame)
