@@ -24,12 +24,10 @@ class Conv2d_batchnorm(torch.nn.Module):
 			padding_mode = 'reflect',
 			bias=False
 			)
-		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
 		self.act = torch.nn.SELU(inplace = inplace)
 	
 	def forward(self,x):
 		x = self.conv1(x)
-		# x = self.batchnorm(x)
 		
 		if self.activation:
 			return self.act(x)
@@ -93,9 +91,6 @@ class Multiresblock(torch.nn.Module):
 		
 		self.conv_7x7 = Conv2d_batchnorm(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3), activation=True)
 
-		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
-		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
-
 		self.act = torch.nn.SELU()
 
 	def forward(self,x):
@@ -107,10 +102,8 @@ class Multiresblock(torch.nn.Module):
 		c = self.conv_7x7(b)
 
 		x = torch.cat([a,b,c],axis=1)
-		# x = self.batch_norm1(x)
 
 		x = x + shrtct
-		# x = self.batch_norm2(x)
 		x = self.act(x)
 	
 		return x
@@ -144,9 +137,6 @@ class Multiresblock_MemOpt(torch.nn.Module):
 		self.conv_5x5 = Conv2d_batchnorm(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3), activation=True, inplace=True)
 		
 		self.conv_7x7 = Conv2d_batchnorm(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3), activation=True, inplace=True)
-
-		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
-		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
 
 		self.act = torch.nn.SELU(inplace=True)
 
@@ -190,8 +180,6 @@ class Respath(torch.nn.Module):
 			else:
 				self.shortcuts.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False))
 				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True))
-
-			self.bns.append(torch.nn.BatchNorm2d(num_out_filters))
 		
 	def forward(self,x):
 		for i in range(self.respath_length):
@@ -199,11 +187,9 @@ class Respath(torch.nn.Module):
 			shortcut = self.shortcuts[i](x)
 
 			x = self.convs[i](x)
-			# x = self.bns[i](x)
 			x = self.act(x)
 
 			x = x + shortcut
-			# x = self.bns[i](x)
 			x = self.act(x)
 
 		return x
@@ -230,12 +216,10 @@ class Respath_MemOpt(torch.nn.Module):
 		for i in range(self.respath_length):
 			if(i==0):
 				self.shortcuts.append(Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False))
-				self.convs.append(Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True, inplace=True))
+				self.convs.append(Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3), activation=True, inplace=True))
 			else:
 				self.shortcuts.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False))
 				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True, inplace=True))
-
-			self.bns.append(torch.nn.BatchNorm2d(num_out_filters))
 		
 	def forward(self,x):
 		for i in range(self.respath_length):
