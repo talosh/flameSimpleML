@@ -1643,6 +1643,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         current_model = self.prefs.get('current_model', '99')
         if not isinstance(model_menu_items, dict):
             model_menu_items = {'99': 'Load Model ... '}
+        if '99' not in model_menu_items.keys():
+            model_menu_items['99'] = 'Load Model ... '}
 
         model_menu = QtWidgets.QMenu(self)
         for model_number in sorted(model_menu_items.keys(), reverse=False):
