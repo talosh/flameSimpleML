@@ -146,16 +146,38 @@ class Multiresblock_MemOpt(Module):
 		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
-		shrtct = self.shortcut(x)
-		a = self.conv_3x3(x)
-		b = self.conv_5x5(a)
-		c = self.conv_7x7(b)
-
-		x = torch.cat([a,b,c],axis=1)
-		x = x + shrtct
-		x = self.act(x)
-
-		return x
+		try:
+			shrtct = self.shortcut(x)
+			a = self.conv_3x3(x)
+			del x
+			b = self.conv_5x5(a)
+			c = self.conv_7x7(b)
+			x = torch.cat([a,b,c],axis=1)
+			del a, b, c
+			x = x + shrtct
+			x = self.act(x)
+			return x
+		except:
+			device = x.device
+			shrtct = self.shortcut(x)
+			shrtct_cpu = shrtct.cpu()
+			del shrtct
+			a = self.conv_3x3(x)
+			del x
+			b = self.conv_5x5(a)
+			a_cpu = a.cpu()
+			del a
+			c = self.conv_7x7(b)
+			b_cpu = b.cpu()
+			c_cpu = c.cpu()
+			del b, c
+			x_cpu = torch.cat([a_cpu, b_cpu, c_cpu], axis=1)
+			del a_cpu, b_cpu, c_cpu
+			x_cpu = x_cpu + shrtct_cpu
+			x_cpu = self.act(x_cpu)
+			x = x_cpu.to(device)
+			del x_cpu
+			return x
 
 class Respath(Module):
 	'''
