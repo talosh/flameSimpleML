@@ -447,6 +447,7 @@ class MultiResUnet_MemOpt(Module):
 			del x_pool4
 		except:
 			print ('encoder failure')
+		
 		try:
 			up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
 			x_multires6 = self.multiresblock6(up6)
