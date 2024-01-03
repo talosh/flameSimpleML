@@ -978,6 +978,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': self.close_application}
             )
             return
+        
+        self.torch_device = self.set_device()
+        print (self.torch_device)
 
         self.clips_parent = self.selection[0].parent
         duration = self.selection[0].duration.frame
@@ -1884,15 +1887,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if sys.platform == 'darwin':
             try:
                 import torch
-                self.torch_device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+                torch_device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+                return torch_device
             except:
-                pass
+                return 'cpu'
         else:
             try:
                 import torch
-                self.torch_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+                torch_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+                return torch_device
             except:
-                pass
+                return 'cpu'
 
 
     def close_application(self):
