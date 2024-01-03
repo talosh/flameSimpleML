@@ -2,7 +2,6 @@ try:
 	import torch
 	from torch.nn import Module
 except:
-	torch = object
 	torch.nn.Module = object
 	Module = object
 
