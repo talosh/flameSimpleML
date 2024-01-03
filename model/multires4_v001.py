@@ -1,4 +1,7 @@
-import torch
+try:
+	import torch
+except:
+	pass
 
 
 class Conv2d_batchnorm(torch.nn.Module):
