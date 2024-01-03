@@ -5,7 +5,7 @@ except:
 	torch = object
 	Module = object
 
-class Conv2d_batchnorm(Module):
+class Conv2d_batchnorm(torch.nn.Module):
 	'''
 	2D Convolutional layers
 
