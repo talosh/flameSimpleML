@@ -981,7 +981,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
         
         self.torch_device = self.set_device()
-        print (self.torch_device)
 
         self.clips_parent = self.selection[0].parent
         duration = self.selection[0].duration.frame
@@ -1609,6 +1608,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         return destination_node_id
 
+    def delete_destination_node(self, destination_node_id):
+        server_handle = WireTapServerHandle('localhost')
+        clip_node_handle = WireTapNodeHandle(server_handle, destination_node_id)
+        clip_node_handle.destroyNode()
+        server_handle = None
+        clip_node_handle = None
+
     def scan_models(self, folder_path):
         import importlib.util
 
@@ -1708,8 +1714,18 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         input_channles = model_state_dict.get('input_channels', 3)
         output_channels = model_state_dict.get('output_channels', 3)
         try:
-            self.current_model = self.models[model_name](input_channles, output_channels)
+            self.current_model = self.models[model_name](input_channles, output_channels).to(self.torch_device)
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
+            self.current_model.half()
+            self.current_model.eval()
+            self.input_channels = input_channles
+            self.output_channels = output_channels
+            self.delete_destination_node(self.destination_node_id)
+            self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
+            self.destination_node_id = self.create_destination_node(
+                self.selection,
+                self.selection[0].duration.frame
+                )
             return True
         except Exception as e:
             message_string = f'Unable to load model state:\n{e}'
@@ -1957,7 +1973,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
         
-        
+
 
         # self.rendering = True
 
