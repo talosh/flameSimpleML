@@ -1718,8 +1718,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if not isinstance(model_menu_items, dict):
             model_menu_items = {'99': 'Load Model ... '}
 
-        pprint (model_menu_items.keys())
-
         for key in model_menu_items.keys():
             if key == '99':
                 new_model_menu_items[key] = model_menu_items[key]
