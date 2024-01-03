@@ -1646,9 +1646,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         model_menu = QtWidgets.QMenu(self)
         for model_number in sorted(model_menu_items.keys(), reverse=False):
-            # model_file_name = os.path.basename(model_menu_items.get(model_number, str()))
-            # model_name, _ = os.path.splitext(model_file_name)
-            code = model_menu_items.get(model_number)
+            model_file_name = os.path.basename(model_menu_items.get(model_number, str()))
+            model_name, _ = os.path.splitext(model_file_name)
+            code = model_name
             action = model_menu.addAction(code)
             x = lambda chk=False, model_number=model_number: self.select_model(model_number)
             action.triggered[()].connect(x)
@@ -1659,15 +1659,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         else:
             current_model_filename = os.path.basename(current_model_path)
             current_model_name, _ = os.path.splitext(current_model_filename)
-            self.ui.model_selector.setText(current_model_name)
+            self.message_queue.put(
+                {'type': 'setText',
+                'widget': 'model_selector',
+                'text': current_model_name}
+            )
 
     def select_model(self, model_number):
         import flame
 
         if model_number == '99': # load model code
-            
-            print ('hello')
-
             selected_model_dict_path = None
             self.hide()
             flame.browser.show(
@@ -1689,6 +1690,24 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return False
             self.add_model_to_menu(selected_model_dict_path)
             return selected_model_dict_path
+        else:
+            model_menu_items = self.prefs.get('recent_models')
+            selected_model_dict_path = model_menu_items.get(model_number)
+            if not selected_model_dict_path:
+                return False
+            if not self.load_model_state_dict(selected_model_dict_path):
+                return False
+            if not self.load_model(self.model_state_dict):
+                return False
+            self.prefs['current_model'] = model_number
+            self.framework.save_prefs()
+            current_model_filename = os.path.basename(selected_model_dict_path)
+            current_model_name, _ = os.path.splitext(current_model_filename)
+            self.message_queue.put(
+                {'type': 'setText',
+                'widget': 'model_selector',
+                'text': current_model_name}
+            )
 
     def add_model_to_menu(self, selected_model_dict_path):
         model_menu_items = self.prefs.get('recent_models')
