@@ -1692,7 +1692,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if not self.load_model(self.model_state_dict):
                 return False
             self.add_model_to_menu(selected_model_dict_path)
-            return selected_model_dict_path
         else:
             model_menu_items = self.prefs.get('recent_models')
             selected_model_dict_path = model_menu_items.get(model_number)
