@@ -2019,6 +2019,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         import numpy as np
         import torch
+        from torch.nn import functional as F
 
         timestamp = time.time()
 
@@ -2062,10 +2063,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
 
+        h, w, _ = src_image_data.shape
+        ph = ((h - 1) // 64 + 1) * 64
+        pw = ((w - 1) // 64 + 1) * 64
+        padding = (0, pw - w, 0, ph - h)
+        src_image_data = F.pad(src_image_data, padding)
+        src_image_data = src_image_data.unsqueeze(0)
         src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
-
-        pprint (dir(self.current_model))
-
+        print(f'src shape: {src_image_data.shape}')
         output = self.current_model(src_image_data*2 -1)
         print(f'output shape: {output.shape}')
         rgb_output = (output + 1) / 2
