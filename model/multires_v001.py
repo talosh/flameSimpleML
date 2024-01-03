@@ -125,7 +125,6 @@ class Multiresblock_MemOpt(Module):
 	'''
 
 	def __init__(self, num_in_channels, num_filters, alpha=1.69):
-		print ('multires_block mem opt')
 		super().__init__()
 		self.alpha = alpha
 		self.W = num_filters * alpha
