@@ -2049,11 +2049,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
         
-        self.message_queue.put(
-            {'type': 'info', 
-            'message': f'Frame {self.current_frame}: Processing...'}
-            )
-        self.processEvents()
 
         if not self.rendering_by_render_button:
             self.update_interface_image_torch(
@@ -2061,25 +2056,42 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
             )
-
-        h, w, _ = src_image_data.shape
-        ph = ((h - 1) // 64 + 1) * 64
-        pw = ((w - 1) // 64 + 1) * 64
-        padding = (0, pw - w, 0, ph - h)
-        src_image_data = F.pad(src_image_data, padding)
-        src_image_data = src_image_data.unsqueeze(0)
-        src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
-        print(f'src shape: {src_image_data.shape}')
-        output = self.current_model(src_image_data*2 -1)
-        print(f'output shape: {output.shape}')
-        rgb_output = (output + 1) / 2
-        result_image = rgb_output.to(dtype=torch.float32)
-
-        self.update_interface_image_torch(
-                result_image[:, :, :3],
-                self.ui.image_res_label,
-                text = 'Frame: ' + str(self.current_frame)
+        
+        try:
+            self.message_queue.put(
+                {'type': 'info', 
+                'message': f'Frame {self.current_frame}: Processing...'}
+                )
+            
+            h, w, _ = src_image_data.shape
+            ph = ((h - 1) // 64 + 1) * 64
+            pw = ((w - 1) // 64 + 1) * 64
+            padding = (0, pw - w, 0, ph - h)
+            src_image_data = F.pad(src_image_data, padding)
+            src_image_data = src_image_data.unsqueeze(0)
+            src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+            print(f'src shape: {src_image_data.shape}')
+            output = self.current_model(src_image_data*2 -1)
+            print(f'output shape: {output.shape}')
+            rgb_output = (output + 1) / 2
+            result_image = rgb_output.to(dtype=torch.float32)
+            self.update_interface_image_torch(
+                    result_image[:, :, :3],
+                    self.ui.image_res_label,
+                    text = 'Frame: ' + str(self.current_frame)
+                )
+        except Exception as e:
+            self.message_queue.put(
+                {'type': 'info', 
+                'message': f'Frame {self.current_frame}'}
+                )
+            message_string = f'Error processing frame:\n{e}'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
             )
+
 
         # self.rendering = True
 
