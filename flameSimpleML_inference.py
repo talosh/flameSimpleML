@@ -663,6 +663,21 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
             self.end_frame_label.setAlignment(QtCore.Qt.AlignCenter)
             bottom_layout.addWidget(self.end_frame_label)
+            bottom_layout.addSpacing(4)
+
+            # Tiles selector button
+            self.tiles_selector = QtWidgets.QPushButton('Tiles')
+            self.tiles_selector.setContentsMargins(10, 4, 10, 4)
+            self.set_button_style(self.model_selector)
+            bottom_layout.addWidget(self.tiles_selector, alignment=QtCore.Qt.AlignRight)
+            bottom_layout.addSpacing(4)
+
+            # CPU selector button
+            self.cpu_selector = QtWidgets.QPushButton('CPU')
+            self.cpu_selector.setContentsMargins(10, 4, 10, 4)
+            self.set_button_style(self.model_selector)
+            bottom_layout.addWidget(self.cpu_selector, alignment=QtCore.Qt.AlignRight)
+            bottom_layout.addSpacing(4)
 
             '''
             # TW Speed test field:
