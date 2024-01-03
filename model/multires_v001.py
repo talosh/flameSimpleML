@@ -246,15 +246,11 @@ class Respath_MemOpt(torch.nn.Module):
 		
 	def forward(self,x):
 		for i in range(self.respath_length):
-
 			shortcut = self.shortcuts[i](x)
-
 			x = self.convs[i](x)
 			x = self.act(x)
-
 			x = x + shortcut
 			x = self.act(x)
-
 		return x
 
 class MultiResUnet(torch.nn.Module):
