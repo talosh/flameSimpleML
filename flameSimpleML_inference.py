@@ -1746,7 +1746,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         model_menu_items = self.prefs.get('recent_models')
         new_model_menu_items = {}
         if not isinstance(model_menu_items, dict):
-            model_menu_items = {'99': 'Load Model ... '}
+            model_menu_items = {99: 'Load Model ... '}
 
         for key in model_menu_items.keys():
             if key == '99':
