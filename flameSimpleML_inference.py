@@ -1947,6 +1947,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
             )
+            return
+        
+        if self.view_mode == 'F1':
+            self.update_interface_image(
+                src_image_data[:, :, :3],
+                self.ui.image_res_label,
+                text = 'Frame: ' + str(self.current_frame)
+            )
+            return
 
         # self.rendering = True
 
