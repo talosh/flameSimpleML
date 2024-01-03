@@ -241,6 +241,7 @@ class Respath_MemOpt(Module):
 
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 		super().__init__()
+		print (f'respath memopt init {respath_length}')
 		self.respath_length = respath_length
 		self.shortcuts = torch.nn.ModuleList([])
 		self.convs = torch.nn.ModuleList([])
@@ -255,8 +256,7 @@ class Respath_MemOpt(Module):
 				self.shortcuts.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False))
 				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True, inplace=True))
 		
-	def forward(self,x):
-		print (f'respath memopt {i}')
+	def forward(self, x):
 		for i in range(self.respath_length):
 			shortcut = self.shortcuts[i](x)
 			x = self.convs[i](x)
