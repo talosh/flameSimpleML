@@ -668,14 +668,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # Tiles selector button
             self.tiles_selector = QtWidgets.QPushButton('Tiles')
             self.tiles_selector.setContentsMargins(10, 4, 10, 4)
-            self.set_button_style(self.tiles_selector)
+            self.set_cpu_button_style(self.tiles_selector)
             bottom_layout.addWidget(self.tiles_selector, alignment=QtCore.Qt.AlignRight)
             bottom_layout.addSpacing(4)
 
             # CPU selector button
             self.cpu_selector = QtWidgets.QPushButton('CPU')
             self.cpu_selector.setContentsMargins(10, 4, 10, 4)
-            self.set_button_style(self.cpu_selector)
+            self.set_cpu_button_style(self.cpu_selector)
             bottom_layout.addWidget(self.cpu_selector, alignment=QtCore.Qt.AlignRight)
             bottom_layout.addSpacing(4)
 
@@ -730,6 +730,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         def set_button_style(self, button):
             button.setMinimumSize(QtCore.QSize(150, 28))
             button.setMaximumSize(QtCore.QSize(150, 28))
+            button.setFocusPolicy(QtCore.Qt.NoFocus)
+            button.setStyleSheet('QPushButton {color: rgb(154, 154, 154); background-color: rgb(58, 58, 58); border: none; font: 14px}'
+            'QPushButton:hover {border: 1px solid rgb(90, 90, 90)}'
+            'QPushButton:pressed {color: rgb(159, 159, 159); background-color: rgb(66, 66, 66); border: 1px solid rgb(90, 90, 90)}'
+            'QPushButton:disabled {color: rgb(116, 116, 116); background-color: rgb(58, 58, 58); border: none}'
+            'QPushButton::menu-indicator {subcontrol-origin: padding; subcontrol-position: center right}'
+            'QToolTip {color: rgb(170, 170, 170); background-color: rgb(71, 71, 71); border: 10px solid rgb(71, 71, 71)}')
+
+        def set_cpu_button_style(self, button):
+            button.setMinimumSize(QtCore.QSize(80, 28))
+            button.setMaximumSize(QtCore.QSize(80, 28))
             button.setFocusPolicy(QtCore.Qt.NoFocus)
             button.setStyleSheet('QPushButton {color: rgb(154, 154, 154); background-color: rgb(58, 58, 58); border: none; font: 14px}'
             'QPushButton:hover {border: 1px solid rgb(90, 90, 90)}'
