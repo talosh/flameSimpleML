@@ -1024,7 +1024,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
         self.destination_node_id = self.create_destination_node(
-            self.selection,
+            self.selection[0],
             duration
             )
 
@@ -1340,35 +1340,23 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             num_channels += fmt.numChannels()
         return num_channels
     
-    def create_destination_node(self, selection, num_frames):
+    def create_destination_node(self, clip, num_frames):
         try:
             import flame
             import numpy as np
 
-            clip = selection[0]
             self.destination_node_name = clip.name.get_value() + '_ML'
             destination_node_id = ''
-            print (f'wiretap storage: {clip.get_wiretap_storage_id()}')
-            return
-            pprint (dir(clip))
-
             server_handle = WireTapServerHandle('localhost')
             clip_node_id = clip.get_wiretap_node_id()
             clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
             fmt = WireTapClipFormat()
             if not clip_node_handle.getClipFormat(fmt):
                 raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
-            
             bits_per_channel = fmt.bitsPerPixel() // fmt.numChannels()
             self.bits_per_channel = bits_per_channel
             self.format_tag = fmt.formatTag()
             self.fmt = fmt
-
-            pprint (self.format_tag)
-            pprint (dir(fmt))
-            print (f'num channels: {fmt.numChannels()}')
-
-            return
 
             self.temp_library.release_exclusive_access()
             node_id = self.temp_library.get_wiretap_node_id()
@@ -1396,17 +1384,22 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     "Unable to obtain clip format: %s." % clip_node_handle.lastError()
                 )
             
-            '''
+            # '''
             metadata = dest_fmt.metaData()
             metadata_tag = dest_fmt.metaDataTag()
             metadata = metadata.replace('<ProxyFormat>default</ProxyFormat>', '<ProxyFormat>none</ProxyFormat>')
             destination_node_handle.setMetaData(metadata_tag, metadata)
-            '''
+            # '''
 
             destination_node_id = destination_node_handle.getNodeId().id()
 
         except Exception as e:
-            self.message('Error creating destination wiretap node: %s' % e)
+            message_string = f'Error creating destination wiretap node:\n {e}'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
             return None
         finally:
             server_handle = None
