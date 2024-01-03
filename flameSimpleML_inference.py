@@ -2123,6 +2123,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
         result_image = rgb_output.to(dtype=torch.float32)
 
+        self.message_queue.put(
+            {'type': 'info', 
+            'message': f'Frame {self.current_frame}'}
+            )
+        
+        return result_image
+
+
     def read_selection_data(self, selection, frame_number):
         import torch
 
