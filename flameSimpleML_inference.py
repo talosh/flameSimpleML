@@ -1726,7 +1726,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'widget': 'model_selector',
                 'text': current_model_name}
             )
-            
+
         self.stop_frame_rendering_thread()        
         self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
         self.frame_thread.daemon = True
@@ -2036,7 +2036,21 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
         
+        self.message_queue.put(
+            {'type': 'info', 
+            'message': f'Frame {self.current_frame}: Processing...'}
+            )
+        self.processEvents()
 
+        src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+        output = self.current_model(src_image_data*2 -1)
+        rgb_output = (output + 1) / 2
+        result_image = rgb_output.to(dtype=torch.float32)
+        self.update_interface_image(
+                result_image[:, :, :3],
+                self.ui.image_res_label,
+                text = 'Frame: ' + str(self.current_frame)
+            )
 
         # self.rendering = True
 
