@@ -158,7 +158,7 @@ class Multiresblock_MemOpt(Module):
 			x = self.act(x)
 			return x
 		except:
-			print ('Low GPU memory - trying mixed mode (slow)')
+			print ('flameSimpleML Multiresblock: Low GPU memory - trying mixed mode (slow)')
 			device = x.device
 			shrtct = self.shortcut(x)
 			shrtct_cpu = shrtct.cpu()
