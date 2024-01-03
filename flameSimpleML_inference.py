@@ -1662,10 +1662,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.ui.model_selector.setText(current_model_name)
 
     def select_model(self, model_number):
-        
-        print (f'model number: {model_number}')
-        print (type(model_number))
-
         import flame
 
         if model_number == '99': # load model code
@@ -1707,6 +1703,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     new_model_menu_items[key + 1] = model_menu_items[key]
         new_model_menu_items[1] = selected_model_dict_path
         self.prefs['recent_models'] = new_model_menu_items
+        self.prefs['current_model'] = '1'
         self.framework.save_prefs()
         self.fill_model_menu()
 
