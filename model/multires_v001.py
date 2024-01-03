@@ -463,10 +463,11 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 			del x_multires1
 			del up9
 		except:
-			print ('mem exception')
-			x_multires1 = self.multiresblock1(x)
-			print ('x_m1')
-			del x
+			try:
+				x_multires1 = self.multiresblock1(x)
+			except:
+				self.multiresblock1 = self.multiresblock1.cpu()
+				x_multires1 = self.multiresblock1(x)
 			x_pool1 = self.pool1(x_multires1)
 			x_multires1 = self.respath1(x_multires1)
 			x_multires1_cpu = x_multires1.cpu()
