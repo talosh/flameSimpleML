@@ -2,6 +2,7 @@ try:
 	import torch
 	from torch.nn import Module
 except:
+	torch = object
 	Module = object
 
 class Conv2d_batchnorm(Module):
