@@ -2128,7 +2128,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'message': f'Frame {self.current_frame}'}
             )
         
-        return result_image
+        return resu
 
 
     def read_selection_data(self, selection, frame_number):

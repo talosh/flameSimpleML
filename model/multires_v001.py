@@ -372,108 +372,107 @@ class MultiResUnet_MemOpt(Module):
 		super().__init__()
 		
 		self.alpha = alpha
-		try:
-			# Encoder Path
-			self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
-			self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
-			self.pool1 =  torch.nn.MaxPool2d(2)
-			self.respath1 = Respath_MemOpt(self.in_filters1,32,respath_length=4)
+		# Encoder Path
+		self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
+		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
+		self.pool1 =  torch.nn.MaxPool2d(2)
+		self.respath1 = Respath_MemOpt(self.in_filters1,32,respath_length=4)
 
-			self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
-			self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
-			self.pool2 =  torch.nn.MaxPool2d(2)
-			self.respath2 = Respath_MemOpt(self.in_filters2,32*2,respath_length=3)
-		
-		
-			self.multiresblock3 =  Multiresblock_MemOpt(self.in_filters2,32*4)
-			self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
-			self.pool3 =  torch.nn.MaxPool2d(2)
-			self.respath3 = Respath_MemOpt(self.in_filters3,32*4,respath_length=2)
-		
-		
-			self.multiresblock4 = Multiresblock_MemOpt(self.in_filters3,32*8)
-			self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
-			self.pool4 =  torch.nn.MaxPool2d(2)
-			self.respath4 = Respath_MemOpt(self.in_filters4,32*8,respath_length=1)
-		
-			self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
-			self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
-		except:
-			print ('encoder failed')
-		try:
-			# Decoder path
-			self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
-			self.concat_filters1 = 32*8 *2
-			self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
-			self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
+		self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
+		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
+		self.pool2 =  torch.nn.MaxPool2d(2)
+		self.respath2 = Respath_MemOpt(self.in_filters2,32*2,respath_length=3)
+	
+	
+		self.multiresblock3 =  Multiresblock_MemOpt(self.in_filters2,32*4)
+		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
+		self.pool3 =  torch.nn.MaxPool2d(2)
+		self.respath3 = Respath_MemOpt(self.in_filters3,32*4,respath_length=2)
+	
+	
+		self.multiresblock4 = Multiresblock_MemOpt(self.in_filters3,32*8)
+		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
+		self.pool4 =  torch.nn.MaxPool2d(2)
+		self.respath4 = Respath_MemOpt(self.in_filters4,32*8,respath_length=1)
+	
+		self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
+		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
+		# Decoder path
+		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
+		self.concat_filters1 = 32*8 *2
+		self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
+		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 
-			self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
-			self.concat_filters2 = 32*4 *2
-			self.multiresblock7 = Multiresblock_MemOpt(self.concat_filters2,32*4)
-			self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
-		
-			self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
-			self.concat_filters3 = 32*2 *2
-			self.multiresblock8 = Multiresblock_MemOpt(self.concat_filters3,32*2)
-			self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
-		
-			self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
-			self.concat_filters4 = 32 *2
-			self.multiresblock9 = Multiresblock_MemOpt(self.concat_filters4,32)
-			self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
-		except:
-			print ('decoder failed')
+		self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
+		self.concat_filters2 = 32*4 *2
+		self.multiresblock7 = Multiresblock_MemOpt(self.concat_filters2,32*4)
+		self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
+	
+		self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
+		self.concat_filters3 = 32*2 *2
+		self.multiresblock8 = Multiresblock_MemOpt(self.concat_filters3,32*2)
+		self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
+	
+		self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
+		self.concat_filters4 = 32 *2
+		self.multiresblock9 = Multiresblock_MemOpt(self.concat_filters4,32)
+		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation=False)
 
 		self.msg = Message(msg_queue)
 
 	def forward(self, x):
-		x_multires1 = self.multiresblock1(x)
-		x_pool1 = self.pool1(x_multires1)
-		x_multires1 = self.respath1(x_multires1)
-		
-		x_multires2 = self.multiresblock2(x_pool1)
-		del x_pool1
-		x_pool2 = self.pool2(x_multires2)
-		x_multires2 = self.respath2(x_multires2)
+		try:
+			x_multires1 = self.multiresblock1(x)
+			x_pool1 = self.pool1(x_multires1)
+			x_multires1 = self.respath1(x_multires1)
+			
+			x_multires2 = self.multiresblock2(x_pool1)
+			del x_pool1
+			x_pool2 = self.pool2(x_multires2)
+			x_multires2 = self.respath2(x_multires2)
 
-		x_multires3 = self.multiresblock3(x_pool2)
-		del x_pool2
-		x_pool3 = self.pool3(x_multires3)
-		x_multires3 = self.respath3(x_multires3)
+			x_multires3 = self.multiresblock3(x_pool2)
+			del x_pool2
+			x_pool3 = self.pool3(x_multires3)
+			x_multires3 = self.respath3(x_multires3)
 
-		x_multires4 = self.multiresblock4(x_pool3)
-		del x_pool3
-		x_pool4 = self.pool4(x_multires4)
-		x_multires4 = self.respath4(x_multires4)
+			x_multires4 = self.multiresblock4(x_pool3)
+			del x_pool3
+			x_pool4 = self.pool4(x_multires4)
+			x_multires4 = self.respath4(x_multires4)
 
-		x_multires5 = self.multiresblock5(x_pool4)
-		del x_pool4
+			x_multires5 = self.multiresblock5(x_pool4)
+			del x_pool4
+		except:
+			print ('encoder failure')
+		try:
+			up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
+			x_multires6 = self.multiresblock6(up6)
+			del x_multires5
+			del x_multires4
+			del up6
 
-		up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
-		x_multires6 = self.multiresblock6(up6)
-		del x_multires5
-		del x_multires4
-		del up6
+			up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
+			x_multires7 = self.multiresblock7(up7)
+			del x_multires6
+			del x_multires3
+			del up7
 
-		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
-		x_multires7 = self.multiresblock7(up7)
-		del x_multires6
-		del x_multires3
-		del up7
+			up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
+			x_multires8 = self.multiresblock8(up8)
+			del x_multires7
+			del x_multires2
+			del up8
 
-		up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
-		x_multires8 = self.multiresblock8(up8)
-		del x_multires7
-		del x_multires2
-		del up8
-
-		up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
-		x_multires9 = self.multiresblock9(up9)
-		del x_multires8
-		del x_multires1
-		del up9
+			up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
+			x_multires9 = self.multiresblock9(up9)
+			del x_multires8
+			del x_multires1
+			del up9
+		except:
+			print ('decoder failure')
 
 		out =  self.conv_final(x_multires9)
 
