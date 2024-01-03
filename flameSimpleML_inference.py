@@ -1668,6 +1668,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import flame
 
         if model_number == 99: # load model code
+            
+            print ('hello')
+
             selected_model_dict_path = None
             self.hide()
             flame.browser.show(
