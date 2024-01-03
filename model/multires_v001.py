@@ -360,7 +360,7 @@ class MultiResUnet(torch.nn.Module):
 		return out
 
 class MultiResUnet_MemOpt(torch.nn.Module):
-	def __init__(self, input_channels, num_classes, alpha=1.69):
+	def __init__(self, input_channels, num_classes, alpha=1.69, msg_queue = None):
 		super().__init__()
 		
 		self.alpha = alpha
@@ -414,6 +414,8 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation=False)
+
+		self.msg = Message(msg_queue)
 
 	def forward(self, x : torch.Tensor)->torch.Tensor:
 		try:
@@ -470,7 +472,7 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 				self.multiresblock1 = self.multiresblock1.to(device = 'cpu', dtype=torch.float32)
 				x_multires1 = self.multiresblock1(x.to(device = 'cpu', dtype=torch.float32))
 				del x
-
+				print ('hello')
 				x_multires1 = x_multires1.to(device=device, dtype=torch.half)
 			print ('x_m1')
 			x_pool1 = self.pool1(x_multires1)
@@ -482,6 +484,11 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 
 		return out
 
+class Message:
+	def __init__(self, queue) -> None:
+		self.queue = queue
+	def send(msg):
+		pass
 
 class Model:
     @staticmethod
