@@ -1726,6 +1726,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'widget': 'model_selector',
                 'text': current_model_name}
             )
+            
+        self.stop_frame_rendering_thread()        
+        self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
+        self.frame_thread.daemon = True
+        self.frame_thread.start()
 
     def _add_model_to_menu(self, selected_model_dict_path):
         if not self.load_model_state_dict(selected_model_dict_path):
