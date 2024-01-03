@@ -372,33 +372,35 @@ class MultiResUnet_MemOpt(Module):
 		super().__init__()
 		
 		self.alpha = alpha
-		
-		# Encoder Path
-		self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
-		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
-		self.pool1 =  torch.nn.MaxPool2d(2)
-		self.respath1 = Respath_MemOpt(self.in_filters1,32,respath_length=4)
+		try:
+			# Encoder Path
+			self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
+			self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
+			self.pool1 =  torch.nn.MaxPool2d(2)
+			self.respath1 = Respath_MemOpt(self.in_filters1,32,respath_length=4)
 
-		self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
-		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
-		self.pool2 =  torch.nn.MaxPool2d(2)
-		self.respath2 = Respath_MemOpt(self.in_filters2,32*2,respath_length=3)
-	
-	
-		self.multiresblock3 =  Multiresblock_MemOpt(self.in_filters2,32*4)
-		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
-		self.pool3 =  torch.nn.MaxPool2d(2)
-		self.respath3 = Respath_MemOpt(self.in_filters3,32*4,respath_length=2)
-	
-	
-		self.multiresblock4 = Multiresblock_MemOpt(self.in_filters3,32*8)
-		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
-		self.pool4 =  torch.nn.MaxPool2d(2)
-		self.respath4 = Respath_MemOpt(self.in_filters4,32*8,respath_length=1)
-	
-		self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
-		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
-	 
+			self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
+			self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
+			self.pool2 =  torch.nn.MaxPool2d(2)
+			self.respath2 = Respath_MemOpt(self.in_filters2,32*2,respath_length=3)
+		
+		
+			self.multiresblock3 =  Multiresblock_MemOpt(self.in_filters2,32*4)
+			self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
+			self.pool3 =  torch.nn.MaxPool2d(2)
+			self.respath3 = Respath_MemOpt(self.in_filters3,32*4,respath_length=2)
+		
+		
+			self.multiresblock4 = Multiresblock_MemOpt(self.in_filters3,32*8)
+			self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
+			self.pool4 =  torch.nn.MaxPool2d(2)
+			self.respath4 = Respath_MemOpt(self.in_filters4,32*8,respath_length=1)
+		
+			self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
+			self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
+		except:
+			print ('encoder failed')
+
 		# Decoder path
 		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
 		self.concat_filters1 = 32*8 *2
