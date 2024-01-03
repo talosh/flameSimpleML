@@ -302,7 +302,7 @@ class MultiResUnet(Module):
 
 		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation=False)
 
-	def forward(self, x : torch.Tensor)->torch.Tensor:
+	def forward(self, x):
 		x_multires1 = self.multiresblock1(x)
 		x_pool1 = self.pool1(x_multires1)
 		x_multires1 = self.respath1(x_multires1)
@@ -394,7 +394,7 @@ class MultiResUnet_MemOpt(Module):
 
 		self.msg = Message(msg_queue)
 
-	def forward(self, x : torch.Tensor)->torch.Tensor:
+	def forward(self, x):
 		x_multires1 = self.multiresblock1(x)
 		x_pool1 = self.pool1(x_multires1)
 		x_multires1 = self.respath1(x_multires1)
