@@ -1738,21 +1738,37 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.message_queue.put(
             {'type': 'info', 
-            'message': f'Frame {self.current_frame}: reading source image data ...'}
+            'message': f'Frame {self.current_frame}: reading source image(s) data ...'}
             )
         
         src_image_data = self.read_selection_data(
             self.selection, 
             self.current_frame
             )
+        
+        print (src_image_data.shape)
 
         # self.rendering = True
 
     def read_selection_data(self, selection, frame_number):
+        import torch
+
+        tensors = []
         for clip in selection:
             clip_image_data = self.read_image_data_torch(clip, frame_number)
-            print (clip_image_data.shape)
-
+            tensors.append(clip_image_data)
+        
+        try:
+            concatenated_data = torch.cat(tensors, dim=2)
+            return concatenated_data
+        except Exception as e:
+            message_string = f'Unable to read source images data:\n"{e}"'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+    
     def read_image_data_torch(self, clip, frame_number):
         import flame
         import numpy as np
@@ -1898,7 +1914,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return torch_device
             except:
                 return 'cpu'
-
 
     def close_application(self):
         import flame
