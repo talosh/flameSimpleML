@@ -767,6 +767,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         )
         self.models = {}
         self.current_model = None
+        self.torch_device = 'cpu'
         
         self.message_queue = queue.Queue()
         self.interface_image_queue = queue.Queue(maxsize=8)
@@ -1784,7 +1785,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 image_array = torch.from_numpy(np_image_array.copy())
                 del np_image_array
                 image_array = image_array.to(
-                    device = self.parent_app.torch_device,
+                    device = self.torch_device,
                     dtype = torch.float32,
                     non_blocking=True
                     )
@@ -1803,7 +1804,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 image_array = torch.from_numpy(values_10bit.astype(np.float32))
                 image_array = image_array[:fmt.height() * fmt.width() * fmt.numChannels()]
                 image_array = image_array.to(
-                    device = self.parent_app.torch_device,
+                    device = self.torch_device,
                     dtype = torch.float32,
                     non_blocking=True
                     )
@@ -1831,7 +1832,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 image_array = torch.from_numpy(np_image_array.copy())
                 del np_image_array
                 image_array = image_array.to(
-                    device = self.parent_app.torch_device,
+                    device = self.torch_device,
                     dtype = torch.float32,
                     non_blocking=True
                     )
@@ -1845,7 +1846,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 image_array = torch.from_numpy(np_image_array.copy())
                 del np_image_array
                 image_array = image_array.to(
-                    device = self.parent_app.torch_device,
+                    device = self.torch_device,
                     dtype = torch.float32,
                     non_blocking=True
                     )
@@ -1874,9 +1875,25 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             try:
                 import torch
                 if torch.cuda.is_available():
+                    self.torch_device = torch.device('cuda')
                     torch.cuda.empty_cache()
             except:
                 pass
+
+    def set_device(self):
+        if sys.platform == 'darwin':
+            try:
+                import torch
+                self.torch_device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+            except:
+                pass
+        else:
+            try:
+                import torch
+                self.torch_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            except:
+                pass
+
 
     def close_application(self):
         import flame
