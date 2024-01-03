@@ -1,14 +1,11 @@
 try:
 	import torch
+	from torch.nn import Module
 except:
-	class FakeFlameTorch:
-		class nn:
-			@staticmethod
-			def Module(self):
-				return object
-	torch = FakeFlameTorch
+	torch = object
+	Module = object
 
-class Conv2d_batchnorm(torch.nn.Module):
+class Conv2d_batchnorm(Module):
 	'''
 	2D Convolutional layers
 
@@ -69,7 +66,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 		return self.layers(x)
 	'''
 
-class Multiresblock(torch.nn.Module):
+class Multiresblock(Module):
 	'''
 	MultiRes Block
 	
@@ -116,7 +113,7 @@ class Multiresblock(torch.nn.Module):
 	
 		return x
 
-class Multiresblock_MemOpt(torch.nn.Module):
+class Multiresblock_MemOpt(Module):
 	'''
 	MultiRes Block
 	
@@ -160,7 +157,7 @@ class Multiresblock_MemOpt(torch.nn.Module):
 
 		return x
 
-class Respath(torch.nn.Module):
+class Respath(Module):
 	'''
 	ResPath
 	
@@ -202,7 +199,7 @@ class Respath(torch.nn.Module):
 
 		return x
 
-class Respath_MemOpt(torch.nn.Module):
+class Respath_MemOpt(Module):
 	'''
 	ResPath
 	
@@ -238,7 +235,7 @@ class Respath_MemOpt(torch.nn.Module):
 			x = self.act(x)
 		return x
 
-class MultiResUnet(torch.nn.Module):
+class MultiResUnet(Module):
 	'''
 	MultiResUNet
 	
@@ -340,7 +337,7 @@ class MultiResUnet(torch.nn.Module):
 		
 		return out
 
-class MultiResUnet_MemOpt(torch.nn.Module):
+class MultiResUnet_MemOpt(Module):
 	def __init__(self, input_channels, num_classes, alpha=1.69, msg_queue = None):
 		super().__init__()
 		
