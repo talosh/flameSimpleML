@@ -1788,7 +1788,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         output_channels = model_state_dict.get('output_channels', 3)
         try:
             self.current_model = self.models[model_name](input_channles, output_channels).to(self.torch_device)
-            pprint (dir(self.current_model))
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
             self.current_model.half()
             self.current_model.eval()
@@ -2064,6 +2063,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
 
         src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+
+        pprint (dir(self.current_model))
+
         output = self.current_model(src_image_data*2 -1)
         print(f'output shape: {output.shape}')
         rgb_output = (output + 1) / 2
