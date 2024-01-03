@@ -153,13 +153,18 @@ class Multiresblock_MemOpt(torch.nn.Module):
 	def forward(self,x):
 
 		shrtct = self.shortcut(x)
-		
 		a = self.conv_3x3(x)
+		del x
 		b = self.conv_5x5(a)
+		x = torch.cat([a,b],axis=1)
+		del a
 		c = self.conv_7x7(b)
+		del b
+		x = torch.cat([x, c],axis=1)
 
-		x = torch.cat([a,b,c],axis=1)
+		# x = torch.cat([a,b,c],axis=1)
 		x = x + shrtct
+		del shrtct
 		x = self.act(x)
 	
 		return x
@@ -413,7 +418,6 @@ class MultiResUnet_MemOpt(torch.nn.Module):
 	def forward(self, x : torch.Tensor)->torch.Tensor:
 		try:
 			x_multires1 = self.multiresblock1(x)
-			print ('x_m1')
 			x_pool1 = self.pool1(x_multires1)
 			x_multires1 = self.respath1(x_multires1)
 			
