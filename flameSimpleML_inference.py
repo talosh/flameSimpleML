@@ -1681,6 +1681,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.show()
             self.raise_()
             self.activateWindow()
+            self.processEvents()
 
             if not selected_model_dict_path:
                 return False
