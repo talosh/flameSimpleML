@@ -2034,7 +2034,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         
         if self.current_model is None:
-            self.update_interface_image(
+            self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
@@ -2042,7 +2042,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
         
         if self.view_mode == 'F1':
-            self.update_interface_image(
+            self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
@@ -2056,12 +2056,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.processEvents()
 
         if not self.rendering_by_render_button:
-            self.update_interface_image(
+            self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
             )
-            return
 
         h, w, _ = src_image_data.shape
         ph = ((h - 1) // 64 + 1) * 64
@@ -2076,7 +2075,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         rgb_output = (output + 1) / 2
         result_image = rgb_output.to(dtype=torch.float32)
 
-        self.update_interface_image(
+        self.update_interface_image_torch(
                 result_image[:, :, :3],
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
