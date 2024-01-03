@@ -1649,19 +1649,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def fill_model_menu(self):
         model_menu_items = self.prefs.get('recent_models')
-        current_model = self.prefs.get('current_model', 99)
+        current_model = self.prefs.get('current_model', '99')
         if not isinstance(model_menu_items, dict):
-            model_menu_items = {99: 'Load Model ... '}
-            self.prefs['recent_models'] = model_menu_items
-            self.framework.save_prefs()
-        if 99 not in model_menu_items.keys():
-            model_menu_items[99] = 'Load Model ... '
-            self.prefs['recent_models'] = model_menu_items
-            self.framework.save_prefs()
+            model_menu_items = {'99': 'Load Model ... '}
+        if '99' not in model_menu_items.keys():
+            model_menu_items['99'] = 'Load Model ... '
 
         model_menu = QtWidgets.QMenu(self)
         for model_number in sorted(model_menu_items.keys(), reverse=False):
-            print (f'model number: {model_number}, type: {type(model_number)}')
             model_file_name = os.path.basename(model_menu_items.get(model_number, str()))
             model_name, _ = os.path.splitext(model_file_name)
             code = model_name
@@ -1691,11 +1686,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
 
     def select_model(self, model_number):
-        print (f'model number: {model_number}, type: {type(model_number)}')
-
         import flame
 
-        if model_number == 99: # load model code
+        if model_number == '99': # load model code
             selected_model_dict_path = None
             self.hide()
             flame.browser.show(
@@ -1749,20 +1742,22 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def add_model_to_menu(self, selected_model_dict_path):
         model_menu_items = self.prefs.get('recent_models')
         new_model_menu_items = {}
+        if not isinstance(model_menu_items, dict):
+            model_menu_items = {'99': 'Load Model ... '}
 
         for key in model_menu_items.keys():
-            if key == 99:
+            if key == '99':
                 new_model_menu_items[key] = model_menu_items[key]
             else:
                 try:
                     if int(key) + 1 < 10:
-                        new_model_menu_items[int(key) + 1] = model_menu_items[key]
+                        new_model_menu_items[f'{int(key) + 1}'] = model_menu_items[key]
                 except:
                     pass
                 
-        new_model_menu_items[1] = selected_model_dict_path
+        new_model_menu_items['1'] = selected_model_dict_path
         self.prefs['recent_models'] = new_model_menu_items
-        self.prefs['current_model'] = 1
+        self.prefs['current_model'] = '1'
         self.framework.save_prefs()
         self.fill_model_menu()
 
