@@ -1687,6 +1687,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
 
     def select_model(self, model_number):
+        print (f'model number: {model_number}, type: {type(model_number)}')
+        
         import flame
 
         if model_number == '99': # load model code
