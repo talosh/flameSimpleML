@@ -2128,8 +2128,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'message': f'Frame {self.current_frame}'}
             )
         
-        return resu
-
+        return result_image
 
     def read_selection_data(self, selection, frame_number):
         import torch
