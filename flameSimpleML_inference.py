@@ -1653,7 +1653,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             x = lambda chk=False, model_number=model_number: self.select_model(model_number)
             action.triggered[()].connect(x)
         self.ui.model_selector.setMenu(model_menu)
-        self.ui.model_selector.se
+        current_model_path = model_menu_items.get(current_model)
+        if not current_model_path:
+            self.ui.model_selector.setText('Load Model ... ')
+        else:
+            current_model_filename = os.path.basename(current_model_path)
+            current_model_name, _ = os.path.splitext(current_model_filename)
+            self.ui.model_selector.setText(current_model_name)
 
     def select_model(self, model_number):
         
