@@ -1,10 +1,12 @@
 try:
 	import torch
+	from torch.nn import Module
 except:
-	pass
+	torch = object
+	Module = object
 
 
-class Conv2d_batchnorm(torch.nn.Module):
+class Conv2d_batchnorm(Module):
 	'''
 	2D Convolutional layers
 
@@ -29,12 +31,10 @@ class Conv2d_batchnorm(torch.nn.Module):
 			padding_mode = 'reflect',
 			bias=False
 			)
-		self.batchnorm = torch.nn.BatchNorm2d(num_out_filters)
 		self.act = torch.nn.SELU()
 	
 	def forward(self,x):
 		x = self.conv1(x)
-		# x = self.batchnorm(x)
 		
 		if self.activation == 'relu':
 			return self.act(x)
@@ -99,9 +99,6 @@ class Multiresblock(torch.nn.Module):
 
 		self.conv_9x9 = Conv2d_batchnorm(filt_cnt_7x7, filt_cnt_9x9, kernel_size = (3,3), activation='relu')
 
-		self.batch_norm1 = torch.nn.BatchNorm2d(num_out_filters)
-		self.batch_norm2 = torch.nn.BatchNorm2d(num_out_filters)
-
 		self.act = torch.nn.SELU()
 
 	def forward(self,x):
@@ -114,10 +111,8 @@ class Multiresblock(torch.nn.Module):
 		d = self.conv_9x9(c)
 
 		x = torch.cat([a,b,c,d],axis=1)
-		# x = self.batch_norm1(x)
 
 		x = x + shrtct
-		# x = self.batch_norm2(x)
 		x = self.act(x)
 	
 		return x
@@ -153,8 +148,6 @@ class Respath(torch.nn.Module):
 			else:
 				self.shortcuts.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation='None'))
 				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation='relu'))
-
-			self.bns.append(torch.nn.BatchNorm2d(num_out_filters))
 		
 	
 	def forward(self,x):
@@ -164,11 +157,9 @@ class Respath(torch.nn.Module):
 			shortcut = self.shortcuts[i](x)
 
 			x = self.convs[i](x)
-			# x = self.bns[i](x)
 			x = self.act(x)
 
 			x = x + shortcut
-			# x = self.bns[i](x)
 			x = self.act(x)
 
 		return x
