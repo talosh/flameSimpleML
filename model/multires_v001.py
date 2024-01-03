@@ -1,9 +1,12 @@
 try:
 	import torch
-	from torch.nn import Module
 except:
-	torch.nn.Module = object
-	Module = object
+	class FakeFlameTorch:
+		class nn:
+			@staticmethod
+			def Module(self):
+				return object
+	torch = FakeFlameTorch
 
 class Conv2d_batchnorm(torch.nn.Module):
 	'''
@@ -66,7 +69,7 @@ class Conv2d_batchnorm(torch.nn.Module):
 		return self.layers(x)
 	'''
 
-class Multiresblock(Module):
+class Multiresblock(torch.nn.Module):
 	'''
 	MultiRes Block
 	
@@ -113,7 +116,7 @@ class Multiresblock(Module):
 	
 		return x
 
-class Multiresblock_MemOpt(Module):
+class Multiresblock_MemOpt(torch.nn.Module):
 	'''
 	MultiRes Block
 	
@@ -157,7 +160,7 @@ class Multiresblock_MemOpt(Module):
 
 		return x
 
-class Respath(Module):
+class Respath(torch.nn.Module):
 	'''
 	ResPath
 	
@@ -199,7 +202,7 @@ class Respath(Module):
 
 		return x
 
-class Respath_MemOpt(Module):
+class Respath_MemOpt(torch.nn.Module):
 	'''
 	ResPath
 	
@@ -235,7 +238,7 @@ class Respath_MemOpt(Module):
 			x = self.act(x)
 		return x
 
-class MultiResUnet(Module):
+class MultiResUnet(torch.nn.Module):
 	'''
 	MultiResUNet
 	
@@ -337,7 +340,7 @@ class MultiResUnet(Module):
 		
 		return out
 
-class MultiResUnet_MemOpt(Module):
+class MultiResUnet_MemOpt(torch.nn.Module):
 	def __init__(self, input_channels, num_classes, alpha=1.69, msg_queue = None):
 		super().__init__()
 		
