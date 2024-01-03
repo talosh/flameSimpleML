@@ -1,8 +1,4 @@
-try:
-	import torch
-except:
-	pass
-
+import torch
 
 class Conv2d_batchnorm(torch.nn.Module):
 	'''
@@ -16,7 +12,6 @@ class Conv2d_batchnorm(torch.nn.Module):
 		activation {str} -- activation function (default: {'relu'})
 
 	'''
-	# '''
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = True, inplace = False):
 		super().__init__()
 		self.activation = activation
@@ -185,6 +180,7 @@ class MultiResUnet(torch.nn.Module):
 		[keras model] -- MultiResUNet model
 	'''
 	def __init__(self, input_channels, num_classes, alpha=1.69):
+		print ('hello from init MultiRes_v001')
 		super().__init__()
 		
 		self.alpha = alpha
