@@ -423,8 +423,11 @@ class MultiResUnet_MemOpt(Module):
 
 	def forward(self, x):
 		try:
+			print ('enc start')
 			x_multires1 = self.multiresblock1(x)
+			print ('enc multiresblock1')
 			x_pool1 = self.pool1(x_multires1)
+			print ('enc pool1')
 			x_multires1 = self.respath1(x_multires1)
 
 			print ('enc step 01')
