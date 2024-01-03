@@ -1262,6 +1262,18 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if action and callable(action):
             action()
 
+    def update_interface_image(self, array, image_label, text = None):
+        if self.interface_image_queue.qsize() > 8:
+            return
+        
+        item = {
+            'type': 'image',
+            'image': array,
+            'image_label': image_label,
+            'text': text
+        }
+        self.interface_image_queue.put(item)
+
     def update_frame_positioner(self):
         import numpy as np
 
@@ -1746,8 +1758,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.selection, 
             self.current_frame
             )
-
-
+        
+        if self.current_model is None:
+            self.update_interface_image(
+                src_image_data,
+                self.ui.image_res_label,
+                text = 'Frame: ' + str(self.current_frame)
+            )
 
         # self.rendering = True
 
