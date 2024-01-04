@@ -255,11 +255,8 @@ class Respath4(Module):
 		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		
 	def forward(self,x):
-		print (f'x input shape: {x.shape}')
 		# x = self.conv1(x)
-		print (f'x shape: {x.shape}')
 		# shortcut = self.shortcut1(x)
-		print (f'shortcut shape: {shortcut.shape}')
 		x = self.conv1(x) + self.shortcut1(x)
 		x = self.act(x)
 
