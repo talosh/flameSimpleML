@@ -341,7 +341,7 @@ class Respath4_MemOpt(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
@@ -378,7 +378,7 @@ class Respath3_MemOpt(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
@@ -408,7 +408,7 @@ class Respath2_MemOpt(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
@@ -431,7 +431,7 @@ class Respath1_MemOpt(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
 		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
 		
