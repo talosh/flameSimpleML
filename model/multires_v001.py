@@ -256,11 +256,11 @@ class Respath4(Module):
 		
 	def forward(self,x):
 		print (f'x input shape: {x.shape}')
-		x = self.conv1(x)
+		# x = self.conv1(x)
 		print (f'x shape: {x.shape}')
-		shortcut = self.shortcut1(x)
+		# shortcut = self.shortcut1(x)
 		print (f'shortcut shape: {shortcut.shape}')
-		x = x + shortcut
+		x = self.conv1(x) + self.shortcut1(x)
 		x = self.act(x)
 
 		shortcut = self.shortcut2(x)
