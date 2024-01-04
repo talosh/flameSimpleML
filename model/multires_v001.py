@@ -257,6 +257,7 @@ class Respath_MemOpt(Module):
 				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True, inplace=True))
 		
 	def forward(self, x):
+		print ('respath forward')
 		for i in range(self.respath_length):
 			shortcut = self.shortcuts[i](x)
 			x = self.convs[i](x)
