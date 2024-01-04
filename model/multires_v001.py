@@ -268,6 +268,7 @@ class Respath_MemOpt(Module):
 			x = self.convs[i](x)
 			# x = self.act(x)
 			x = x + shortcut
+			del shortcut
 			x = self.act(x)
 
 			try:
