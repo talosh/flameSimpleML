@@ -182,10 +182,6 @@ class Multiresblock_MemOpt(Module):
 			x_cpu = x_cpu + shrtct_cpu
 			x_cpu = self.act(x_cpu)
 			try:
-				torch.cuda.empty_cache()
-			except:
-				pass
-			try:
 				x = x_cpu.to(device=x_device, dtype=x_dtype)
 				del x_cpu
 				return x
@@ -335,7 +331,6 @@ class Respath1(Module):
 		x = self.act(x)
 
 		return x
-
 
 class Respath4_MemOpt(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
