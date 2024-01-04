@@ -258,6 +258,7 @@ class Respath_MemOpt(Module):
 		
 	def forward(self, x):
 		print ('respath forward')
+		print (f'x shape: {x.shape}')
 		for i in range(self.respath_length):
 			shortcut = self.shortcuts[i](x)
 			x = self.convs[i](x)
