@@ -264,7 +264,7 @@ class Respath_MemOpt(Module):
 			print (f'respath iteration: {i}')
 			shortcut = self.shortcuts[i](x)
 			x = self.convs[i](x)
-			x = self.act(x)
+			# x = self.act(x)
 			x = x + shortcut
 			x = self.act(x)
 		return x
