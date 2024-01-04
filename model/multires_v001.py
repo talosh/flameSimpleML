@@ -350,8 +350,11 @@ class Respath4_MemOpt(Module):
 		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+
 		
 	def forward(self,x):
+		x_device = x.device
+		x_dtype = x.dtype
 		print ('ResPath4 step 01')
 		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
@@ -366,12 +369,26 @@ class Respath4_MemOpt(Module):
 		x = self.act(x)
 		del shortcut
 
-		print ('ResPath4 step 03')
-		shortcut = self.shortcut3(x)
-		x = self.conv3(x)
-		x = x + shortcut
-		x = self.act(x)
-		del shortcut
+		try:
+			print ('ResPath4 step 03')
+			shortcut = self.shortcut3(x)
+			x = self.conv3(x)
+			x = x + shortcut
+			x = self.act(x)
+			del shortcut
+		except:
+			shortcut = self.shortcut3(x)
+			shortcut_cpu = shortcut.cpu()
+			del shortcut
+			torch.cuda.empty_cache()
+			x = self.conv3(x)
+			x_cpu = x.cpu()
+			del x
+			torch.cuda.empty_cache()
+			x_cpu = self.act(x_cpu)
+			x = x_cpu.to(device=x_device, dtype=x_dtype)
+			del x_cpu
+			torch.cuda.empty_cache()
 
 		print ('ResPath4 step 04')
 		shortcut = self.shortcut4(x)
