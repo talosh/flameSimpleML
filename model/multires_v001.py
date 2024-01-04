@@ -257,9 +257,13 @@ class Respath_MemOpt(Module):
 				self.convs.append(Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True, inplace=True))
 		
 	def forward(self, x):
+		x_device = x.device
+		x_dtype = x.dtype
+
 		print ('respath forward')
 		print (f'x shape: {x.shape}')
 		print (f'respath length: {self.respath_length}')
+
 		for i in range(self.respath_length):
 			print (f'respath iteration: {i}')
 			print (f'x shape: {x.shape}')
@@ -273,7 +277,6 @@ class Respath_MemOpt(Module):
 				x = self.act(x)
 			except:
 				print (f'out of mem in respath {i}')
-				device = x.device
 				try:
 					shortcut = self.shortcuts[i](x)
 					shortcut_cpu = shortcut.cpu()
@@ -300,8 +303,8 @@ class Respath_MemOpt(Module):
 					x_cpu = conv_cpu(x_cpu)
 				x_cpu = x_cpu + shortcut_cpu
 				x_cpu = self.act(x_cpu)
-				x = x_cpu.to(device, dtype=torch.half)
-
+				x = x_cpu.to(x_device, dtype=x_dtype)
+				
 			try:
 				torch.cuda.empty_cache()
 			except:
