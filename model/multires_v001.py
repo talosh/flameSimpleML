@@ -265,6 +265,11 @@ class Respath_MemOpt(Module):
 			print (f'x shape: {x.shape}')
 			shortcut = self.shortcuts[i](x)
 			print (f'shortcut {i}')
+			try:
+				torch.cuda.empty_cache()
+			except:
+				pass
+
 			x = self.convs[i](x)
 			# x = self.act(x)
 			x = x + shortcut
