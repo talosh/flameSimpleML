@@ -352,21 +352,25 @@ class Respath4_MemOpt(Module):
 		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		
 	def forward(self,x):
+		print ('ResPath4 step 01')
 		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
 		x = x + shortcut
 		x = self.act(x)
 
+		print ('ResPath4 step 02')
 		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
 		x = x + shortcut
 		x = self.act(x)
-		
+
+		print ('ResPath4 step 03')
 		shortcut = self.shortcut3(x)
 		x = self.conv3(x)
 		x = x + shortcut
 		x = self.act(x)
 
+		print ('ResPath4 step 04')
 		shortcut = self.shortcut4(x)
 		x = self.conv4(x)
 		x = x + shortcut
