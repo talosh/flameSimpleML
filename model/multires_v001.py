@@ -145,8 +145,6 @@ class Multiresblock_MemOpt(Module):
 		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
-		x_device = x.device
-		x_dtype = x.dtype
 		try:
 			shrtct = self.shortcut(x)
 			a = self.conv_3x3(x)
@@ -160,7 +158,8 @@ class Multiresblock_MemOpt(Module):
 			return x
 		except:
 			print ('flameSimpleML Multiresblock: Low GPU memory - trying mixed mode (slow)')
-			device = x.device
+			x_device = x.device
+			x_dtype = x.dtype
 			shrtct = self.shortcut(x)
 			shrtct_cpu = shrtct.cpu()
 			print ('Multiresblock shrtct passed')
@@ -713,34 +712,24 @@ class MultiResUnet_MemOpt(Module):
 
 	def forward(self, x):
 		try:
-			print ('enc start')
 			x_multires1 = self.multiresblock1(x)
-			print ('enc multiresblock1')
 			x_pool1 = self.pool1(x_multires1)
-			print ('enc pool1')
 			x_multires1 = self.respath1(x_multires1)
-			print ('enc step 01 completed')
 			
 			x_multires2 = self.multiresblock2(x_pool1)
 			del x_pool1
 			x_pool2 = self.pool2(x_multires2)
 			x_multires2 = self.respath2(x_multires2)
 
-			print ('enc step 02 completed')
-
 			x_multires3 = self.multiresblock3(x_pool2)
 			del x_pool2
 			x_pool3 = self.pool3(x_multires3)
 			x_multires3 = self.respath3(x_multires3)
 
-			print ('enc step 03 completed')
-
 			x_multires4 = self.multiresblock4(x_pool3)
 			del x_pool3
 			x_pool4 = self.pool4(x_multires4)
 			x_multires4 = self.respath4(x_multires4)
-
-			print ('enc step 04 completed')
 
 			x_multires5 = self.multiresblock5(x_pool4)
 			del x_pool4
