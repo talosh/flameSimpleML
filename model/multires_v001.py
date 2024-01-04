@@ -27,7 +27,7 @@ class Conv2d_batchnorm(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			bias=False
+			# bias=False
 			)
 		self.act = torch.nn.SELU(inplace = inplace)
 	
