@@ -393,6 +393,7 @@ class Respath4_MemOpt(Module):
 				x_cpu = x.cpu()
 				del x
 			except:
+				print ('ResPath4 Exception step 03 conv')
 				conv3cpu = self.conv3.to(device='cpu', dtype=torch.float32)
 				x_cpu = conv3cpu(x.to(device='cpu', dtype=torch.float32))
 				del conv3cpu
