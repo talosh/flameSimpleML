@@ -360,8 +360,6 @@ class Respath4_MemOpt(Module):
 		del x_conv1, shortcut1
 		x_step1 = self.act(x_step1)
 
-		torch.cuda.empty_cache()
-
 		print ('ResPath4 step 02')
 		shortcut2 = self.shortcut2(x_step1)
 		x_conv2 = self.conv2(x_step1)
@@ -369,8 +367,6 @@ class Respath4_MemOpt(Module):
 		x_step2 = x_conv2 + shortcut2
 		del x_conv2, shortcut2
 		x_step2 = self.act(x_step2)
-
-		torch.cuda.empty_cache()
 
 		print ('ResPath4 step 03')
 		shortcut3 = self.shortcut3(x_step2)
@@ -380,16 +376,12 @@ class Respath4_MemOpt(Module):
 		del x_conv3, shortcut3
 		x_step3 = self.act(x_step3)
 
-		torch.cuda.empty_cache()
-
 		print ('ResPath4 step 04')
 		shortcut4 = self.shortcut4(x_step3)
 		x_conv4 = self.conv4(x_step3)
 		del x_step3
 		x_step4 = x_conv4 + shortcut4
 		x_step4 = self.act(x_step4)
-
-		torch.cuda.empty_cache()
 		
 		return x_step4
 
