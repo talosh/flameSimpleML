@@ -145,6 +145,8 @@ class Multiresblock_MemOpt(Module):
 		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
+		x_device = x.device
+		x_dtype = x.dtype
 		try:
 			shrtct = self.shortcut(x)
 			a = self.conv_3x3(x)
@@ -161,13 +163,17 @@ class Multiresblock_MemOpt(Module):
 			device = x.device
 			shrtct = self.shortcut(x)
 			shrtct_cpu = shrtct.cpu()
+			print ('Multiresblock shrtct passed')
 			del shrtct
 			a = self.conv_3x3(x)
+			print ('Multiresblock a conv passed')
 			del x
 			b = self.conv_5x5(a)
 			a_cpu = a.cpu()
+			print ('Multiresblock b conv passed')
 			del a
 			c = self.conv_7x7(b)
+			print ('Multiresblock c conv passed')
 			b_cpu = b.cpu()
 			c_cpu = c.cpu()
 			del b, c
@@ -180,7 +186,7 @@ class Multiresblock_MemOpt(Module):
 			except:
 				pass
 			try:
-				x = x_cpu.to(device)
+				x = x_cpu.to(device=x_device, dtype=x_dtype)
 				del x_cpu
 				return x
 			except:
@@ -304,7 +310,7 @@ class Respath_MemOpt(Module):
 				x_cpu = x_cpu + shortcut_cpu
 				x_cpu = self.act(x_cpu)
 				x = x_cpu.to(x_device, dtype=x_dtype)
-				
+
 			try:
 				torch.cuda.empty_cache()
 			except:
