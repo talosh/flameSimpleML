@@ -272,10 +272,12 @@ class Respath_MemOpt(Module):
 				del shortcut
 				x = self.act(x)
 			except:
+				print (f'out of mem in respath {i}')
 				device = x.device
 				shortcut = self.shortcuts[i](x)
 				shortcut_cpu = shortcut.cpu()
 				del shortcut
+				print (f'out of mem shortcut in respath {i}')
 				try:
 					x = self.convs[i](x)
 					x_cpu = x.cpu()
