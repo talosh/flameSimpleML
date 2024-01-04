@@ -269,6 +269,12 @@ class Respath_MemOpt(Module):
 			# x = self.act(x)
 			x = x + shortcut
 			x = self.act(x)
+
+			try:
+				torch.cuda.empty_cache()
+			except:
+				pass
+			
 		return x
 
 class MultiResUnet(Module):
