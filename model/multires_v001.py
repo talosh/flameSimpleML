@@ -377,18 +377,18 @@ class Respath4_MemOpt(Module):
 			x = self.act(x)
 			del shortcut
 		except:
+			print ('ResPath4 Exception step 03')
 			shortcut = self.shortcut3(x)
 			shortcut_cpu = shortcut.cpu()
 			del shortcut
-			torch.cuda.empty_cache()
+			print ('ResPath4 Exception step 03 shortcut passed')
 			x = self.conv3(x)
 			x_cpu = x.cpu()
 			del x
-			torch.cuda.empty_cache()
+			print ('ResPath4 Exception step 03 conv passed')
 			x_cpu = self.act(x_cpu)
 			x = x_cpu.to(device=x_device, dtype=x_dtype)
 			del x_cpu
-			torch.cuda.empty_cache()
 
 		print ('ResPath4 step 04')
 		shortcut = self.shortcut4(x)
