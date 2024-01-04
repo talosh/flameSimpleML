@@ -263,14 +263,26 @@ class Respath_MemOpt(Module):
 		for i in range(self.respath_length):
 			print (f'respath iteration: {i}')
 			print (f'x shape: {x.shape}')
-			shortcut = self.shortcuts[i](x)
-			print (f'shortcut {i}')
-			x = self.convs[i](x)
-			print (f'resp conv {i}')
-			# x = self.act(x)
-			x = x + shortcut
-			del shortcut
-			x = self.act(x)
+
+			try:
+				shortcut = self.shortcuts[i](x)
+				x = self.convs[i](x)
+				# x = self.act(x)
+				x = x + shortcut
+				del shortcut
+				x = self.act(x)
+			except:
+				device = x.device
+				shortcut = self.shortcuts[i](x)
+				shortcut_cpu = shortcut.cpu()
+				del shortcut
+				x = self.convs[i](x)
+				x_cpu = x.cpu()
+				del x
+				x_cpu = x_cpu + shortcut_cpu
+				x_cpu = self.act(x_cpu)
+				x = x_cpu.to(device)
+
 
 			try:
 				torch.cuda.empty_cache()
