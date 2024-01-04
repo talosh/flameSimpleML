@@ -356,21 +356,73 @@ class Respath4_MemOpt(Module):
 		x_device = x.device
 		x_dtype = x.dtype
 		print ('ResPath4 step 01')
-		shortcut = self.shortcut1(x)
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x)
-		del shortcut
-
+		try:
+			shortcut = self.shortcut1(x)
+			x = self.conv1(x)
+			x = x + shortcut
+			x = self.act(x)
+			del shortcut
+		except:
+			try:
+				shortcut = self.shortcut1(x)
+				shortcut_cpu = shortcut.cpu()
+				del shortcut
+			except:
+				shortcut1cpu  = self.shortcut1.to(device='cpu', dtype=torch.float32)
+				shortcut_cpu = shortcut1cpu(x.to(device='cpu', dtype=torch.float32))
+				del shortcut1cpu
+				shortcut_cpu.to(dtype = x_dtype)
+			try:
+				x = self.conv1(x)
+				x_cpu = x.cpu()
+				del x
+			except:
+				conv1cpu = self.conv1.to(device='cpu', dtype=torch.float32)
+				x_cpu = conv1cpu(x.to(device='cpu', dtype=torch.float32))
+				del conv1cpu
+				x_cpu.to(dtype=x_dtype)
+			x_cpu = x_cpu + shortcut_cpu
+			del shortcut_cpu
+			x_cpu = self.act(x_cpu)
+			x = x_cpu.to(device=x_device, dtype=x_dtype)
+			del x_cpu
+	
 		print ('ResPath4 step 02')
-		shortcut = self.shortcut2(x)
-		x = self.conv2(x)
-		x = x + shortcut
-		x = self.act(x)
-		del shortcut
 
 		try:
-			print ('ResPath4 step 03')
+			shortcut = self.shortcut2(x)
+			x = self.conv2(x)
+			x = x + shortcut
+			x = self.act(x)
+			del shortcut
+		except:
+			try:
+				shortcut = self.shortcut2(x)
+				shortcut_cpu = shortcut.cpu()
+				del shortcut
+			except:
+				shortcut2cpu  = self.shortcut2.to(device='cpu', dtype=torch.float32)
+				shortcut_cpu = shortcut2cpu(x.to(device='cpu', dtype=torch.float32))
+				del shortcut2cpu
+				shortcut_cpu.to(dtype = x_dtype)
+			try:
+				x = self.conv2(x)
+				x_cpu = x.cpu()
+				del x
+			except:
+				conv2cpu = self.conv2.to(device='cpu', dtype=torch.float32)
+				x_cpu = conv2cpu(x.to(device='cpu', dtype=torch.float32))
+				del conv2cpu
+				x_cpu.to(dtype=x_dtype)
+			x_cpu = x_cpu + shortcut_cpu
+			del shortcut_cpu
+			x_cpu = self.act(x_cpu)
+			x = x_cpu.to(device=x_device, dtype=x_dtype)
+			del x_cpu
+
+		print ('ResPath4 step 03')
+
+		try:
 			shortcut = self.shortcut3(x)
 			x = self.conv3(x)
 			x = x + shortcut
@@ -401,8 +453,9 @@ class Respath4_MemOpt(Module):
 			x = x_cpu.to(device=x_device, dtype=x_dtype)
 			del x_cpu
 
+		print ('ResPath4 step 04')
+
 		try:
-			print ('ResPath4 step 04')
 			shortcut = self.shortcut4(x)
 			x = self.conv4(x)
 			x = x + shortcut
