@@ -223,14 +223,146 @@ class Respath(Module):
 		
 	def forward(self,x):
 		for i in range(self.respath_length):
-
 			shortcut = self.shortcuts[i](x)
-
 			x = self.convs[i](x)
-			x = self.act(x)
-
 			x = x + shortcut
 			x = self.act(x)
+
+		return x
+	
+class Respath4(Module):
+	'''
+	ResPath
+	
+	Arguments:
+		num_in_filters {int} -- Number of filters going in the respath
+		num_out_filters {int} -- Number of filters going out the respath
+		respath_length {int} -- length of ResPath
+		
+	'''
+
+	def __init__(self, num_in_filters, num_out_filters, respath_length):
+	
+		super().__init__()
+		self.act = torch.nn.SELU()
+		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.shortcut4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
+		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		
+	def forward(self,x):
+		x = self.conv1(x)
+		x = x + self.shortcut1(x)
+		x = self.act(x)
+
+		x = self.conv2(x)
+		x = x + self.shortcut2(x)
+		x = self.act(x)
+
+		x = self.conv3(x)
+		x = x + self.shortcut3(x)
+		x = self.act(x)
+
+		x = self.conv4(x)
+		x = x + self.shortcut4(x)
+		x = self.act(x)
+
+		return x
+
+class Respath3(Module):
+	'''
+	ResPath
+	
+	Arguments:
+		num_in_filters {int} -- Number of filters going in the respath
+		num_out_filters {int} -- Number of filters going out the respath
+		respath_length {int} -- length of ResPath
+		
+	'''
+
+	def __init__(self, num_in_filters, num_out_filters, respath_length):
+	
+		super().__init__()
+		self.act = torch.nn.SELU()
+		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
+		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		
+	def forward(self,x):
+		x = self.conv1(x)
+		x = x + self.shortcut1(x)
+		x = self.act(x)
+
+		x = self.conv2(x)
+		x = x + self.shortcut2(x)
+		x = self.act(x)
+
+		x = self.conv3(x)
+		x = x + self.shortcut3(x)
+		x = self.act(x)
+
+		return x
+
+class Respath2(Module):
+	'''
+	ResPath
+	
+	Arguments:
+		num_in_filters {int} -- Number of filters going in the respath
+		num_out_filters {int} -- Number of filters going out the respath
+		respath_length {int} -- length of ResPath
+		
+	'''
+
+	def __init__(self, num_in_filters, num_out_filters, respath_length):
+	
+		super().__init__()
+		self.act = torch.nn.SELU()
+		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
+		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		
+	def forward(self,x):
+		x = self.conv1(x)
+		x = x + self.shortcut1(x)
+		x = self.act(x)
+
+		x = self.conv2(x)
+		x = x + self.shortcut2(x)
+		x = self.act(x)
+
+		return x
+
+class Respath1(Module):
+	'''
+	ResPath
+	
+	Arguments:
+		num_in_filters {int} -- Number of filters going in the respath
+		num_out_filters {int} -- Number of filters going out the respath
+		respath_length {int} -- length of ResPath
+		
+	'''
+
+	def __init__(self, num_in_filters, num_out_filters, respath_length):
+	
+		super().__init__()
+		self.act = torch.nn.SELU()
+		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
+		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
+		
+	def forward(self,x):
+		x = self.conv1(x)
+		x = x + self.shortcut1(x)
+		x = self.act(x)
 
 		return x
 
@@ -339,24 +471,24 @@ class MultiResUnet(Module):
 		self.multiresblock1 = Multiresblock(input_channels,32)
 		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 		self.pool1 =  torch.nn.MaxPool2d(2)
-		self.respath1 = Respath(self.in_filters1,32,respath_length=4)
+		self.respath1 = Respath4(self.in_filters1,32,respath_length=4)
 
 		self.multiresblock2 = Multiresblock(self.in_filters1,32*2)
 		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
 		self.pool2 =  torch.nn.MaxPool2d(2)
-		self.respath2 = Respath(self.in_filters2,32*2,respath_length=3)
+		self.respath2 = Respath3(self.in_filters2,32*2,respath_length=3)
 	
 	
 		self.multiresblock3 =  Multiresblock(self.in_filters2,32*4)
 		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
 		self.pool3 =  torch.nn.MaxPool2d(2)
-		self.respath3 = Respath(self.in_filters3,32*4,respath_length=2)
+		self.respath3 = Respath2(self.in_filters3,32*4,respath_length=2)
 	
 	
 		self.multiresblock4 = Multiresblock(self.in_filters3,32*8)
 		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 		self.pool4 =  torch.nn.MaxPool2d(2)
-		self.respath4 = Respath(self.in_filters4,32*8,respath_length=1)
+		self.respath4 = Respath1(self.in_filters4,32*8,respath_length=1)
 	
 	
 		self.multiresblock5 = Multiresblock(self.in_filters4,32*16)
