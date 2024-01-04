@@ -369,7 +369,7 @@ class Respath1(Module):
 		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
 		
 	def forward(self,x):
-		shortcut = self.shortcut1(x)s
+		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
 		x = x + shortcut
 		x = self.act(x)
