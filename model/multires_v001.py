@@ -353,30 +353,37 @@ class Respath4_MemOpt(Module):
 		
 	def forward(self,x):
 		print ('ResPath4 step 01')
-		shortcut = self.shortcut1(x)
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x)
+		shortcut1 = self.shortcut1(x)
+		x_conv1 = self.conv1(x)
+		del x
+		x_step1 = x_conv1 + shortcut1
+		del x_conv1, shortcut1
+		x_step1 = self.act(x_step1)
 
 		print ('ResPath4 step 02')
-		shortcut = self.shortcut2(x)
-		x = self.conv2(x)
-		x = x + shortcut
-		x = self.act(x)
+		shortcut2 = self.shortcut2(x_step1)
+		x_conv2 = self.conv2(x_step1)
+		del x_step1
+		x_step2 = x_conv2 + shortcut2
+		del x_conv2, shortcut2
+		x_step2 = self.act(x_step2)
 
 		print ('ResPath4 step 03')
-		shortcut = self.shortcut3(x)
-		x = self.conv3(x)
-		x = x + shortcut
-		x = self.act(x)
+		shortcut3 = self.shortcut3(x_step2)
+		x_conv3 = self.conv3(x_step2)
+		del x_step2
+		x_step3 = x_conv3 + shortcut3
+		del x_conv3, shortcut3
+		x_step3 = self.act(x_step3)
 
 		print ('ResPath4 step 04')
-		shortcut = self.shortcut4(x)
-		x = self.conv4(x)
-		x = x + shortcut
-		x = self.act(x)
+		shortcut4 = self.shortcut4(x_step3)
+		x_conv4 = self.conv4(x_step3)
+		del x_step3
+		x_step4 = x_conv4 + shortcut4
+		x_step4 = self.act(x_step4)
 
-		return x
+		return x_step4
 
 class Respath3_MemOpt(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
