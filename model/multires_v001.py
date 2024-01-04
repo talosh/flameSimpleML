@@ -255,9 +255,9 @@ class Respath4(Module):
 		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		
 	def forward(self,x):
-		# x = self.conv1(x)
-		# shortcut = self.shortcut1(x)
-		x = self.conv1(x) + self.shortcut1(x)
+		shortcut = self.shortcut1(x)
+		x = self.conv1(x)
+		x = x + shortcut
 		x = self.act(x)
 
 		shortcut = self.shortcut2(x)
@@ -300,16 +300,19 @@ class Respath3(Module):
 		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		
 	def forward(self,x):
+		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
-		x = x + self.shortcut1(x)
+		x = x + shortcut
 		x = self.act(x)
 
+		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
-		x = x + self.shortcut2(x)
+		x = x + shortcut
 		x = self.act(x)
 
+		shortcut = self.shortcut3(x)
 		x = self.conv3(x)
-		x = x + self.shortcut3(x)
+		x = x + shortcut
 		x = self.act(x)
 
 		return x
@@ -335,12 +338,14 @@ class Respath2(Module):
 		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		
 	def forward(self,x):
+		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
-		x = x + self.shortcut1(x)
+		x = x + shortcut
 		x = self.act(x)
 
+		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
-		x = x + self.shortcut2(x)
+		x = x + shortcut
 		x = self.act(x)
 
 		return x
@@ -364,8 +369,9 @@ class Respath1(Module):
 		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
 		
 	def forward(self,x):
+		shortcut = self.shortcut1(x)s
 		x = self.conv1(x)
-		x = x + self.shortcut1(x)
+		x = x + shortcut
 		x = self.act(x)
 
 		return x
