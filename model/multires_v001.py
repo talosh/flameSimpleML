@@ -255,20 +255,24 @@ class Respath4(Module):
 		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
 		
 	def forward(self,x):
+		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
-		x = x + self.shortcut1(x)
+		x = x + shortcut
 		x = self.act(x)
 
+		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
-		x = x + self.shortcut2(x)
+		x = x + shortcut
 		x = self.act(x)
-
+		
+		shortcut = self.shortcut3(x)
 		x = self.conv3(x)
-		x = x + self.shortcut3(x)
+		x = x + shortcut
 		x = self.act(x)
 
+		shortcut = self.shortcut4(x)
 		x = self.conv4(x)
-		x = x + self.shortcut4(x)
+		x = x + shortcut
 		x = self.act(x)
 
 		return x
