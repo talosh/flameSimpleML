@@ -274,9 +274,16 @@ class Respath_MemOpt(Module):
 			except:
 				print (f'out of mem in respath {i}')
 				device = x.device
-				shortcut = self.shortcuts[i](x)
-				shortcut_cpu = shortcut.cpu()
-				del shortcut
+				try:
+					shortcut = self.shortcuts[i](x)
+					shortcut_cpu = shortcut.cpu()
+					del shortcut
+				except:
+					shortcut_conv_cpu = self.shortcuts[i].cpu()
+					shortcut_conv_cpu = shortcut_conv_cpu.to(torch.float32)
+					x_cpu = x
+					x_cpu = x_cpu.to(device='cpu', dtype=torch.float32)
+					shortcut_cpu = shortcut_conv_cpu(x_cpu)
 				print (f'out of mem shortcut in respath {i}')
 				try:
 					x = self.convs[i](x)
