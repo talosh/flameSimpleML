@@ -263,10 +263,10 @@ class Respath_MemOpt(Module):
 		for i in range(self.respath_length):
 			print (f'respath iteration: {i}')
 			print (f'x shape: {x.shape}')
-			x = self.convs[i](x)
-			print (f'resp conv {i}')
 			shortcut = self.shortcuts[i](x)
 			print (f'shortcut {i}')
+			x = self.convs[i](x)
+			print (f'resp conv {i}')
 			# x = self.act(x)
 			x = x + shortcut
 			del shortcut
