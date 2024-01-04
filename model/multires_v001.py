@@ -276,13 +276,17 @@ class Respath_MemOpt(Module):
 				shortcut = self.shortcuts[i](x)
 				shortcut_cpu = shortcut.cpu()
 				del shortcut
-				x = self.convs[i](x)
-				x_cpu = x.cpu()
+				try:
+					x = self.convs[i](x)
+					x_cpu = x.cpu()
+				except:
+					conv_cpu = self.convs[i].cpu()
+					conv_cpu = conv_cpu.to(torch.float32)
+					x_cpu = conv_cpu(x.to(device='cpu', dtype=torch.float32))
 				del x
 				x_cpu = x_cpu + shortcut_cpu
 				x_cpu = self.act(x_cpu)
 				x = x_cpu.to(device)
-
 
 			try:
 				torch.cuda.empty_cache()
