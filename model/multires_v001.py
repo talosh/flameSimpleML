@@ -284,18 +284,22 @@ class Respath_MemOpt(Module):
 					x_cpu = x
 					x_cpu = x_cpu.to(device='cpu', dtype=torch.float32)
 					shortcut_cpu = shortcut_conv_cpu(x_cpu)
+					del x_cpu
 				print (f'out of mem shortcut in respath {i}')
 				try:
 					x = self.convs[i](x)
 					x_cpu = x.cpu()
+					del x
 				except:
+					x_cpu = x
+					del x
+					x_cpu = x_cpu.to(device='cpu', dtype=torch.float32)
 					conv_cpu = self.convs[i].cpu()
 					conv_cpu = conv_cpu.to(torch.float32)
-					x_cpu = conv_cpu(x.to(device='cpu', dtype=torch.float32))
-				del x
+					x_cpu = conv_cpu(x_cpu)
 				x_cpu = x_cpu + shortcut_cpu
 				x_cpu = self.act(x_cpu)
-				x = x_cpu.to(device)
+				x = x_cpu.to(device, dtype=torch.half)
 
 			try:
 				torch.cuda.empty_cache()
