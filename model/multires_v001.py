@@ -767,6 +767,7 @@ class MultiResUnet_MemOpt(Module):
 			print (f'GPU Mem low failure')
 			x_device = x.device
 			x_dtype = x.dtype
+			print ('encoder step1 of 5')
 			try:
 				x_multires1 = self.multiresblock1(x)
 			except:
@@ -788,6 +789,7 @@ class MultiResUnet_MemOpt(Module):
 				del respath1cpu
 			x_multires1 = x_multires1.to(device='cpu', dtype=torch.float32)
 
+			print ('encoder step2 of 5')
 			try:
 				x_multires2 = self.multiresblock2(x_pool1.to(device=x_device, dtype=x_dtype))
 			except:
@@ -809,6 +811,7 @@ class MultiResUnet_MemOpt(Module):
 				del respath2cpu
 			x_multires2 = x_multires2.to(device='cpu', dtype=torch.float32)
 
+			print ('encoder step3 of 5')
 			try:
 				x_multires3 = self.multiresblock3(x_pool2.to(device=x_device, dtype=x_dtype))
 			except:
@@ -830,6 +833,7 @@ class MultiResUnet_MemOpt(Module):
 				del respath3cpu
 			x_multires3 = x_multires3.to(device='cpu', dtype=torch.float32)
 
+			print ('encoder step4 of 5')
 			try:
 				x_multires4 = self.multiresblock4(x_pool3.to(device=x_device, dtype=x_dtype))
 			except:
@@ -851,6 +855,7 @@ class MultiResUnet_MemOpt(Module):
 				del respath4cpu
 			x_multires4 = x_multires4.to(device='cpu', dtype=torch.float32)
 
+			print ('encoder step5 of 5')
 			try:
 				x_multires5 = self.multiresblock5(x_pool4.to(device=x_device, dtype=x_dtype))
 			except:
@@ -859,8 +864,9 @@ class MultiResUnet_MemOpt(Module):
 			x_multires5 = x_multires5.to(device='cpu', dtype=torch.float32)
 			del x_pool4
 
-			print ('ecn completed')
+			print ('encoder completed')
 
+			print ('decoder step 1 of 5')
 			try:
 				up6 = torch.cat([self.upsample6(x_multires5.to(device=x_device, dtype=x_dtype)),x_multires4.to(device=x_device, dtype=x_dtype)],axis=1)
 			except:
@@ -874,6 +880,7 @@ class MultiResUnet_MemOpt(Module):
 				x_multires6 = multiresblock6cpu(up6.to(device='cpu', dtype=torch.float32))
 			del x_multires5, x_multires4, up6
 
+			print ('decoder step 2 of 5')
 			try:
 				up7 = torch.cat([self.upsample7(x_multires6.to(device=x_device, dtype=x_dtype)),x_multires3.to(device=x_device, dtype=x_dtype)],axis=1)
 			except:
@@ -887,6 +894,7 @@ class MultiResUnet_MemOpt(Module):
 				x_multires7 = multiresblock7cpu(up7.to(device='cpu', dtype=torch.float32))
 			del x_multires6, x_multires3, up7
 
+			print ('decoder step 3 of 5')
 			try:
 				up8 = torch.cat([self.upsample8(x_multires7.to(device=x_device, dtype=x_dtype)),x_multires2.to(device=x_device, dtype=x_dtype)],axis=1)
 			except:
@@ -900,6 +908,7 @@ class MultiResUnet_MemOpt(Module):
 				x_multires8 = multiresblock8cpu(up8.to(device='cpu', dtype=torch.float32))
 			del x_multires7, x_multires2, up8
 
+			print ('decoder step 4 of 5')
 			try:
 				up9 = torch.cat([self.upsample9(x_multires8.to(device=x_device, dtype=x_dtype)),x_multires1.to(device=x_device, dtype=x_dtype)],axis=1)
 			except:
@@ -913,11 +922,15 @@ class MultiResUnet_MemOpt(Module):
 				x_multires9 = multiresblock9cpu(up9.to(device='cpu', dtype=torch.float32))
 			del x_multires8, x_multires1, up9
 
+			print ('decoder step 5 of 5')
 			try:
 				out =  self.conv_final(x_multires9.to(device=x_device, dtype=x_dtype))
 			except:
 				conv_final_cpu = self.conv_final.to(device='cpu', dtype=torch.float32)
 				out = conv_final_cpu(x_multires9.to(device='cpu', dtype=torch.float32))
+
+			print ('decoder completed')
+
 			return out.to(device=x_device, dtype=x_dtype)
 
 class Message:
