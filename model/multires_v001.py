@@ -760,6 +760,9 @@ class MultiResUnet_MemOpt(Module):
 			del x_multires8
 			del x_multires1
 			del up9
+			out =  self.conv_final(x_multires9)
+			return out
+
 		except:
 			print (f'GPU Mem low failure')
 			x_device = x.device
@@ -858,34 +861,64 @@ class MultiResUnet_MemOpt(Module):
 
 			print ('ecn completed')
 
-			up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
-			x_multires6 = self.multiresblock6(up6)
-			del x_multires5
-			del x_multires4
-			del up6
+			try:
+				up6 = torch.cat([self.upsample6(x_multires5.to(device=x_device, dtype=x_dtype)),x_multires4.to(device=x_device, dtype=x_dtype)],axis=1)
+			except:
+				upsample6cpu = self.upsample6.to(device='cpu', dtype=torch.float32)
+				up6 = torch.cat([upsample6cpu(x_multires5.to(device='cpu', dtype=torch.float32)),x_multires4.to(device='cpu', dtype=torch.float32)],axis=1)
+				del upsample6cpu
+			try:
+				x_multires6 = self.multiresblock6(up6.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock6cpu = self.multiresblock6.to(device='cpu', dtype=torch.float32)
+				x_multires6 = multiresblock6cpu(up6.to(device='cpu', dtype=torch.float32))
+			del x_multires5, x_multires4, up6
 
-			up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
-			x_multires7 = self.multiresblock7(up7)
-			del x_multires6
-			del x_multires3
-			del up7
+			try:
+				up7 = torch.cat([self.upsample7(x_multires6.to(device=x_device, dtype=x_dtype)),x_multires3.to(device=x_device, dtype=x_dtype)],axis=1)
+			except:
+				upsample7cpu = self.upsample7.to(device='cpu', dtype=torch.float32)
+				up7 = torch.cat([upsample7cpu(x_multires6.to(device='cpu', dtype=torch.float32)),x_multires3.to(device='cpu', dtype=torch.float32)],axis=1)
+				del upsample7cpu
+			try:
+				x_multires7 = self.multiresblock7(up7.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock7cpu = self.multiresblock7.to(device='cpu', dtype=torch.float32)
+				x_multires7 = multiresblock7cpu(up7.to(device='cpu', dtype=torch.float32))
+			del x_multires6, x_multires3, up7
 
-			up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
-			x_multires8 = self.multiresblock8(up8)
-			del x_multires7
-			del x_multires2
-			del up8
+			try:
+				up8 = torch.cat([self.upsample8(x_multires7.to(device=x_device, dtype=x_dtype)),x_multires2.to(device=x_device, dtype=x_dtype)],axis=1)
+			except:
+				upsample8cpu = self.upsample8.to(device='cpu', dtype=torch.float32)
+				up8 = torch.cat([upsample8cpu(x_multires7.to(device='cpu', dtype=torch.float32)),x_multires2.to(device='cpu', dtype=torch.float32)],axis=1)
+				del upsample8cpu
+			try:
+				x_multires8 = self.multiresblock8(up8.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock8cpu = self.multiresblock8.to(device='cpu', dtype=torch.float32)
+				x_multires8 = multiresblock8cpu(up8.to(device='cpu', dtype=torch.float32))
+			del x_multires7, x_multires2, up8
 
-			up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
-			x_multires9 = self.multiresblock9(up9)
-			del x_multires8
-			del x_multires1
-			del up9
+			try:
+				up9 = torch.cat([self.upsample9(x_multires8.to(device=x_device, dtype=x_dtype)),x_multires1.to(device=x_device, dtype=x_dtype)],axis=1)
+			except:
+				upsample9cpu = self.upsample9.to(device='cpu', dtype=torch.float32)
+				up9 = torch.cat([upsample9cpu(x_multires8.to(device='cpu', dtype=torch.float32)),x_multires1.to(device='cpu', dtype=torch.float32)],axis=1)
+				del upsample9cpu
+			try:
+				x_multires9 = self.multiresblock9(up9.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock9cpu = self.multiresblock9.to(device='cpu', dtype=torch.float32)
+				x_multires9 = multiresblock9cpu(up9.to(device='cpu', dtype=torch.float32))
+			del x_multires8, x_multires1, up9
 
-
-		out =  self.conv_final(x_multires9)
-
-		return out
+			try:
+				out =  self.conv_final(x_multires9.to(device=x_device, dtype=x_dtype))
+			except:
+				conv_final_cpu = self.conv_final.to(device='cpu', dtype=torch.float32)
+				out = conv_final_cpu(x_multires9.to(device='cpu', dtype=torch.float32))
+			return out.to(device=x_device, dtype=x_dtype)
 
 class Message:
 	def __init__(self, queue) -> None:
