@@ -145,17 +145,17 @@ class Multiresblock_MemOpt(Module):
 		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
-		try:
-			shrtct = self.shortcut(x)
-			a = self.conv_3x3(x)
-			del x
-			b = self.conv_5x5(a)
-			c = self.conv_7x7(b)
-			x = torch.cat([a,b,c],axis=1)
-			del a, b, c
-			x = x + shrtct
-			x = self.act(x)
-			return x
+		shrtct = self.shortcut(x)
+		a = self.conv_3x3(x)
+		del x
+		b = self.conv_5x5(a)
+		c = self.conv_7x7(b)
+		x = torch.cat([a,b,c],axis=1)
+		del a, b, c
+		x = x + shrtct
+		x = self.act(x)
+		return x
+		'''
 		except:
 			print ('flameSimpleML Multiresblock: Low GPU memory - trying mixed mode (slow)')
 			x_device = x.device
@@ -186,6 +186,7 @@ class Multiresblock_MemOpt(Module):
 				return x
 			except:
 				return x_cpu
+			'''
 
 class Respath(Module):
 	'''
@@ -347,14 +348,15 @@ class Respath4_MemOpt(Module):
 
 		
 	def forward(self,x):
-		x_device = x.device
-		x_dtype = x.dtype
-		try:
-			shortcut = self.shortcut1(x)
-			x = self.conv1(x)
-			x = x + shortcut
-			x = self.act(x)
-			del shortcut
+		# x_device = x.device
+		# x_dtype = x.dtype
+		# try:
+		shortcut = self.shortcut1(x)
+		x = self.conv1(x)
+		x = x + shortcut
+		x = self.act(x)
+		del shortcut
+		'''
 		except:
 			try:
 				shortcut = self.shortcut1(x)
@@ -481,6 +483,7 @@ class Respath4_MemOpt(Module):
 			print (f'x_cpu shape: {x_cpu.shape}')
 			x = x_cpu.to(device=x_device, dtype=x_dtype)
 			del x_cpu
+		'''
 
 		return x
 
@@ -759,6 +762,126 @@ class MultiResUnet_MemOpt(Module):
 			del up9
 		except:
 			print (f'GPU Mem low failure')
+			x_device = x.device
+			x_dtype = x.dtype
+			try:
+				x_multires1 = self.multiresblock1(x)
+			except:
+				multiresblock1cpu = self.multiresblock1.to(device='cpu', dtype=torch.float32)
+				x_multires1 = multiresblock1cpu(x.to(device='cpu', dtype=torch.float32))
+				del multiresblock1cpu
+			del x
+			try:
+				x_pool1 = self.pool1(x_multires1.to(device=x_device, dtype=x_dtype))
+			except:
+				x_pool1cpu = self.pool1.to(device='cpu', dtype=torch.float32)
+				x_pool1 = x_pool1cpu(x_multires1.to(device='cpu', dtype=torch.float32))
+				del x_pool1cpu
+			try:
+				x_multires1 = self.respath1(x_multires1.to(device=x_device, dtype=x_dtype))
+			except:
+				respath1cpu = self.respath1.to(device='cpu', dtype=torch.float32)
+				x_multires1 = respath1cpu(x_multires1.to(device='cpu', dtype=torch.float32))
+				del respath1cpu
+			x_multires1 = x_multires1.to(device='cpu', dtype=torch.float32)
+
+			try:
+				x_multires2 = self.multiresblock2(x_pool1.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock2cpu = self.multiresblock2.to(device='cpu', dtype=torch.float32)
+				x_multires2 = multiresblock2cpu(x_pool1.to(device='cpu', dtype=torch.float32))
+				del multiresblock2cpu
+			del x_pool1
+			try:
+				x_pool2 = self.pool2(x_multires2.to(device=x_device, dtype=x_dtype))
+			except:
+				x_pool2cpu = self.pool2.to(device='cpu', dtype=torch.float32)
+				x_pool2 = x_pool2cpu(x_multires2.to(device='cpu', dtype=torch.float32))
+				del x_pool2cpu
+			try:
+				x_multires2 = self.respath2(x_multires2.to(device=x_device, dtype=x_dtype))
+			except:
+				respath2cpu = self.respath2.to(device='cpu', dtype=torch.float32)
+				x_multires2 = respath2cpu(x_multires2.to(device='cpu', dtype=torch.float32))
+				del respath2cpu
+			x_multires2 = x_multires2.to(device='cpu', dtype=torch.float32)
+
+			try:
+				x_multires3 = self.multiresblock3(x_pool2.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock3cpu = self.multiresblock3.to(device='cpu', dtype=torch.float32)
+				x_multires3 = multiresblock3cpu(x_pool2.to(device='cpu', dtype=torch.float32))
+				del multiresblock3cpu
+			del x_pool2
+			try:
+				x_pool3 = self.pool3(x_multires3.to(device=x_device, dtype=x_dtype))
+			except:
+				x_pool3cpu = self.pool3.to(device='cpu', dtype=torch.float32)
+				x_pool3 = x_pool3cpu(x_multires3.to(device='cpu', dtype=torch.float32))
+				del x_pool3cpu
+			try:
+				x_multires3 = self.respath3(x_multires3.to(device=x_device, dtype=x_dtype))
+			except:
+				respath3cpu = self.respath3.to(device='cpu', dtype=torch.float32)
+				x_multires3 = respath3cpu(x_multires3.to(device='cpu', dtype=torch.float32))
+				del respath3cpu
+			x_multires3 = x_multires3.to(device='cpu', dtype=torch.float32)
+
+			try:
+				x_multires4 = self.multiresblock4(x_pool3.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock4cpu = self.multiresblock4.to(device='cpu', dtype=torch.float32)
+				x_multires4 = multiresblock4cpu(x_pool3.to(device='cpu', dtype=torch.float32))
+				del multiresblock4cpu
+			del x_pool3
+			try:
+				x_pool4 = self.pool4(x_multires4.to(device=x_device, dtype=x_dtype))
+			except:
+				x_pool4cpu = self.pool4.to(device='cpu', dtype=torch.float32)
+				x_pool4 = x_pool4cpu(x_multires4.to(device='cpu', dtype=torch.float32))
+				del x_pool4cpu
+			try:
+				x_multires4 = self.respath4(x_multires4.to(device=x_device, dtype=x_dtype))
+			except:
+				respath4cpu = self.respath4.to(device='cpu', dtype=torch.float32)
+				x_multires4 = respath4cpu(x_multires4.to(device='cpu', dtype=torch.float32))
+				del respath4cpu
+			x_multires4 = x_multires4.to(device='cpu', dtype=torch.float32)
+
+			try:
+				x_multires5 = self.multiresblock5(x_pool4.to(device=x_device, dtype=x_dtype))
+			except:
+				multiresblock5cpu = self.multiresblock5.to(device='cpu', dtype=torch.float32)
+				x_multires5 = multiresblock5cpu(x_pool4.to(device='cpu', dtype=torch.float32))
+			x_multires5 = x_multires5.to(device='cpu', dtype=torch.float32)
+			del x_pool4
+
+			print ('ecn completed')
+
+			up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
+			x_multires6 = self.multiresblock6(up6)
+			del x_multires5
+			del x_multires4
+			del up6
+
+			up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
+			x_multires7 = self.multiresblock7(up7)
+			del x_multires6
+			del x_multires3
+			del up7
+
+			up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
+			x_multires8 = self.multiresblock8(up8)
+			del x_multires7
+			del x_multires2
+			del up8
+
+			up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
+			x_multires9 = self.multiresblock9(up9)
+			del x_multires8
+			del x_multires1
+			del up9
+
 
 		out =  self.conv_final(x_multires9)
 
