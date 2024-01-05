@@ -765,9 +765,42 @@ class MultiResUnet_MemOpt(Module):
 
 		except:
 			import gc
+			import time
 			print (f'GPU Mem low failure')
 			x_device = x.device
 			x_dtype = x.dtype
+			
+			try:
+				del x_multires1
+				print ('x_multires1')
+				del x_pool1
+				print ('x_pool1')
+				del x_multires2
+				print ('x_multires2')
+				del x_pool2
+				print ('x_pool2')
+				del x_multires3
+				del x_pool3
+				del x_multires4
+				del x_pool4
+				del x_multires5
+				del up6
+				del x_multires6
+				del up7
+				del x_multires7
+				del up8
+				del x_multires8
+				del up9
+				del x_multires9
+			except:
+				pass
+			
+			print ('cache and sleep')
+			gc.collect()
+			torch.cuda.empty_cache()
+			time.sleep(2)
+
+
 			print ('encoder step1 of 5')
 			try:
 				x_multires1 = self.multiresblock1(x)
