@@ -5,7 +5,8 @@ except:
 	torch = object
 	Module = object
 
-class Conv2d_batchnorm(Module):
+
+# class Conv2d_batchnorm(Module):
 	'''
 	2D Convolutional layers
 
@@ -16,6 +17,7 @@ class Conv2d_batchnorm(Module):
 		stride {tuple} -- stride of the convolution (default: {(1, 1)})
 		activation {str} -- activation function (default: {'relu'})
 
+	'''
 	'''
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1), activation = True, inplace = False):
 		super().__init__()
@@ -38,6 +40,8 @@ class Conv2d_batchnorm(Module):
 			return self.act(x)
 		else:
 			return x
+	'''
+	
 	
 	'''
 
@@ -66,6 +70,79 @@ class Conv2d_batchnorm(Module):
 		return self.layers(x)
 	'''
 
+class Conv2d(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+	
+	def forward(self,x):
+		x = self.conv1(x)
+		return x
+
+class Conv2d_ReLU(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+		self.act = torch.nn.SELU(inplace = True)
+	
+	def forward(self,x):
+		x = self.conv1(x)
+		x = self.act(x)
+		return x
+
+class Conv2d_SameInOut(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+	
+	def forward(self,x):
+		x = self.conv1(x)
+		return x
+
+class Conv2d_SameInOut_ReLU(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+		self.act = torch.nn.SELU(inplace = True)
+	
+	def forward(self,x):
+		x = self.conv1(x)
+		x = self.act(x)
+		return x
+
+
 class Multiresblock(Module):
 	'''
 	MultiRes Block
@@ -88,15 +165,15 @@ class Multiresblock(Module):
 		filt_cnt_7x7 = int(self.W*0.5)
 		num_out_filters = filt_cnt_3x3 + filt_cnt_5x5 + filt_cnt_7x7
 		
-		self.shortcut = Conv2d_batchnorm(num_in_channels ,num_out_filters , kernel_size = (1,1), activation=False)
+		self.shortcut = Conv2d(num_in_channels ,num_out_filters , kernel_size = (1,1))
 
-		self.conv_3x3 = Conv2d_batchnorm(num_in_channels, filt_cnt_3x3, kernel_size = (3,3), activation=True)
+		self.conv_3x3 = Conv2d_ReLU(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
-		self.conv_5x5 = Conv2d_batchnorm(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3), activation=True)
+		self.conv_5x5 = Conv2d_ReLU(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
 		
-		self.conv_7x7 = Conv2d_batchnorm(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3), activation=True)
+		self.conv_7x7 = Conv2d_ReLU(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 
 	def forward(self,x):
 
@@ -134,13 +211,13 @@ class Multiresblock_MemOpt(Module):
 		filt_cnt_7x7 = int(self.W*0.5)
 		num_out_filters = filt_cnt_3x3 + filt_cnt_5x5 + filt_cnt_7x7
 		
-		self.shortcut = Conv2d_batchnorm(num_in_channels ,num_out_filters , kernel_size = (1,1), activation=False)
+		self.shortcut = Conv2d(num_in_channels ,num_out_filters , kernel_size = (1,1))
 
-		self.conv_3x3 = Conv2d_batchnorm(num_in_channels, filt_cnt_3x3, kernel_size = (3,3), activation=True, inplace=True)
+		self.conv_3x3 = Conv2d_ReLU(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
-		self.conv_5x5 = Conv2d_batchnorm(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3), activation=True, inplace=True)
+		self.conv_5x5 = Conv2d_ReLU(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
 		
-		self.conv_7x7 = Conv2d_batchnorm(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3), activation=True, inplace=True)
+		self.conv_7x7 = Conv2d_ReLU(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
 		self.act = torch.nn.SELU(inplace=True)
 
@@ -188,7 +265,7 @@ class Multiresblock_MemOpt(Module):
 				return x_cpu
 			'''
 
-class Respath(Module):
+# class Respath(Module):
 	'''
 	ResPath
 	
@@ -198,7 +275,7 @@ class Respath(Module):
 		respath_length {int} -- length of ResPath
 		
 	'''
-
+	'''
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
@@ -225,20 +302,21 @@ class Respath(Module):
 			x = self.act(x)
 
 		return x
+	'''
 	
 class Respath4(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
 		self.act = torch.nn.SELU()
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut4 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv4 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
@@ -268,12 +346,12 @@ class Respath3(Module):
 	
 		super().__init__()
 		self.act = torch.nn.SELU()
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
@@ -298,10 +376,10 @@ class Respath2(Module):
 	
 		super().__init__()
 		self.act = torch.nn.SELU()
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
+		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
@@ -321,232 +399,8 @@ class Respath1(Module):
 	
 		super().__init__()
 		self.act = torch.nn.SELU()
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		
-	def forward(self,x):
-		shortcut = self.shortcut1(x)
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x)
-
-		return x
-
-class Respath4_MemOpt(Module):
-	def __init__(self, num_in_filters, num_out_filters, respath_length):
-	
-		super().__init__()
-		self.act = torch.nn.SELU(inplace=True)
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		self.conv4 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-
-		
-	def forward(self,x):
-		# x_device = x.device
-		# x_dtype = x.dtype
-		# try:
-		shortcut = self.shortcut1(x)
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x)
-		del shortcut
-		'''
-		except:
-			try:
-				shortcut = self.shortcut1(x)
-				shortcut_cpu = shortcut.cpu()
-				del shortcut
-			except:
-				print ('ResPath4 step 01 shortcut on CPU')
-				shortcut1cpu  = self.shortcut1.to(device='cpu', dtype=torch.float32)
-				shortcut_cpu = shortcut1cpu(x.to(device='cpu', dtype=torch.float32))
-				del shortcut1cpu
-				shortcut_cpu.to(dtype = x_dtype)
-			try:
-				x = self.conv1(x)
-				x_cpu = x.cpu()
-				del x
-			except:
-				print ('ResPath4 step 01 conv on CPU')
-				conv1cpu = self.conv1.to(device='cpu', dtype=torch.float32)
-				x_cpu = conv1cpu(x.to(device='cpu', dtype=torch.float32))
-				del conv1cpu
-				x_cpu.to(dtype=x_dtype)
-			x_cpu = x_cpu + shortcut_cpu
-			del shortcut_cpu
-			x_cpu = self.act(x_cpu)
-			x = x_cpu.to(device=x_device, dtype=x_dtype)
-			del x_cpu
-	
-		try:
-			shortcut = self.shortcut2(x)
-			x = self.conv2(x)
-			x = x + shortcut
-			x = self.act(x)
-			del shortcut
-		except:
-			try:
-				shortcut = self.shortcut2(x)
-				shortcut_cpu = shortcut.cpu()
-				del shortcut
-			except:
-				print ('ResPath4 step 02 shortcut on CPU')
-				shortcut2cpu  = self.shortcut2.to(device='cpu', dtype=torch.float32)
-				shortcut_cpu = shortcut2cpu(x.to(device='cpu', dtype=torch.float32))
-				del shortcut2cpu
-				shortcut_cpu.to(dtype = x_dtype)
-			try:
-				x = self.conv2(x)
-				x_cpu = x.cpu()
-				del x
-			except:
-				print ('ResPath4 step 02 conv on CPU')
-				conv2cpu = self.conv2.to(device='cpu', dtype=torch.float32)
-				x_cpu = conv2cpu(x.to(device='cpu', dtype=torch.float32))
-				del conv2cpu
-				x_cpu.to(dtype=x_dtype)
-			x_cpu = x_cpu + shortcut_cpu
-			del shortcut_cpu
-			x_cpu = self.act(x_cpu)
-			x = x_cpu.to(device=x_device, dtype=x_dtype)
-			del x_cpu
-
-		try:
-			shortcut = self.shortcut3(x)
-			x = self.conv3(x)
-			x = x + shortcut
-			x = self.act(x)
-			del shortcut
-		except:
-			try:
-				shortcut = self.shortcut3(x)
-				shortcut_cpu = shortcut.cpu()
-				del shortcut
-			except:
-				print ('ResPath4 step 03 shortcut on CPU')
-				shortcut3cpu  = self.shortcut3.to(device='cpu', dtype=torch.float32)
-				shortcut_cpu = shortcut3cpu(x.to(device='cpu', dtype=torch.float32))
-				del shortcut3cpu
-				shortcut_cpu.to(dtype = x_dtype)
-			try:
-				x = self.conv3(x)
-				x_cpu = x.cpu()
-				del x
-			except:
-				print ('ResPath4 step 03 conv on CPU')
-				conv3cpu = self.conv3.to(device='cpu', dtype=torch.float32)
-				x_cpu = conv3cpu(x.to(device='cpu', dtype=torch.float32))
-				del conv3cpu
-				x_cpu.to(dtype=x_dtype)
-			x_cpu = x_cpu + shortcut_cpu
-			del shortcut_cpu
-			x_cpu = self.act(x_cpu)
-			x = x_cpu.to(device=x_device, dtype=x_dtype)
-			del x_cpu
-
-		try:
-			shortcut = self.shortcut4(x)
-			x = self.conv4(x)
-			x = x + shortcut
-			x = self.act(x)
-			del shortcut
-		except:
-			try:
-				shortcut = self.shortcut3(x)
-				shortcut_cpu = shortcut.cpu()
-				del shortcut
-			except:
-				print ('ResPath4 step 04 shortcut on CPU')
-				shortcut4cpu  = self.shortcut4.to(device='cpu', dtype=torch.float32)
-				shortcut_cpu = shortcut4cpu(x.to(device='cpu', dtype=torch.float32))
-				del shortcut4cpu
-				shortcut_cpu.to(dtype = x_dtype)
-			try:
-				x = self.conv4(x)
-				x_cpu = x.cpu()
-				del x
-			except:
-				print ('ResPath4 step 04 conv on CPU')
-				conv4cpu = self.conv4.to(device='cpu', dtype=torch.float32)
-				x_cpu = conv4cpu(x.to(device='cpu', dtype=torch.float32))
-				del conv4cpu
-				x_cpu.to(dtype=x_dtype)
-			x_cpu = x_cpu + shortcut_cpu
-			del shortcut_cpu
-			x_cpu = self.act(x_cpu)
-			print (f'x_cpu shape: {x_cpu.shape}')
-			x = x_cpu.to(device=x_device, dtype=x_dtype)
-			del x_cpu
-		'''
-
-		return x
-
-class Respath3_MemOpt(Module):
-	def __init__(self, num_in_filters, num_out_filters, respath_length):
-	
-		super().__init__()
-		self.act = torch.nn.SELU(inplace=True)
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		self.conv3 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		
-	def forward(self,x):
-		shortcut = self.shortcut1(x)
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x)
-
-		shortcut = self.shortcut2(x)
-		x = self.conv2(x)
-		x = x + shortcut
-		x = self.act(x)
-
-		shortcut = self.shortcut3(x)
-		x = self.conv3(x)
-		x = x + shortcut
-		x = self.act(x)
-
-		return x
-
-class Respath2_MemOpt(Module):
-	def __init__(self, num_in_filters, num_out_filters, respath_length):
-	
-		super().__init__()
-		self.act = torch.nn.SELU(inplace=True)
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.shortcut2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
-		self.conv2 = Conv2d_batchnorm(num_out_filters, num_out_filters, kernel_size = (3,3), activation=True)
-		
-	def forward(self,x):
-		shortcut = self.shortcut1(x)
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x)
-
-		shortcut = self.shortcut2(x)
-		x = self.conv2(x)
-		x = x + shortcut
-		x = self.act(x)
-
-		return x
-
-class Respath1_MemOpt(Module):
-	def __init__(self, num_in_filters, num_out_filters, respath_length):
-	
-		super().__init__()
-		self.act = torch.nn.SELU(inplace=True)
-		self.shortcut1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (1,1), activation=False)
-		self.conv1 = Conv2d_batchnorm(num_in_filters, num_out_filters, kernel_size = (3,3),activation=True)
+		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
@@ -621,7 +475,7 @@ class MultiResUnet(Module):
 		self.multiresblock9 = Multiresblock(self.concat_filters4,32)
 		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
-		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation=False)
+		self.conv_final = Conv2d(self.in_filters9, num_classes, kernel_size = (1,1))
 
 	def forward(self, x):
 		x_multires1 = self.multiresblock1(x)
@@ -667,24 +521,24 @@ class MultiResUnet_MemOpt(Module):
 		self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
 		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 		self.pool1 =  torch.nn.MaxPool2d(2)
-		self.respath1 = Respath4_MemOpt(self.in_filters1,32,respath_length=4)
+		self.respath1 = Respath4(self.in_filters1,32,respath_length=4)
 
 		self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
 		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
 		self.pool2 =  torch.nn.MaxPool2d(2)
-		self.respath2 = Respath3_MemOpt(self.in_filters2,32*2,respath_length=3)
+		self.respath2 = Respath3(self.in_filters2,32*2,respath_length=3)
 	
 	
 		self.multiresblock3 =  Multiresblock_MemOpt(self.in_filters2,32*4)
 		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
 		self.pool3 =  torch.nn.MaxPool2d(2)
-		self.respath3 = Respath2_MemOpt(self.in_filters3,32*4,respath_length=2)
+		self.respath3 = Respath2(self.in_filters3,32*4,respath_length=2)
 	
 	
 		self.multiresblock4 = Multiresblock_MemOpt(self.in_filters3,32*8)
 		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 		self.pool4 =  torch.nn.MaxPool2d(2)
-		self.respath4 = Respath1_MemOpt(self.in_filters4,32*8,respath_length=1)
+		self.respath4 = Respath1(self.in_filters4,32*8,respath_length=1)
 	
 		self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
@@ -709,7 +563,7 @@ class MultiResUnet_MemOpt(Module):
 		self.multiresblock9 = Multiresblock_MemOpt(self.concat_filters4,32)
 		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
-		self.conv_final = Conv2d_batchnorm(self.in_filters9, num_classes, kernel_size = (1,1), activation=False)
+		self.conv_final = Conv2d(self.in_filters9, num_classes, kernel_size = (1,1))
 
 		self.msg = Message(msg_queue)
 
