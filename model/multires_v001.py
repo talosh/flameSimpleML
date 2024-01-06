@@ -109,11 +109,13 @@ class Conv2d_MemOPT(Module):
 		n, d, h, w = x.shape
 		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		slice_width = w // self.num_slices
-		for w_index in range(0, self.num_slices):
-			out[:, :, :, w_index:w_index+slice_width] = self.conv1(x[:, :, :, w_index:w_index+slice_width])
+		# for w_index in range(0, self.num_slices):
+		#	out[:, :, :, w_index:w_index+slice_width] = self.conv1(x[:, :, :, w_index:w_index+slice_width])
 		# out[:, :, :, :self.num_slices * slice_width] = x[:, :, :, :self.num_slices * slice_width]
-		# out[:, :, :, :w//2] = self.conv1(x[:, :, :, :w//2])
-		# out[:, :, :, w//2:w] = self.conv1(x[:, :, :, w//2:w])
+		out[:, :, :, :w//4] = self.conv1(x[:, :, :, :w//4])
+		out[:, :, :, w//4:2*w//4] = self.conv1(x[:, :, :, w//4:2*w//4])
+		out[:, :, :, 2*w//4:3*w//4] = self.conv1(x[:, :, :, 2*w//4:3*w//4])
+		out[:, :, :, 3*w//4:] = self.conv1(x[:, :, :, 3*w//4:])
 		whole = self.conv1(x)
 		
 		print (f'x.shape: {x.shape}, out.shape{out.shape}: {torch.equal(out, whole)}')
