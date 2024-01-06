@@ -113,7 +113,7 @@ class Conv2d_MemOPT(Module):
 		# 	out[:, :, :, w_index:w_index+slice_width] = x[:, :, :, w_index:w_index+slice_width]
 			# out[:, :, :, w_index:w_index+slice_width] = self.conv1(x[:, :, :, w_index:w_index+slice_width])
 		out[:, :, :, :self.num_slices * slice_width] = x[:, :, :, :self.num_slices * slice_width]
-		print (torch.equal(out, x))
+		print (f'x.shape: {x.shape}: {torch.equal(out, x)}')
 		return out
 
 class Conv2d_ReLU(Module):
