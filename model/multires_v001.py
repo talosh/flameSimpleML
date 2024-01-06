@@ -158,8 +158,9 @@ class Conv2d_ReLU_MemOPT(Module):
 		# print (f'first slice conv shape: {slice_conv[:, :, :, :slice_width].shape}')
 		out[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 1])[:, :, :, :slice_width]
 		for w_index in range(1, self.num_slices - 1):
-			slice_conv = self.conv1(x[:, :, :, w_index*slice_width - 1 : w_index*slice_width+slice_width + 1])
-			print (f'slice conv shape: {slice_conv.shape}')
+			slice_conv_ext = self.conv1(x[:, :, :, w_index*slice_width - 1 : w_index*slice_width+slice_width + 1])
+			slice_conv = self.conv1(x[:, :, :, w_index*slice_width : w_index*slice_width+slice_width ])
+			print (f'slice conv shape: {slice_conv.shape}, slice conv ext: {slice_conv_ext.shape}')
 			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width : w_index*slice_width+slice_width ])
 			print (f'out shape: {out.shape}')
 		# out[:, :, :, self.num_slices*slice_width:self.num_slices*slice_width+slice_width] = self.conv1(x[:, :, :, self.num_slices*slice_width - 1 : self.num_slices*slice_width+slice_width])[:, :, :, 1:slice_width]
