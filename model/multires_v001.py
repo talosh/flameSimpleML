@@ -105,7 +105,7 @@ class Conv2d_MemOPT(Module):
 		x_device = x.device
 		x_dtype = x.dtype
 		n, d, h, w = x.shape
-		out = torch.empty(n, self.num_out_filters, h, w)
+		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		out = self.conv1(x)
 		return out
 
