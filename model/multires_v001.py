@@ -295,9 +295,9 @@ class Multiresblock_MemOpt(Module):
 
 		self.conv_3x3 = Conv2d_ReLU_MemOPT(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
-		self.conv_5x5 = Conv2d_ReLU(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
+		self.conv_5x5 = Conv2d_ReLU_MemOPT(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
 		
-		self.conv_7x7 = Conv2d_ReLU(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
+		self.conv_7x7 = Conv2d_ReLU_MemOPT(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
 		self.act = torch.nn.SELU(inplace = True)
 
