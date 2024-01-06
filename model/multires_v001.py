@@ -182,6 +182,8 @@ class Conv2d_SameInOut(Module):
 class Conv2d_SameInOut_MemOPT(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
 		super().__init__()
+		self.num_out_filters = num_out_filters
+		self.num_slices = 8
 		self.conv1 = torch.nn.Conv2d(
 			in_channels=num_in_filters,
 			out_channels=num_out_filters,
@@ -193,7 +195,12 @@ class Conv2d_SameInOut_MemOPT(Module):
 			)
 	
 	def forward(self,x):
-		x = self.conv1(x)
+		n, d, h, w = x.shape
+		whole = self.conv1(x)
+		slice_width = w // self.num_slices
+		for w_index in range(0, self.num_slices):
+			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
+		print (f'x.shape: {x.shape}, {torch.equal(x, whole)}')
 		return x
 
 
