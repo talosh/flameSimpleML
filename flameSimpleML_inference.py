@@ -2111,8 +2111,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         
         h, w, _ = src_image_data.shape
-        ph = ((h - 1) // 128 + 1) * 128
-        pw = ((w - 1) // 128 + 1) * 128
+        ph = ((h - 1) // 256 + 1) * 256
+        pw = ((w - 1) // 256 + 1) * 256
         padding = (0, pw - w, 0, ph - h)
         src_image_data = src_image_data.permute (2, 0, 1)
         src_image_data = F.pad(src_image_data, padding)
