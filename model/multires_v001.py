@@ -424,11 +424,11 @@ class Respath4_MemOPT(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 		super().__init__()
 		self.act = torch.nn.SELU(inplace = True)
-		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut4 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
-		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
+		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
 		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
 		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
 		self.conv4 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
@@ -633,7 +633,7 @@ class MultiResUnet_MemOpt(Module):
 		self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
 		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 		self.pool1 =  torch.nn.MaxPool2d(2)
-		self.respath1 = Respath4(self.in_filters1,32,respath_length=4)
+		self.respath1 = Respath4_MemOPT(self.in_filters1,32,respath_length=4)
 
 		self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
 		self.in_filters2 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
