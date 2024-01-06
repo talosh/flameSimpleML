@@ -106,6 +106,7 @@ class Conv2d_MemOPT(Module):
 		x_device = x.device
 		x_dtype = x.dtype
 		n, d, h, w = x.shape
+		print (x.shape)
 		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		for w_index in range(0, self.num_slices):
 			print (w_index * (w // self.num_slices))
