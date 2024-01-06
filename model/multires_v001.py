@@ -201,7 +201,7 @@ class Conv2d_SameInOut_MemOPT(Module):
 		for w_index in range(0, self.num_slices):
 			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
 		print (f'x.shape: {x.shape}, {torch.equal(x, whole)}')
-		return x
+		return whole
 
 
 class Conv2d_SameInOut_ReLU(Module):
