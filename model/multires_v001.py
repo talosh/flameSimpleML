@@ -90,6 +90,7 @@ class Conv2d(Module):
 class Conv2d_MemOPT(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
 		super().__init__()
+		self.num_out_filters = num_out_filters
 		self.conv1 = torch.nn.Conv2d(
 			in_channels=num_in_filters,
 			out_channels=num_out_filters,
@@ -101,10 +102,12 @@ class Conv2d_MemOPT(Module):
 			)
 	
 	def forward(self,x):
+		x_device = x.device
+		x_dtype = x.dtype
 		n, d, h, w = x.shape
-		print (f'conv input x shape: {n}, {d}, {h}, {w}')
-		x = self.conv1(x)
-		return x
+		out = torch.empty(n, self.num_out_filters, h, w)
+		out = self.conv1(x)
+		return out
 
 class Conv2d_ReLU(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
@@ -192,7 +195,7 @@ class Multiresblock(Module):
 		
 		self.conv_7x7 = Conv2d_ReLU(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
-		self.act = torch.nn.SELU(inplace=True)
+		self.act = torch.nn.SELU(inplace = True)
 
 	def forward(self,x):
 
@@ -237,7 +240,7 @@ class Multiresblock_MemOpt(Module):
 		
 		self.conv_7x7 = Conv2d_ReLU(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
-		self.act = torch.nn.SELU(inplace=True)
+		self.act = torch.nn.SELU(inplace = True)
 
 	def forward(self,x):
 		shrtct = self.shortcut(x)
@@ -324,9 +327,8 @@ class Multiresblock_MemOpt(Module):
 	
 class Respath4(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
-	
 		super().__init__()
-		self.act = torch.nn.SELU(inplace=True)
+		self.act = torch.nn.SELU(inplace = True)
 		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
