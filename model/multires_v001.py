@@ -86,6 +86,23 @@ class Conv2d(Module):
 	def forward(self,x):
 		x = self.conv1(x)
 		return x
+	
+class Conv2d_MemOPT(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+	
+	def forward(self,x):
+		x = self.conv1(x)
+		return x
 
 class Conv2d_ReLU(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
