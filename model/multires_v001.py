@@ -485,6 +485,37 @@ class Respath3(Module):
 		x = self.act(x)
 
 		return x
+	
+class Respath3_MemOPT(Module):
+	def __init__(self, num_in_filters, num_out_filters, respath_length):
+	
+		super().__init__()
+		self.act = torch.nn.SELU(inplace=True)
+		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut3 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		
+	def forward(self,x):
+		shortcut = self.shortcut1(x)
+		x = self.conv1(x)
+		x = x + shortcut
+		x = self.act(x)
+
+		shortcut = self.shortcut2(x)
+		x = self.conv2(x)
+		x = x + shortcut
+		x = self.act(x)
+
+		shortcut = self.shortcut3(x)
+		x = self.conv3(x)
+		x = x + shortcut
+		x = self.act(x)
+
+		return x
+
 
 class Respath2(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
