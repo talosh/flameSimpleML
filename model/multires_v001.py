@@ -110,16 +110,7 @@ class Conv2d_MemOPT(Module):
 		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		slice_width = w // self.num_slices
 		for w_index in range(0, self.num_slices):
-			# print (f'[:, :, :, {w_index*slice_width}:{w_index*slice_width+slice_width}]')
 			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
-
-		# print (f'out[:, :, :, 0:{w//4}] = self.conv1(x[:, :, :, 0:w//4])')
-		# print (f'out[:, :, :, {w//4}:{2*w//4}] = self.conv1(x[:, :, :, w//4:2*w//4])')
-		# print (f'out[:, :, :, {2*w//4}:{3*w//4}] = self.conv1(x[:, :, :, 2*w//4:3*w//4])')
-		# print (f'out[:, :, :, {3*w}//{4:w}] = self.conv1(x[:, :, :, 3*w//4:w])')
-		whole = self.conv1(x)
-		
-		print (f'x.shape: {x.shape}, out.shape{out.shape}: {torch.equal(out, whole)}')
 		return out
 
 class Conv2d_ReLU(Module):
@@ -140,6 +131,35 @@ class Conv2d_ReLU(Module):
 		x = self.conv1(x)
 		x = self.act(x)
 		return x
+
+class Conv2d_ReLU_MemOPT(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+		self.act = torch.nn.SELU(inplace = True)
+	
+	def forward(self,x):
+		x_device = x.device
+		x_dtype = x.dtype
+		n, d, h, w = x.shape
+		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
+		slice_width = w // self.num_slices
+		for w_index in range(0, self.num_slices):
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
+
+		whole = self.conv1(x)
+		print (f'x.shape: {x.shape}, {torch.equal(out, whole)}')
+
+		out = self.act(out)
+		return out
 
 class Conv2d_SameInOut(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
@@ -247,7 +267,7 @@ class Multiresblock_MemOpt(Module):
 		
 		self.shortcut = Conv2d_MemOPT(num_in_channels ,num_out_filters , kernel_size = (1,1))
 
-		self.conv_3x3 = Conv2d_ReLU(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
+		self.conv_3x3 = Conv2d_ReLU_MemOPT(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
 		self.conv_5x5 = Conv2d_ReLU(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
 		
