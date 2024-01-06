@@ -161,9 +161,7 @@ class Conv2d_ReLU_MemOPT(Module):
 			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 1 : w_index*slice_width+slice_width + 1])[:, :, :, 1:slice_width+1]
 		out[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-1:])[:, :, :, 1:slice_width+1]
 		whole = self.conv1(x)
-		print (f'whole shape: {whole.shape}')
 		print (f'x.shape: {x.shape}, {torch.equal(out, whole)}')
-
 		out = self.act(out)
 		return out
 
