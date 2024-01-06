@@ -209,7 +209,7 @@ class Multiresblock(Module):
 	
 		return x
 
-# class Multiresblock_MemOpt(Module):
+class Multiresblock_MemOpt(Module):
 	'''
 	MultiRes Block
 	
@@ -218,7 +218,6 @@ class Multiresblock(Module):
 		num_filters {int} -- Number of filters in a corrsponding UNet stage
 		alpha {float} -- alpha hyperparameter (default: 1.67)
 	
-	'''
 	'''
 	def __init__(self, num_in_channels, num_filters, alpha=1.69):
 		super().__init__()
@@ -230,7 +229,7 @@ class Multiresblock(Module):
 		filt_cnt_7x7 = int(self.W*0.5)
 		num_out_filters = filt_cnt_3x3 + filt_cnt_5x5 + filt_cnt_7x7
 		
-		self.shortcut = Conv2d(num_in_channels ,num_out_filters , kernel_size = (1,1))
+		self.shortcut = Conv2d_MemOPT(num_in_channels ,num_out_filters , kernel_size = (1,1))
 
 		self.conv_3x3 = Conv2d_ReLU(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
@@ -251,7 +250,6 @@ class Multiresblock(Module):
 		x = x + shrtct
 		x = self.act(x)
 		return x
-	'''
 	'''
 		except:
 			print ('flameSimpleML Multiresblock: Low GPU memory - trying mixed mode (slow)')
