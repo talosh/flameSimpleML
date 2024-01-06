@@ -2296,6 +2296,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return 'cpu'
 
     def close_application(self):
+        import gc
         import flame
 
         self.stop_frame_rendering_thread()
@@ -2322,6 +2323,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             print (f'close_application exception {e}')
         '''
 
+        del self.current_model
+        del self.model_state_dict
+        gc.collect()
         self.empty_torch_cache()
 
         while not self.frames_to_save_queue.empty():
