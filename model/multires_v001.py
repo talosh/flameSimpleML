@@ -428,7 +428,7 @@ class Respath4_MemOPT(Module):
 		super().__init__()
 		self.act = torch.nn.SELU(inplace = True)
 		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
-		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut4 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
