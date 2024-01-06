@@ -224,6 +224,31 @@ class Conv2d_SameInOut_ReLU(Module):
 		x = self.act(x)
 		return x
 
+class Conv2d_SameInOut_ReLU_MemOPT(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.num_out_filters = num_out_filters
+		self.num_slices = 8
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'replicate',
+			# bias=False
+			)
+		self.act = torch.nn.SELU(inplace = True)
+	
+	def forward(self,x):
+		n, d, h, w = x.shape
+		slice_width = w // self.num_slices
+		x[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
+		for w_index in range(1, self.num_slices - 1):
+			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2])[:, :, :, 2:slice_width+2]
+		x[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-2:])[:, :, :, 2:slice_width+2]
+		x = self.act(x)
+		return x
 
 class Multiresblock(Module):
 	'''
@@ -430,9 +455,9 @@ class Respath4_MemOPT(Module):
 		self.shortcut3 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut4 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv4 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv4 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
