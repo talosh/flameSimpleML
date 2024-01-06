@@ -198,7 +198,8 @@ class Conv2d_SameInOut_MemOPT(Module):
 		x_device = x.device
 		x_dtype = x.dtype
 		n, d, h, w = x.shape
-		whole = self.conv1(x)
+		oldx = x.clone()
+		whole = self.conv1(oldx)
 		slice_width = w // self.num_slices
 		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		for w_index in range(0, self.num_slices):
