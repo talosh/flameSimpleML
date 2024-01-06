@@ -158,7 +158,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		# print (f'first slice conv shape: {slice_conv[:, :, :, :slice_width].shape}')
 		out[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 4])[:, :, :, :slice_width]
 		for w_index in range(1, self.num_slices - 1):
-			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 4 : w_index*slice_width+slice_width + 4])[:, :, :, 4:slice_width+4]
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 6 : w_index*slice_width+slice_width + 6])[:, :, :, 6:slice_width+6]
 		out[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-1:])[:, :, :, 1:slice_width+1]
 		whole = self.conv1(x)
 		print (f'x.shape: {x.shape}, {torch.equal(out[:, :, :, :slice_width*2], whole[:, :, :, :slice_width*2])}')
