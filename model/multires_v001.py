@@ -92,7 +92,6 @@ class Conv2d_MemOPT(Module):
 		super().__init__()
 		self.num_out_filters = num_out_filters
 		self.num_slices = 8
-		self.stride = stride
 		self.conv1 = torch.nn.Conv2d(
 			in_channels=num_in_filters,
 			out_channels=num_out_filters,
@@ -135,6 +134,8 @@ class Conv2d_ReLU(Module):
 class Conv2d_ReLU_MemOPT(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
 		super().__init__()
+		self.num_out_filters = num_out_filters
+		self.num_slices = 8
 		self.conv1 = torch.nn.Conv2d(
 			in_channels=num_in_filters,
 			out_channels=num_out_filters,
