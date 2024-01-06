@@ -101,6 +101,8 @@ class Conv2d_MemOPT(Module):
 			)
 	
 	def forward(self,x):
+		n, d, h, w = x.shape
+		print (f'conv input x shape: {n}, {d}, {h}, {w}')
 		x = self.conv1(x)
 		return x
 
@@ -207,7 +209,7 @@ class Multiresblock(Module):
 	
 		return x
 
-class Multiresblock_MemOpt(Module):
+# class Multiresblock_MemOpt(Module):
 	'''
 	MultiRes Block
 	
@@ -217,7 +219,7 @@ class Multiresblock_MemOpt(Module):
 		alpha {float} -- alpha hyperparameter (default: 1.67)
 	
 	'''
-
+	'''
 	def __init__(self, num_in_channels, num_filters, alpha=1.69):
 		super().__init__()
 		self.alpha = alpha
@@ -249,7 +251,8 @@ class Multiresblock_MemOpt(Module):
 		x = x + shrtct
 		x = self.act(x)
 		return x
-		'''
+	'''
+	'''
 		except:
 			print ('flameSimpleML Multiresblock: Low GPU memory - trying mixed mode (slow)')
 			x_device = x.device
@@ -280,7 +283,7 @@ class Multiresblock_MemOpt(Module):
 				return x
 			except:
 				return x_cpu
-			'''
+	'''
 
 # class Respath(Module):
 	'''
@@ -455,18 +458,15 @@ class MultiResUnet(Module):
 		self.pool2 =  torch.nn.MaxPool2d(2)
 		self.respath2 = Respath3(self.in_filters2,32*2,respath_length=3)
 	
-	
 		self.multiresblock3 =  Multiresblock(self.in_filters2,32*4)
 		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
 		self.pool3 =  torch.nn.MaxPool2d(2)
-		self.respath3 = Respath2(self.in_filters3,32*4,respath_length=2)
-	
+		self.respath3 = Respath2(self.in_filters3,32*4,respath_length=2)	
 	
 		self.multiresblock4 = Multiresblock(self.in_filters3,32*8)
 		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 		self.pool4 =  torch.nn.MaxPool2d(2)
 		self.respath4 = Respath1(self.in_filters4,32*8,respath_length=1)
-	
 	
 		self.multiresblock5 = Multiresblock(self.in_filters4,32*16)
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
@@ -545,12 +545,10 @@ class MultiResUnet_MemOpt(Module):
 		self.pool2 =  torch.nn.MaxPool2d(2)
 		self.respath2 = Respath3(self.in_filters2,32*2,respath_length=3)
 	
-	
 		self.multiresblock3 =  Multiresblock_MemOpt(self.in_filters2,32*4)
 		self.in_filters3 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
 		self.pool3 =  torch.nn.MaxPool2d(2)
 		self.respath3 = Respath2(self.in_filters3,32*4,respath_length=2)
-	
 	
 		self.multiresblock4 = Multiresblock_MemOpt(self.in_filters3,32*8)
 		self.in_filters4 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
@@ -561,22 +559,22 @@ class MultiResUnet_MemOpt(Module):
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
 		# Decoder path
 		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
-		self.concat_filters1 = 32*8 *2
+		self.concat_filters1 = 32*8*2
 		self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
 		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 
 		self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
-		self.concat_filters2 = 32*4 *2
+		self.concat_filters2 = 32*4*2
 		self.multiresblock7 = Multiresblock_MemOpt(self.concat_filters2,32*4)
 		self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
 	
 		self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
-		self.concat_filters3 = 32*2 *2
+		self.concat_filters3 = 32*2*2
 		self.multiresblock8 = Multiresblock_MemOpt(self.concat_filters3,32*2)
 		self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
 	
 		self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
-		self.concat_filters4 = 32 *2
+		self.concat_filters4 = 32*2
 		self.multiresblock9 = Multiresblock_MemOpt(self.concat_filters4,32)
 		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
