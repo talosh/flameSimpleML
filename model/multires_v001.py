@@ -326,7 +326,7 @@ class Respath4(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
@@ -363,7 +363,7 @@ class Respath3(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
@@ -393,7 +393,7 @@ class Respath2(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
@@ -416,7 +416,7 @@ class Respath1(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
 		super().__init__()
-		self.act = torch.nn.SELU()
+		self.act = torch.nn.SELU(inplace=True)
 		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
 		
@@ -471,22 +471,22 @@ class MultiResUnet(Module):
 	 
 		# Decoder path
 		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
-		self.concat_filters1 = 32*8 *2
+		self.concat_filters1 = 32*8*2
 		self.multiresblock6 = Multiresblock(self.concat_filters1,32*8)
 		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
 
 		self.upsample7 = torch.nn.ConvTranspose2d(self.in_filters6,32*4,kernel_size=(2,2),stride=(2,2))  
-		self.concat_filters2 = 32*4 *2
+		self.concat_filters2 = 32*4*2
 		self.multiresblock7 = Multiresblock(self.concat_filters2,32*4)
 		self.in_filters7 = int(32*4*self.alpha*0.167)+int(32*4*self.alpha*0.333)+int(32*4*self.alpha* 0.5)
 	
 		self.upsample8 = torch.nn.ConvTranspose2d(self.in_filters7,32*2,kernel_size=(2,2),stride=(2,2))
-		self.concat_filters3 = 32*2 *2
+		self.concat_filters3 = 32*2*2
 		self.multiresblock8 = Multiresblock(self.concat_filters3,32*2)
 		self.in_filters8 = int(32*2*self.alpha*0.167)+int(32*2*self.alpha*0.333)+int(32*2*self.alpha* 0.5)
 	
 		self.upsample9 = torch.nn.ConvTranspose2d(self.in_filters8,32,kernel_size=(2,2),stride=(2,2))
-		self.concat_filters4 = 32 *2
+		self.concat_filters4 = 32*2
 		self.multiresblock9 = Multiresblock(self.concat_filters4,32)
 		self.in_filters9 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
 
