@@ -92,6 +92,7 @@ class Conv2d_MemOPT(Module):
 		super().__init__()
 		self.num_out_filters = num_out_filters
 		self.num_slices = 8
+		self.stride = stride
 		self.conv1 = torch.nn.Conv2d(
 			in_channels=num_in_filters,
 			out_channels=num_out_filters,
@@ -108,6 +109,7 @@ class Conv2d_MemOPT(Module):
 		n, d, h, w = x.shape
 		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		slice_width = w // self.num_slices
+		print (self.stride)
 		for w_index in range(0, self.num_slices):
 			out[:, :, :, w_index:w_index+slice_width] = self.conv1(x[:, :, :, w_index:w_index+slice_width])
 		# out[:, :, :, :self.num_slices * slice_width] = x[:, :, :, :self.num_slices * slice_width]
