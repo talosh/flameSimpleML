@@ -154,6 +154,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
 		slice_width = w // self.num_slices
 		slice_conv = self.conv1(x[:, :, :, 0:slice_width + 1])
+		print (f'x.shape: {x.shape}')
 		print (f'first slice conv shape: {slice_conv.shape}')
 		# out[:, :, :, 0:slice_width] = self.conv1(x[:, :, :, 0:slice_width + 1])[:, :, :, :slice_width]
 		for w_index in range(1, self.num_slices - 2):
