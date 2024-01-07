@@ -321,7 +321,6 @@ class Sliced_MaxPool(Module):
 	def forward(self,x, model_device, model_dtype):
 		# x_gpu = x.to(device=model_device, dtype=model_dtype)
 		# pool_gpu = self.pool(x_gpu)
-
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 		out = torch.empty(n, d, h//self.size, w//self.size, device='cpu', dtype=model_dtype)
