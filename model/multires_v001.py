@@ -437,11 +437,11 @@ class Multiresblock_MemOpt(Module):
 		
 		self.shortcut = Conv2d_MemOPT(num_in_channels ,num_out_filters , kernel_size = (1,1))
 
-		self.conv_3x3 = Conv2d_ReLU_MemOPT(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
+		self.conv_3x3 = Conv2d_MemOPT(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
-		self.conv_5x5 = Conv2d_ReLU_MemOPT(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
+		self.conv_5x5 = Conv2d_MemOPT(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
 		
-		self.conv_7x7 = Conv2d_ReLU_MemOPT(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
+		self.conv_7x7 = Conv2d_MemOPT(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
 		self.act = Sliced_SELU(inplace = True)
 
