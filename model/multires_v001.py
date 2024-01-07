@@ -111,6 +111,7 @@ class Conv2d_MemOPT(Module):
 		slice_width = w // self.num_slices
 
 		out = torch.empty(n, self.num_out_filters, h, w, device=input_device, dtype=input_dtype)
+		print (f'out device: {out.device}, out dtype: {out.dtype}')
 
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
