@@ -105,8 +105,6 @@ class Conv2d_MemOPT(Module):
 	def forward(self,x):
 		model_device = self.conv1.weight.device
 		model_dtype = self.conv1.weight.dtype
-		x_device = x.device
-		x_dtype = x.dtype
 		n, d, h, w = x.shape
 		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 		slice_width = w // self.num_slices
@@ -157,8 +155,6 @@ class Conv2d_ReLU_MemOPT(Module):
 	def forward(self,x):
 		model_device = self.conv1.weight.device
 		model_dtype = self.conv1.weight.dtype
-		x_device = x.device
-		x_dtype = x.dtype
 		n, d, h, w = x.shape
 		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 		slice_width = w // self.num_slices
@@ -221,13 +217,18 @@ class Conv2d_SameInOut_MemOPT(Module):
 			)
 	
 	def forward(self,x):
-		x_device = x.device
-		x_dtype = x.dtype
+		model_device = self.conv1.weight.device
+		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
-		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
+		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 		for w_index in range(0, self.num_slices):
-			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
+			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].to(device=model_device, dtype=model_dtype)
+			output_slice = self.conv1(input_slice)
+			del input_slice
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice
+			del output_slice
+			# out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
 		del x
 		return out
 
@@ -267,9 +268,38 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		self.act = torch.nn.SELU(inplace = True)
 	
 	def forward(self,x):
+		model_device = self.conv1.weight.device
+		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
+		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 		slice_width = w // self.num_slices
+		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
+		output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
+		del input_slice
+		output_slice = self.act(output_slice)
+		out[:, :, :, :slice_width] = output_slice.cpu()
+		del output_slice
+		# out[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
+		for w_index in range(1, self.num_slices - 1):
+			input_slice = x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].to(device=model_device, dtype=model_dtype)
+			output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
+			del input_slice
+			output_slice = self.act(output_slice)
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.cpu()
+			del output_slice
+			# out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2])[:, :, :, 2:slice_width+2]
+		input_slice = x[:, :, :, w-slice_width-2:].to(device=model_device, dtype=model_dtype)
+		output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
+		del input_slice
+		output_slice = self.act(output_slice)
+		out[:, :, :, w-slice_width:] = output_slice.cpu()
+		del output_slice
+		# out[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-2:])[:, :, :, 2:slice_width+2]
+		del x
+		# out = self.act(out)
+		return out
 
+		'''
 		patch01 = self.conv1(x[:, :, :, 1*slice_width - 2:1*slice_width + 2])
 		patch02 = self.conv1(x[:, :, :, 2*slice_width - 2:2*slice_width + 2])
 		patch03 = self.conv1(x[:, :, :, 3*slice_width - 2:3*slice_width + 2])
@@ -293,6 +323,7 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		del patch01, patch02, patch03, patch04, patch05, patch06, patch07
 
 		x = self.act(x)
+		'''
 		return x
 
 class Sliced_SELU(Module):
