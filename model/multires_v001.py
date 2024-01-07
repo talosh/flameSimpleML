@@ -244,6 +244,7 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 	def forward(self,x):
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
+
 		patch01 = self.conv1(x[:, :, :, 1*slice_width - 2:1*slice_width + 2])
 		patch02 = self.conv1(x[:, :, :, 2*slice_width - 2:2*slice_width + 2])
 		patch03 = self.conv1(x[:, :, :, 3*slice_width - 2:3*slice_width + 2])
@@ -251,7 +252,6 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		patch05 = self.conv1(x[:, :, :, 5*slice_width - 2:5*slice_width + 2])
 		patch06 = self.conv1(x[:, :, :, 6*slice_width - 2:6*slice_width + 2])
 		patch07 = self.conv1(x[:, :, :, 7*slice_width - 2:7*slice_width + 2])
-
 
 		x[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
 		for w_index in range(1, self.num_slices - 1):
