@@ -475,9 +475,9 @@ class Respath4_MemOPT(Module):
 		self.shortcut3 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut4 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv4 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv4 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
@@ -541,8 +541,8 @@ class Respath3_MemOPT(Module):
 		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
@@ -594,7 +594,7 @@ class Respath2_MemOPT(Module):
 		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		shortcut = self.shortcut1(x)
