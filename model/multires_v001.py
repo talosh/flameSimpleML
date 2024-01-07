@@ -332,7 +332,7 @@ class Sliced_MaxPool(Module):
 			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.cpu()
 			del output_slice
 
-		print (f'x shape: {x.shape}, pool gpu shape: {pool_gpu.shape}, out shape: {out.shape}: {torch.equal(pool_gpu, out)}')
+		print (f'x shape: {x.shape}, pool gpu shape: {pool_gpu.shape}, out shape: {out.shape}: {torch.equal(pool_gpu.cpu(), out)}')
 
 		return out
 
