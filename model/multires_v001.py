@@ -150,7 +150,7 @@ class Conv2d_ReLU_MemOPT(Module):
 			padding_mode = 'replicate',
 			# bias=False
 			)
-		self.conv = torch.nn.Sequential(
+		self.conv_act = torch.nn.Sequential(
 			self.conv1,
 			torch.nn.SELU(inplace = True)
 		)
@@ -163,7 +163,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		slice_width = w // self.num_slices
 		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
 		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		huipizda = self.conv1(input_slice).cpu()[:, :, :, :slice_width]
+		huipizda = self.conv_act(input_slice).cpu()[:, :, :, :slice_width]
 		# output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
 		del input_slice
 		# output_slice = self.act(output_slice)
