@@ -534,36 +534,39 @@ class Respath4(Module):
 class Respath4_MemOPT(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 		super().__init__()
-		self.act = torch.nn.SELU(inplace = True)
+		self.act = Sliced_SELU(inplace = True)
 		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut3 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut4 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv4 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv4 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
+		model_device = self.shortcut1.conv1.weight.device
+		model_dtype = self.shortcut1.conv1.weight.dtype
+
 		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
 		x = x + shortcut
-		x = self.act(x)
+		x = self.act(x, model_device, model_dtype)
 
 		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
 		x = x + shortcut
-		x = self.act(x)
+		x = self.act(x, model_device, model_dtype)
 		
 		shortcut = self.shortcut3(x)
 		x = self.conv3(x)
 		x = x + shortcut
-		x = self.act(x)
+		x = self.act(x, model_device, model_dtype)
 
 		shortcut = self.shortcut4(x)
 		x = self.conv4(x)
 		x = x + shortcut
-		x = self.act(x)
+		x = self.act(x, model_device, model_dtype)
 
 		return x
 
