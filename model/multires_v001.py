@@ -581,77 +581,29 @@ class Respath4_MemOPT(Module):
 		self.conv4 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
-		import gc
 		model_device = next(self.parameters()).device
 		model_dtype = next(self.parameters()).dtype
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Respath4 start')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
 
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Respath4 step 01')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Respath4 step 02')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		shortcut = self.shortcut3(x)
 		x = self.conv3(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
 
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Respath4 step 03')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
-
 		shortcut = self.shortcut4(x)
 		x = self.conv4(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
-
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Respath4 step 04')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
+		
 		return x
 
 class Respath3(Module):
@@ -697,8 +649,8 @@ class Respath3_MemOPT(Module):
 		self.conv3 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
-		model_device = self.shortcut1.conv1.weight.device
-		model_dtype = self.shortcut1.conv1.weight.dtype
+		model_device = next(self.parameters()).device
+		model_dtype = next(self.parameters()).dtype
 
 		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
@@ -963,41 +915,15 @@ class MultiResUnet_MemOpt(Module):
 
 		x = x.clone().detach().cpu()
 
-		try:
-			x_multires1 = self.multiresblock1(x)
-		except:
-			x = x.clone().detach().cpu()
-			x_multires1 = self.multiresblock1(x)
+		x_multires1 = self.multiresblock1(x)
 		del x
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'x_multires1 device: {x_multires1.device}')
-		print (f'x_multires1')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(input_device)
-		reserved_memory = torch.cuda.memory_reserved(input_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		x_pool1 = self.pool1(x_multires1, model_device, model_dtype)
-		
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'x_pool1.device {x_pool1.device}')
-		print (f'x_pool1')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(input_device)
-		reserved_memory = torch.cuda.memory_reserved(input_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		x_multires1 = self.respath1(x_multires1)
 
 		gc.collect()
 		torch.cuda.empty_cache()		
 		print (f'x_multires1 device: {x_multires1.device}')
-		print (f'x_multires1respath')
+		print (f'enc step 01')
 		# mem test report block
 		allocated_memory = torch.cuda.memory_allocated(input_device)
 		reserved_memory = torch.cuda.memory_reserved(input_device)
@@ -1005,23 +931,21 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		x_multires2 = self.multiresblock2(x_pool1)
-		print (f'x_multires2 device: {x_multires1.device}')
 		del x_pool1
-		torch.cuda.empty_cache()
-		x_pool2 = self.pool2(x_multires2, x_device, x_dtype)
-		print (f'x_pool2.device {x_pool2.device}')
-		torch.cuda.empty_cache()
+		x_pool2 = self.pool2(x_multires2, model_device, model_dtype)
 		x_multires2 = self.respath2(x_multires2)
-		print (f'x_multires2 device: {x_multires2.device}')
-		torch.cuda.empty_cache()
 
 		gc.collect()
-		print (f'x_multires2')
+		torch.cuda.empty_cache()
+		print (f'x_multires2 device: {x_multires2.device}')
+		print (f'enc step 02')
 		# mem test report block
 		allocated_memory = torch.cuda.memory_allocated(input_device)
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+		1/0
 
 		x_multires3 = self.multiresblock3(x_pool2)
 		del x_pool2
