@@ -107,6 +107,7 @@ class Conv2d_MemOPT(Module):
 		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
 		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
+		conv = self.conv1.to(device='cpu')
 		slice_width = w // self.num_slices
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] #.to(device=model_device, dtype=model_dtype)
