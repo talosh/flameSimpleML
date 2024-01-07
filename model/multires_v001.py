@@ -247,6 +247,9 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		patch02 = self.conv1(x[:, :, :, 2*slice_width - 2:2*slice_width + 2])
 		patch03 = self.conv1(x[:, :, :, 3*slice_width - 2:3*slice_width + 2])
 		patch04 = self.conv1(x[:, :, :, 4*slice_width - 2:4*slice_width + 2])
+		patch05 = self.conv1(x[:, :, :, 5*slice_width - 2:5*slice_width + 2])
+		patch06 = self.conv1(x[:, :, :, 6*slice_width - 2:6*slice_width + 2])
+		patch07 = self.conv1(x[:, :, :, 7*slice_width - 2:7*slice_width + 2])
 
 
 		x[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
@@ -258,6 +261,9 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		x[:, :, :, 2*slice_width - 2:2*slice_width + 2] = patch02
 		x[:, :, :, 3*slice_width - 2:3*slice_width + 2] = patch03
 		x[:, :, :, 4*slice_width - 2:4*slice_width + 2] = patch04
+		x[:, :, :, 5*slice_width - 2:5*slice_width + 2] = patch05
+		x[:, :, :, 6*slice_width - 2:6*slice_width + 2] = patch06
+		x[:, :, :, 7*slice_width - 2:7*slice_width + 2] = patch07
 
 		x = self.act(x)
 		return x
