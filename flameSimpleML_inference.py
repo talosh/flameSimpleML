@@ -2092,6 +2092,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
         print(f"Model size:  {sys.getsizeof(self.current_model) / 1e9:.2f} GB")
+        print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
 
         try:
@@ -2129,7 +2130,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
         print(f"Model size:  {sys.getsizeof(self.current_model) / 1e9:.2f} GB")
-
+        print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
     def apply_model(self, src_image_data):
         import torch
@@ -2151,6 +2152,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         output = self.current_model(src_image_data*2 -1)
         rgb_output = (output[0] + 1) / 2
         rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
+
         result_image = rgb_output.to(dtype=torch.float32)
 
         self.message_queue.put(
