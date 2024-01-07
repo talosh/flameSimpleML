@@ -362,6 +362,7 @@ class Sliced_MaxPool(Module):
 			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.cpu()
 			del output_slice
 		# print (f'x shape: {x.shape}, pool gpu shape: {pool_gpu.shape}, out shape: {out.shape}: {torch.equal(pool_gpu.cpu(), out)}')
+		del x
 		return out
 
 class Multiresblock(Module):
@@ -946,10 +947,10 @@ class MultiResUnet_MemOpt(Module):
 		del x_pool1
 		torch.cuda.empty_cache()
 		x_pool2 = self.pool2(x_multires2, x_device, x_dtype)
-		print (f'x_pool2.device {x_pool1.device}')
+		print (f'x_pool2.device {x_pool2.device}')
 		torch.cuda.empty_cache()
 		x_multires2 = self.respath2(x_multires2)
-		print (f'x_multires2 device: {x_multires1.device}')
+		print (f'x_multires2 device: {x_multires2.device}')
 		torch.cuda.empty_cache()
 
 		gc.collect()
