@@ -441,97 +441,17 @@ class Multiresblock_MemOpt(Module):
 		self.act = Sliced_SELU(inplace = True)
 
 	def forward(self,x):
-		import gc
 		model_device = self.shortcut.conv1.weight.device
 		model_dtype = self.shortcut.conv1.weight.dtype
 
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires start')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		shrtct = self.shortcut(x)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires shrtct')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		a = self.conv_3x3(x)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires conv_3x3')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
-		del x
 		b = self.conv_5x5(a)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires conv_5x5')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		c = self.conv_7x7(b)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires conv_7x7')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		x = torch.cat([a,b,c],axis=1)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires torch.cat([a,b,c],axis=1)')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		del a, b, c
 		x = x + shrtct
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires x = x + shrtct')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
 		x = self.act(x, model_device, model_dtype)
-
-		gc.collect()
-		torch.cuda.empty_cache()
-		print (f'Multires self.act(x, model_device, model_dtype)')
-		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(model_device)
-		reserved_memory = torch.cuda.memory_reserved(model_device)
-		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		return x
 	'''
