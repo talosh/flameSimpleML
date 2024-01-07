@@ -162,10 +162,10 @@ class Conv2d_ReLU_MemOPT(Module):
 		self.act = torch.nn.SELU(inplace = True)
 	
 	def forward(self,x):
+		model_device = next(self.parameters()).device
+		model_dtype = next(self.parameters()).dtype
 		input_device = x.device
 		input_dtype = x.dtype
-		model_device = self.conv1.weight.device
-		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 
@@ -339,6 +339,10 @@ class Sliced_SELU(Module):
 		self.act = torch.nn.SELU(inplace = inplace)
 	
 	def forward(self,x, model_device, model_dtype):
+		m_device = next(self.parameters()).device
+		m_dtype = next(self.parameters()).dtype
+		print (f'sliced act: device: {m_device}, dtype: {m_dtype}')
+
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 
@@ -453,9 +457,7 @@ class Multiresblock_MemOpt(Module):
 	def forward(self,x):
 		model_device = next(self.parameters()).device
 		model_dtype = next(self.parameters()).dtype
-		print (f'multires block: model_dtype: {model_device}, model_dtype: {model_dtype}')
 		shrtct = self.shortcut(x)
-		print (f'shortcut: device: {shrtct.device}, dtype: {shrtct.dtype}')
 		a = self.conv_3x3(x)
 		b = self.conv_5x5(a)
 		c = self.conv_7x7(b)
