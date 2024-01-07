@@ -567,21 +567,20 @@ class Respath4_MemOPT(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 		super().__init__()
 		self.act = Sliced_SELU(inplace = True)
-		self.shortcut1 = Conv2d(num_in_filters, num_out_filters, kernel_size = (1,1))
-		self.shortcut2 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
-		self.shortcut3 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
-		self.shortcut4 = Conv2d_SameInOut(num_out_filters, num_out_filters, kernel_size = (1,1))
-		self.conv1 = Conv2d_ReLU(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv3 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
-		self.conv4 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut3 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.shortcut4 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
+		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv3 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv4 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		import gc
 		model_device = self.shortcut1.conv1.weight.device
 		model_dtype = self.shortcut1.conv1.weight.dtype
 
-		x = x.to(device = model_device, dtype = model_dtype)
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'Respath4 start')
@@ -593,9 +592,12 @@ class Respath4_MemOPT(Module):
 
 		shortcut = self.shortcut1(x)
 		print ('shortcut = self.shortcut1(x)')
-		x = self.conv1(x)
-		x = x + shortcut
-		x = self.act(x, model_device, model_dtype)
+		x01a = self.conv1(x)
+		del x
+		x01b = x01a + shortcut
+		del x01a
+		x01c = self.act(x01b, model_device, model_dtype)
+		del x01b
 
 		gc.collect()
 		torch.cuda.empty_cache()
@@ -606,8 +608,8 @@ class Respath4_MemOPT(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
-		shortcut = self.shortcut2(x)
-		x = self.conv2(x)
+		shortcut = self.shortcut2(x01c)
+		x = self.conv2(x01c)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
 
