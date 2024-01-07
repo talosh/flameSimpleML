@@ -840,9 +840,9 @@ class MultiResUnet_MemOpt(Module):
 		import gc
 		# try:
 		x_multires1 = self.multiresblock1(x)
-		print (f'x_multires1 device: {x_multires1.device}, x_pool1.device {x_pool1.device}')
-
+		print (f'x_multires1 device: {x_multires1.device}')
 		x_pool1 = self.pool1(x_multires1)
+ 		print (f'x_pool1.device {x_pool1.device}')
 		x_multires1 = self.respath1(x_multires1)
 		
 
