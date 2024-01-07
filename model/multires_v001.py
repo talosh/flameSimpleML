@@ -970,6 +970,8 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
+		x = 1/0
+
 		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
 		
 		gc.collect()
