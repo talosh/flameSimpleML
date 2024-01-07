@@ -319,8 +319,8 @@ class Sliced_MaxPool(Module):
 		self.pool = torch.nn.MaxPool2d(self.size)
 	
 	def forward(self,x, model_device, model_dtype):
-		x_gpu = x.to(device=model_device, dtype=model_dtype)
-		pool_gpu = self.pool(x_gpu)
+		# x_gpu = x.to(device=model_device, dtype=model_dtype)
+		# pool_gpu = self.pool(x_gpu)
 
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
@@ -331,9 +331,7 @@ class Sliced_MaxPool(Module):
 			del input_slice
 			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.cpu()
 			del output_slice
-
-		print (f'x shape: {x.shape}, pool gpu shape: {pool_gpu.shape}, out shape: {out.shape}: {torch.equal(pool_gpu.cpu(), out)}')
-
+		# print (f'x shape: {x.shape}, pool gpu shape: {pool_gpu.shape}, out shape: {out.shape}: {torch.equal(pool_gpu.cpu(), out)}')
 		return out
 
 class Multiresblock(Module):
