@@ -450,7 +450,7 @@ class Multiresblock_MemOpt(Module):
 		model_dtype = self.shortcut.conv1.weight.dtype
 		print (f'multires block: x device: {x.device}, x dtype: {x.dtype}')
 		shrtct = self.shortcut(x)
-		print (f'shortcur: device: {shrtct.device}, dtype: {shrtct.dtype}')
+		print (f'shortcut: device: {shrtct.device}, dtype: {shrtct.dtype}')
 		a = self.conv_3x3(x)
 		b = self.conv_5x5(a)
 		c = self.conv_7x7(b)
@@ -959,8 +959,8 @@ class MultiResUnet_MemOpt(Module):
 		self.msg = Message(msg_queue)
 
 	def forward(self, x):
-		x_device = x.device
-		x_dtype = x.dtype
+		input_device = x.device
+		input_dtype = x.dtype
 
 		x = x.clone().detach().cpu()
 
@@ -973,8 +973,8 @@ class MultiResUnet_MemOpt(Module):
 		print (f'x_multires1 device: {x_multires1.device}')
 		print (f'x_multires1')
 		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(x.device)
-		reserved_memory = torch.cuda.memory_reserved(x.device)
+		allocated_memory = torch.cuda.memory_allocated(input_device)
+		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
