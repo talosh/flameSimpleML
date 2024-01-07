@@ -2085,7 +2085,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import gc
         gc.collect()
         torch.cuda.empty_cache()
-        time.sleep(1)
+        gc.collect()
+        torch.cuda.empty_cache()
         allocated_memory = torch.cuda.memory_allocated(self.torch_device)
         reserved_memory = torch.cuda.memory_reserved(self.torch_device)
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
@@ -2114,13 +2115,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     self.ui.image_res_label,
                     text = 'Frame: ' + str(self.current_frame)
                 )
-
+            
+        del res_image_data
         print (f'after inference')
         import torch
         import gc
         gc.collect()
         torch.cuda.empty_cache()
-        time.sleep(1)
+        gc.collect()
+        torch.cuda.empty_cache()
         allocated_memory = torch.cuda.memory_allocated(self.torch_device)
         reserved_memory = torch.cuda.memory_reserved(self.torch_device)
         print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
