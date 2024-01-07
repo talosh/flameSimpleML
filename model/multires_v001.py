@@ -156,11 +156,11 @@ class Conv2d_ReLU_MemOPT(Module):
 		model_device = self.conv1.weight.device
 		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
-		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
+		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=torch.float32)
 		slice_width = w // self.num_slices
 		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
 		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		output_slice = self.act(self.conv1(input_slice)).cpu()[:, :, :, :slice_width]
+		output_slice = self.act(self.conv1(input_slice)).to(device='cpu', dtype=torch.float32)[:, :, :, :slice_width]
 		# output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
 		del input_slice
 		out[:, :, :, :slice_width] = output_slice
@@ -185,7 +185,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		# out[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-2:])[:, :, :, 2:slice_width+2]
 		del x
 		# out = self.act(out)
-		return out
+		return out.to(device='cpu', dtype=model_dtype)
 
 class Conv2d_SameInOut(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
