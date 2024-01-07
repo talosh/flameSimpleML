@@ -115,7 +115,7 @@ class Conv2d_MemOPT(Module):
 		for w_index in range(0, self.num_slices):
 			# input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] #.to(device=model_device, dtype=model_dtype)
 			# output_slice = self.conv1(input_slice)
-			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.cpu()
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.clone().detach().cpu()
 
 		del x, input_slice, output_slice
 		return out
