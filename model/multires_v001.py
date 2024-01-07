@@ -160,7 +160,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		slice_width = w // self.num_slices
 		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
 		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		output_slice = self.act(self.conv1(input_slice)).to(device='cpu', dtype=torch.float32)[:, :, :, :slice_width]
+		output_slice = self.act(self.conv1(input_slice)).to(device='cpu', dtype=torch.float32)[:, :, :, :slice_width].clone()
 		# output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
 		del input_slice
 		out[:, :, :, :slice_width] = output_slice
