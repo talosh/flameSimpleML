@@ -581,6 +581,7 @@ class Respath4_MemOPT(Module):
 		model_device = self.shortcut1.conv1.weight.device
 		model_dtype = self.shortcut1.conv1.weight.dtype
 
+		x = x.to(device = model_device, dtype = model_dtype)
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'Respath4 start')
@@ -591,6 +592,7 @@ class Respath4_MemOPT(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		shortcut = self.shortcut1(x)
+		print ('shortcut = self.shortcut1(x)')
 		x = self.conv1(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
