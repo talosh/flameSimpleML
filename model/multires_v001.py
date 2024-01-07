@@ -300,9 +300,7 @@ class Sliced_SELU(Module):
 		super().__init__()	
 		self.act = torch.nn.SELU(inplace = inplace)
 	
-	def forward(self,x):
-		model_device = self.conv1.weight.device
-		model_dtype = self.conv1.weight.dtype
+	def forward(self,x, model_device, model_dtype):
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 		for w_index in range(0, self.num_slices):
@@ -392,9 +390,7 @@ class Multiresblock_MemOpt(Module):
 	def forward(self,x):
 		model_device = self.shortcut.conv1.weight.device
 		model_dtype = self.shortcut.conv1.weight.dtype
-		print (f'model_device: {model_device}, model_dtype: {model_dtype}')
 		shrtct = self.shortcut(x)
-		print (f'shortcut device: {shrtct.device}')
 		a = self.conv_3x3(x)
 		del x
 		b = self.conv_5x5(a)
@@ -402,7 +398,7 @@ class Multiresblock_MemOpt(Module):
 		x = torch.cat([a,b,c],axis=1)
 		del a, b, c
 		x = x + shrtct
-		x = self.act(x)
+		x = self.act(x, model_device, model_dtype)
 		return x
 	'''
 		except:
