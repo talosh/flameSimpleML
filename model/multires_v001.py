@@ -150,10 +150,7 @@ class Conv2d_ReLU_MemOPT(Module):
 			padding_mode = 'replicate',
 			# bias=False
 			)
-		self.conv_act = torch.nn.Sequential(
-			self.conv1,
-			torch.nn.SELU(inplace = True)
-		)
+		self.act = torch.nn.SELU(inplace = True)
 	
 	def forward(self,x):
 		model_device = self.conv1.weight.device
@@ -163,20 +160,19 @@ class Conv2d_ReLU_MemOPT(Module):
 		slice_width = w // self.num_slices
 		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
 		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		huipizda = self.conv_act(input_slice).cpu()[:, :, :, :slice_width]
+		huipizda = self.conv1(input_slice).cpu()[:, :, :, :slice_width]
 		# output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
 		del input_slice
-		# output_slice = self.act(output_slice)
+		output_slice = self.act(output_slice)
 		out[:, :, :, :slice_width] = output_slice.cpu()
 		del output_slice
-		del huipizda
 		# out[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
 		for w_index in range(1, self.num_slices - 1):
 			input_slice = x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].to(device=model_device, dtype=model_dtype)
 			output_slice = out[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, 2:slice_width+2]
 			# output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
 			del input_slice
-			# output_slice = self.act(output_slice)
+			output_slice = self.act(output_slice)
 			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.cpu()
 			del output_slice
 			# out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2])[:, :, :, 2:slice_width+2]
@@ -184,7 +180,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		output_slice = out[:, :, :, w-slice_width-2:].to(device=model_device, dtype=model_dtype)[:, :, :, 2:slice_width+2]
 		# output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
 		del input_slice
-		# output_slice = self.act(output_slice)
+		output_slice = self.act(output_slice)
 		out[:, :, :, w-slice_width:] = output_slice.cpu()
 		del output_slice
 		# out[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-2:])[:, :, :, 2:slice_width+2]
