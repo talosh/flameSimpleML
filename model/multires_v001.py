@@ -339,6 +339,7 @@ class Sliced_SELU(Module):
 		self.act = torch.nn.SELU(inplace = inplace)
 	
 	def forward(self,x, model_device, model_dtype):
+		print ('SlicedSELU')
 		m_device = next(self.parameters()).device
 		m_dtype = next(self.parameters()).dtype
 		print (f'sliced act: device: {m_device}, dtype: {m_dtype}')
