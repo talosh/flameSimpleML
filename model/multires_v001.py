@@ -390,8 +390,8 @@ class Multiresblock_MemOpt(Module):
 		self.act = Sliced_SELU(inplace = True)
 
 	def forward(self,x):
-		model_device = self.shortcut.conv1.weigth.device
-		model_dtype = self.shortcut.conv1.weigth.dtype
+		model_device = self.shortcut.conv1.weight.device
+		model_dtype = self.shortcut.conv1.weight.dtype
 		print (f'model_device: {model_device}, model_dtype: {model_dtype}')
 		shrtct = self.shortcut(x)
 		print (f'shortcut device: {shrtct.device}')
