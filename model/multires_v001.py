@@ -296,9 +296,9 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		return x
 
 class Sliced_SELU(Module):
-	def __init__(self):
+	def __init__(self, inplace = False):
 		super().__init__()	
-		self.act = torch.nn.SELU(inplace = True)
+		self.act = torch.nn.SELU(inplace = inplace)
 	
 	def forward(self,x):
 		model_device = self.conv1.weight.device
@@ -387,7 +387,7 @@ class Multiresblock_MemOpt(Module):
 		
 		self.conv_7x7 = Conv2d_ReLU_MemOPT(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
-		self.act = torch.nn.SELU(inplace = True)
+		self.act = Sliced_SELU(inplace = True)
 
 	def forward(self,x):
 		shrtct = self.shortcut(x)
