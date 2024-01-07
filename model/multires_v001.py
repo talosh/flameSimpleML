@@ -141,6 +141,7 @@ class Conv2d_ReLU_MemOPT(Module):
 		super().__init__()
 		self.num_out_filters = num_out_filters
 		self.num_slices = 8
+		'''
 		self.conv1 = torch.nn.Conv2d(
 			in_channels=num_in_filters,
 			out_channels=num_out_filters,
@@ -150,6 +151,8 @@ class Conv2d_ReLU_MemOPT(Module):
 			padding_mode = 'replicate',
 			# bias=False
 			)
+		'''
+		self.conv1 = torch.nn.Identity()
 		self.act = torch.nn.SELU(inplace = True)
 	
 	def forward(self,x):
