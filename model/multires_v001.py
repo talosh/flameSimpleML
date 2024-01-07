@@ -297,7 +297,8 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 
 class Sliced_SELU(Module):
 	def __init__(self, inplace = False):
-		super().__init__()	
+		super().__init__()
+		self.num_slices = 8
 		self.act = torch.nn.SELU(inplace = inplace)
 	
 	def forward(self,x, model_device, model_dtype):
