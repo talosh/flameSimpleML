@@ -447,7 +447,7 @@ class Multiresblock_MemOpt(Module):
 	def forward(self,x):
 		model_device = self.shortcut.conv1.weight.device
 		model_dtype = self.shortcut.conv1.weight.dtype
-
+		print (f'multires block: x device: {x.device}')
 		shrtct = self.shortcut(x)
 		a = self.conv_3x3(x)
 		b = self.conv_5x5(a)
