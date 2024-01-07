@@ -927,7 +927,7 @@ class MultiResUnet_MemOpt(Module):
 		print (f'x_multires2 device: {x_multires1.device}')
 		del x_pool1
 		torch.cuda.empty_cache()
-		x_pool2 = self.pool2(x_multires2)
+		x_pool2 = self.pool2(x_multires2, x_device, x_dtype)
 		print (f'x_pool2.device {x_pool1.device}')
 		torch.cuda.empty_cache()
 		x_multires2 = self.respath2(x_multires2)
@@ -944,7 +944,7 @@ class MultiResUnet_MemOpt(Module):
 
 		x_multires3 = self.multiresblock3(x_pool2)
 		del x_pool2
-		x_pool3 = self.pool3(x_multires3)
+		x_pool3 = self.pool3(x_multires3, x_device, x_dtype)
 		x_multires3 = self.respath3(x_multires3)
 
 		gc.collect()
@@ -957,7 +957,7 @@ class MultiResUnet_MemOpt(Module):
 
 		x_multires4 = self.multiresblock4(x_pool3)
 		del x_pool3
-		x_pool4 = self.pool4(x_multires4)
+		x_pool4 = self.pool4(x_multires4, x_device, x_dtype)
 		x_multires4 = self.respath4(x_multires4)
 
 		gc.collect()
