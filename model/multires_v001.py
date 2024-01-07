@@ -310,6 +310,25 @@ class Sliced_SELU(Module):
 			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = current_slice.cpu()
 			del current_slice
 		return x
+	
+class Sliced_MaxPool(Module):
+	def __init__(self, size):
+		super().__init__()
+		self.size = size
+		self.num_slices = 8
+		self.pool = torch.nn.MaxPool2d(self.size)
+	
+	def forward(self,x, model_device, model_dtype):
+		n, d, h, w = x.shape
+		slice_width = w // self.num_slices
+		out = torch.empty(n, d, h//self.size, w//self.size, device='cpu', dtype=model_dtype)
+		for w_index in range(0, self.num_slices):
+			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].to(device=model_device, dtype=model_dtype)
+			output_slice = self.pool(input_slice)
+			del input_slice
+			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.cpu()
+			del output_slice
+		return out
 
 class Multiresblock(Module):
 	'''
@@ -605,7 +624,6 @@ class Respath3_MemOPT(Module):
 
 		return x
 
-
 class Respath2(Module):
 	def __init__(self, num_in_filters, num_out_filters, respath_length):
 	
@@ -791,7 +809,7 @@ class MultiResUnet_MemOpt(Module):
 		# Encoder Path
 		self.multiresblock1 = Multiresblock_MemOpt(input_channels,32)
 		self.in_filters1 = int(32*self.alpha*0.167)+int(32*self.alpha*0.333)+int(32*self.alpha* 0.5)
-		self.pool1 =  torch.nn.MaxPool2d(2)
+		self.pool1 =  Sliced_MaxPool(2)
 		self.respath1 = Respath4_MemOPT(self.in_filters1,32,respath_length=4)
 
 		self.multiresblock2 = Multiresblock_MemOpt(self.in_filters1,32*2)
@@ -837,11 +855,13 @@ class MultiResUnet_MemOpt(Module):
 		self.msg = Message(msg_queue)
 
 	def forward(self, x):
+		x_device = x.device
+		x_dtype = x.dtype
 		import gc
 		# try:
 		x_multires1 = self.multiresblock1(x)
 		print (f'x_multires1 device: {x_multires1.device}')
-		x_pool1 = self.pool1(x_multires1)
+		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
 		print (f'x_pool1.device {x_pool1.device}')
 		x_multires1 = self.respath1(x_multires1)
 		
