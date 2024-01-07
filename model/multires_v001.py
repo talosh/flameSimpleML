@@ -103,10 +103,15 @@ class Conv2d_MemOPT(Module):
 			)
 	
 	def forward(self,x):
+		model_device = next(self.parameters()).device
+		model_dtype = next(self.parameters()).dtype
+
+		print (f'model device: {model_device}, model dtype: {model_dtype}')
+
 		input_device = x.device
 		input_dtype = x.dtype
-		model_device = self.conv1.weight.device
-		model_dtype = self.conv1.weight.dtype
+		# model_device = self.conv1.weight.device
+		# model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 
@@ -959,6 +964,8 @@ class MultiResUnet_MemOpt(Module):
 		self.msg = Message(msg_queue)
 
 	def forward(self, x):
+		model_device = next(self.parameters()).device
+		model_dtype = next(self.parameters()).dtype
 		input_device = x.device
 		input_dtype = x.dtype
 
