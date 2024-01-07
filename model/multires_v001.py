@@ -354,6 +354,7 @@ class Multiresblock_MemOpt(Module):
 
 	def forward(self,x):
 		shrtct = self.shortcut(x)
+		print (f'shortcut device: {shrtct.device}')
 		a = self.conv_3x3(x)
 		del x
 		b = self.conv_5x5(a)
