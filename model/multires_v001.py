@@ -98,7 +98,7 @@ class Conv2d_MemOPT(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			# padding_mode = 'replicate',
 			# bias=False
 			)
 	
