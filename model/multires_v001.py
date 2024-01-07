@@ -906,17 +906,35 @@ class MultiResUnet_MemOpt(Module):
 		import gc
 		# try:
 		x_multires1 = self.multiresblock1(x)
-		torch.cuda.empty_cache()
-		print (f'x_multires1 device: {x_multires1.device}')
-		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
-		torch.cuda.empty_cache()
-		print (f'x_pool1.device {x_pool1.device}')
-		x_multires1 = self.respath1(x_multires1)
-		print (f'x_multires1 device: {x_multires1.device}')
-		torch.cuda.empty_cache()
 
 		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'x_multires1 device: {x_multires1.device}')
 		print (f'x_multires1')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
+		
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'x_pool1.device {x_pool1.device}')
+		print (f'x_pool1')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+		x_multires1 = self.respath1(x_multires1)
+
+		gc.collect()
+		torch.cuda.empty_cache()		
+		print (f'x_multires1 device: {x_multires1.device}')
+		print (f'x_multires1respath')
 		# mem test report block
 		allocated_memory = torch.cuda.memory_allocated(x.device)
 		reserved_memory = torch.cuda.memory_reserved(x.device)
