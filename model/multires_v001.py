@@ -159,8 +159,8 @@ class Conv2d_ReLU_MemOPT(Module):
 		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 		slice_width = w // self.num_slices
 		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
-		output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		# output_slice = self.conv2(input_slice)[:, :, :, :slice_width]
+		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
+		output_slice = self.conv2(input_slice)[:, :, :, :slice_width]
 		del input_slice
 		output_slice = self.act(output_slice)
 		out[:, :, :, :slice_width] = output_slice.cpu()
