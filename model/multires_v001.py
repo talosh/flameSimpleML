@@ -295,6 +295,23 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		x = self.act(x)
 		return x
 
+class Sliced_SELU(Module):
+	def __init__(self):
+		super().__init__()	
+		self.act = torch.nn.SELU(inplace = True)
+	
+	def forward(self,x):
+		model_device = self.conv1.weight.device
+		model_dtype = self.conv1.weight.dtype
+		n, d, h, w = x.shape
+		slice_width = w // self.num_slices
+		for w_index in range(0, self.num_slices):
+			current_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].to(device=model_device, dtype=model_dtype)
+			current_slice = self.act(current_slice)
+			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = current_slice.cpu()
+			del current_slice
+		return x
+
 class Multiresblock(Module):
 	'''
 	MultiRes Block
