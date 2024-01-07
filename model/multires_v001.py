@@ -98,7 +98,7 @@ class Conv2d_MemOPT(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			# padding_mode = 'replicate',
+			padding_mode = 'replicate',
 			# bias=False
 			)
 	
@@ -106,16 +106,18 @@ class Conv2d_MemOPT(Module):
 		model_device = self.conv1.weight.device
 		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
-		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
-		conv = self.conv1.to(device='cpu')
 		slice_width = w // self.num_slices
+
+		input_slice = torch.empty(n, d, h, slice_width, device=model_device, dtype=model_dtype)
+		output_slice = torch.empty(n, d, h, slice_width, device=model_device, dtype=model_dtype)
+		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
+
 		for w_index in range(0, self.num_slices):
-			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] #.to(device=model_device, dtype=model_dtype)
-			output_slice = self.conv1(input_slice)
-			del input_slice
+			# input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] #.to(device=model_device, dtype=model_dtype)
+			# output_slice = self.conv1(input_slice)
 			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice
-			del output_slice
-		del x
+
+		del x, input_slice, output_slice
 		return out
 
 class Conv2d_ReLU(Module):
