@@ -914,8 +914,8 @@ class MultiResUnet_MemOpt(Module):
 		gc.collect()
 		print (f'x_multires1')
 		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(self.torch_device)
-		reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
@@ -928,8 +928,8 @@ class MultiResUnet_MemOpt(Module):
 		gc.collect()
 		print (f'x_multires2')
 		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(self.torch_device)
-		reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
@@ -941,8 +941,8 @@ class MultiResUnet_MemOpt(Module):
 		gc.collect()
 		print (f'x_multires3')
 		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(self.torch_device)
-		reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
@@ -954,8 +954,8 @@ class MultiResUnet_MemOpt(Module):
 		gc.collect()
 		print (f'x_multires4')
 		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(self.torch_device)
-		reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
@@ -965,8 +965,8 @@ class MultiResUnet_MemOpt(Module):
 		gc.collect()
 		print (f'x_multires5')
 		# mem test report block
-		allocated_memory = torch.cuda.memory_allocated(self.torch_device)
-		reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+		allocated_memory = torch.cuda.memory_allocated(x.device)
+		reserved_memory = torch.cuda.memory_reserved(x.device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
