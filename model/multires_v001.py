@@ -577,28 +577,76 @@ class Respath4_MemOPT(Module):
 		self.conv4 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
+		import gc
 		model_device = self.shortcut1.conv1.weight.device
 		model_dtype = self.shortcut1.conv1.weight.dtype
+
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'Respath4 start')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(model_device)
+		reserved_memory = torch.cuda.memory_reserved(model_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		shortcut = self.shortcut1(x)
 		x = self.conv1(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
 
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'Respath4 step 01')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(model_device)
+		reserved_memory = torch.cuda.memory_reserved(model_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
 		shortcut = self.shortcut2(x)
 		x = self.conv2(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
-		
+
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'Respath4 step 02')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(model_device)
+		reserved_memory = torch.cuda.memory_reserved(model_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
 		shortcut = self.shortcut3(x)
 		x = self.conv3(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
 
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'Respath4 step 03')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(model_device)
+		reserved_memory = torch.cuda.memory_reserved(model_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
+
 		shortcut = self.shortcut4(x)
 		x = self.conv4(x)
 		x = x + shortcut
 		x = self.act(x, model_device, model_dtype)
+
+
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'Respath4 step 04')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(model_device)
+		reserved_memory = torch.cuda.memory_reserved(model_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		return x
 
