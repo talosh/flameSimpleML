@@ -960,7 +960,7 @@ class MultiResUnet_MemOpt(Module):
 		x_device = x.device
 		x_dtype = x.dtype
 
-		# x = x.to(device='cpu')
+		x = x.clone().detach().cpu()
 
 		import gc
 		# try:
