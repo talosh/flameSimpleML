@@ -265,6 +265,7 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 		x[:, :, :, 5*slice_width - 2:5*slice_width + 2] = patch05
 		x[:, :, :, 6*slice_width - 2:6*slice_width + 2] = patch06
 		x[:, :, :, 7*slice_width - 2:7*slice_width + 2] = patch07
+		del patch01, patch02, patch03, patch04, patch05, patch06, patch07
 
 		x = self.act(x)
 		return x
