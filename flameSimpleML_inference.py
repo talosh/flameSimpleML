@@ -2078,7 +2078,20 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.ui.image_res_label,
                 text = 'Frame: ' + str(self.current_frame)
             )
-        
+
+        print (f'before inference')
+        # mem test report block
+        import torch
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
+        allocated_memory = torch.cuda.memory_allocated(self.torch_device)
+        reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+        print(f"Model size:  {sys.getsizeof(self.current_model) / 1e9:.2f} GB")
+
+
         try:
             res_image_data = self.apply_model(src_image_data)
         except Exception as e:
@@ -2101,6 +2114,18 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     text = 'Frame: ' + str(self.current_frame)
                 )
 
+        print (f'after inference')
+        import torch
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
+        allocated_memory = torch.cuda.memory_allocated(self.torch_device)
+        reserved_memory = torch.cuda.memory_reserved(self.torch_device)
+        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+        print(f"Model size:  {sys.getsizeof(self.current_model) / 1e9:.2f} GB")
+
+
     def apply_model(self, src_image_data):
         import torch
         from torch.nn import functional as F
@@ -2109,7 +2134,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             {'type': 'info', 
             'message': f'Frame {self.current_frame}: Processing...'}
             )
-        
+
         h, w, _ = src_image_data.shape
         ph = ((h - 1) // 256 + 1) * 256
         pw = ((w - 1) // 256 + 1) * 256
