@@ -1101,7 +1101,7 @@ class Model:
 
     @staticmethod
     def get_model():
-        return MultiResUnet_MemOpt
+        return MultiResUnet
 	
     @staticmethod
     def get_training_model():
