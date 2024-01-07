@@ -103,14 +103,19 @@ class Conv2d_MemOPT(Module):
 			)
 	
 	def forward(self,x):
-		print (f'dev: {self.conv1.weight.device}, dtype: {self.conv1.weight.dtype}')
+		model_device = self.conv1.weight.device
+		model_dtype = self.conv1.weight.dtype
 		x_device = x.device
 		x_dtype = x.dtype
 		n, d, h, w = x.shape
-		out = torch.empty(n, self.num_out_filters, h, w, device=x_device, dtype=x_dtype)
+		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 		slice_width = w // self.num_slices
 		for w_index in range(0, self.num_slices):
-			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width])
+			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].to(device=model_device, dtype=model_dtype)
+			output_slice = self.conv1(input_slice)
+			del input_slice
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.cpu()
+			del output_slice
 		del x
 		return out
 
