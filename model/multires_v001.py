@@ -120,7 +120,7 @@ class Conv2d_MemOPT(Module):
 		'''
 		del x
 		del xgpu
-		return out
+		return out.cpu()
 
 class Conv2d_ReLU(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
