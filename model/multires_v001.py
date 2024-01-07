@@ -1040,6 +1040,9 @@ class MultiResUnet_MemOpt(Module):
 	def forward(self, x):
 		x_device = x.device
 		x_dtype = x.dtype
+
+		x = x.to(device='cpu')
+
 		import gc
 		# try:
 		x_multires1 = self.multiresblock1(x)
