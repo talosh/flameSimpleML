@@ -906,10 +906,14 @@ class MultiResUnet_MemOpt(Module):
 		import gc
 		# try:
 		x_multires1 = self.multiresblock1(x)
+		torch.cuda.empty_cache()
 		print (f'x_multires1 device: {x_multires1.device}')
 		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
+		torch.cuda.empty_cache()
 		print (f'x_pool1.device {x_pool1.device}')
 		x_multires1 = self.respath1(x_multires1)
+		print (f'x_multires1 device: {x_multires1.device}')
+		torch.cuda.empty_cache()
 
 		gc.collect()
 		print (f'x_multires1')
@@ -919,11 +923,16 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
-
 		x_multires2 = self.multiresblock2(x_pool1)
+		print (f'x_multires2 device: {x_multires1.device}')
 		del x_pool1
+		torch.cuda.empty_cache()
 		x_pool2 = self.pool2(x_multires2)
+		print (f'x_pool2.device {x_pool1.device}')
+		torch.cuda.empty_cache()
 		x_multires2 = self.respath2(x_multires2)
+		print (f'x_multires2 device: {x_multires1.device}')
+		torch.cuda.empty_cache()
 
 		gc.collect()
 		print (f'x_multires2')
