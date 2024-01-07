@@ -79,7 +79,7 @@ class Conv2d(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 	
@@ -98,7 +98,7 @@ class Conv2d_MemOPT(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 	
@@ -108,8 +108,6 @@ class Conv2d_MemOPT(Module):
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 
-		# input_slice = torch.empty(n, d, h, slice_width, device=model_device, dtype=model_dtype)
-		# output_slice = torch.empty(n, self.num_out_filters, h, slice_width, device=model_device, dtype=model_dtype)
 		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
 
 		for w_index in range(0, self.num_slices):
@@ -150,7 +148,7 @@ class Conv2d_ReLU_MemOPT(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
@@ -159,36 +157,28 @@ class Conv2d_ReLU_MemOPT(Module):
 		model_device = self.conv1.weight.device
 		model_dtype = self.conv1.weight.dtype
 		n, d, h, w = x.shape
-		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=torch.float32)
 		slice_width = w // self.num_slices
-		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
-		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		output_slice = self.act(self.conv1(input_slice)).to(device='cpu', dtype=torch.float32)[:, :, :, :slice_width].clone()
-		# output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
-		del input_slice
-		out[:, :, :, :slice_width] = output_slice
-		del output_slice
-		# out[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
-		for w_index in range(1, self.num_slices - 1):
-			input_slice = x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].to(device=model_device, dtype=model_dtype)
-			output_slice = out[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, 2:slice_width+2]
-			# output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
-			del input_slice
-			output_slice = self.act(output_slice)
-			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.cpu()
-			del output_slice
-			# out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = self.conv1(x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2])[:, :, :, 2:slice_width+2]
-		input_slice = x[:, :, :, w-slice_width-2:].to(device=model_device, dtype=model_dtype)
-		output_slice = out[:, :, :, w-slice_width-2:].to(device=model_device, dtype=model_dtype)[:, :, :, 2:slice_width+2]
-		# output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
-		del input_slice
+
+		out = torch.empty(n, self.num_out_filters, h, w, device='cpu', dtype=model_dtype)
+
+		input_slice = x[:, :, :, :slice_width + 2].clone().detach().to(device=model_device, dtype=model_dtype)
+		output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
 		output_slice = self.act(output_slice)
-		out[:, :, :, w-slice_width:] = output_slice.cpu()
-		del output_slice
-		# out[:, :, :, w-slice_width:] = self.conv1(x[:, :, :, w-slice_width-2:])[:, :, :, 2:slice_width+2]
-		del x
-		# out = self.act(out)
-		return out.to(device='cpu', dtype=model_dtype)
+		out[:, :, :, :slice_width] = output_slice.clone().detach().cpu()
+
+		for w_index in range(1, self.num_slices - 1):
+			input_slice = x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].clone().detach().to(device=model_device, dtype=model_dtype)
+			output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
+			output_slice = self.act(output_slice)
+			out[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = output_slice.clone().detach().cpu()
+
+		input_slice = x[:, :, :, w-slice_width-2:].clone().detach().to(device=model_device, dtype=model_dtype)
+		output_slice = self.conv1(input_slice)[:, :, :, 2:slice_width+2]
+		output_slice = self.act(output_slice)
+		out[:, :, :, w-slice_width:] = output_slice.clone().detach().cpu()
+
+		del x, input_slice, output_slice
+		return out
 
 class Conv2d_SameInOut(Module):
 	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
@@ -199,7 +189,7 @@ class Conv2d_SameInOut(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 	
@@ -218,7 +208,7 @@ class Conv2d_SameInOut_MemOPT(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 	
@@ -247,7 +237,7 @@ class Conv2d_SameInOut_ReLU(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
@@ -268,7 +258,7 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
+			padding_mode = 'reflect',
 			# bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
@@ -440,11 +430,11 @@ class Multiresblock_MemOpt(Module):
 		
 		self.shortcut = Conv2d_MemOPT(num_in_channels ,num_out_filters , kernel_size = (1,1))
 
-		self.conv_3x3 = Conv2d_MemOPT(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
+		self.conv_3x3 = Conv2d_ReLU_MemOPT(num_in_channels, filt_cnt_3x3, kernel_size = (3,3))
 
-		self.conv_5x5 = Conv2d_MemOPT(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
+		self.conv_5x5 = Conv2d_ReLU_MemOPT(filt_cnt_3x3, filt_cnt_5x5, kernel_size = (3,3))
 		
-		self.conv_7x7 = Conv2d_MemOPT(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
+		self.conv_7x7 = Conv2d_ReLU_MemOPT(filt_cnt_5x5, filt_cnt_7x7, kernel_size = (3,3))
 
 		self.act = Sliced_SELU(inplace = True)
 
