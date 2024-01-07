@@ -160,12 +160,13 @@ class Conv2d_ReLU_MemOPT(Module):
 		slice_width = w // self.num_slices
 		input_slice = x[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)
 		# output_slice = out[:, :, :, :slice_width + 2].to(device=model_device, dtype=model_dtype)[:, :, :, :slice_width]
-		huipizda = self.conv1(input_slice).cpu()[:, :, :, :slice_width]
+		huipizda = self.act(self.conv1(input_slice)).cpu()[:, :, :, :slice_width]
 		# output_slice = self.conv1(input_slice)[:, :, :, :slice_width]
 		del input_slice
 		output_slice = self.act(output_slice)
 		out[:, :, :, :slice_width] = output_slice.cpu()
 		del output_slice
+		del huipizda
 		# out[:, :, :, :slice_width] = self.conv1(x[:, :, :, :slice_width + 2])[:, :, :, :slice_width]
 		for w_index in range(1, self.num_slices - 1):
 			input_slice = x[:, :, :, w_index*slice_width - 2 : w_index*slice_width+slice_width + 2].to(device=model_device, dtype=model_dtype)
