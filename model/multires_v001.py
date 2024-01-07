@@ -105,9 +105,6 @@ class Conv2d_MemOPT(Module):
 	def forward(self,x):
 		model_device = next(self.parameters()).device
 		model_dtype = next(self.parameters()).dtype
-
-		print (f'model device: {model_device}, model dtype: {model_dtype}')
-
 		input_device = x.device
 		input_dtype = x.dtype
 		# model_device = self.conv1.weight.device
@@ -116,7 +113,6 @@ class Conv2d_MemOPT(Module):
 		slice_width = w // self.num_slices
 
 		out = torch.empty(n, self.num_out_filters, h, w, device=input_device, dtype=input_dtype)
-		print (f'out device: {out.device}, out dtype: {out.dtype}')
 
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
@@ -338,19 +334,16 @@ class Sliced_SELU(Module):
 		self.num_slices = 8
 		self.act = torch.nn.SELU(inplace = inplace)
 	
-	def forward(self,x, model_device, model_dtype):
-		print ('SlicedSELU')
-		m_device = next(self.parameters()).device
-		m_dtype = next(self.parameters()).dtype
-		print (f'sliced act: device: {m_device}, dtype: {m_dtype}')
-
+	def forward(self, x, model_device, model_dtype):
+		input_device = x.device
+		input_dtype = x.dtype
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 
 		for w_index in range(0, self.num_slices):
 			current_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
 			current_slice = self.act(current_slice)
-			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = current_slice.clone().detach().cpu()
+			x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width] = current_slice.clone().detach().to(device=input_device, dtype=input_dtype)
 		
 		del current_slice
 		return x
@@ -362,20 +355,20 @@ class Sliced_MaxPool(Module):
 		self.num_slices = 8
 		self.pool = torch.nn.MaxPool2d(self.size)
 	
-	def forward(self,x, model_device, model_dtype):
-		# x_gpu = x.to(device=model_device, dtype=model_dtype)
-		# pool_gpu = self.pool(x_gpu)
+	def forward(self, x, model_device, model_dtype):
+		input_device = x.device
+		input_dtype = x.dtype
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
-		out = torch.empty(n, d, h//self.size, w//self.size, device='cpu', dtype=model_dtype)
+
+		out = torch.empty(n, d, h//self.size, w//self.size, device=input_device, dtype=input_dtype)
+
 		for w_index in range(0, self.num_slices):
-			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].to(device=model_device, dtype=model_dtype)
+			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
 			output_slice = self.pool(input_slice)
-			del input_slice
-			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.cpu()
-			del output_slice
-		# print (f'x shape: {x.shape}, pool gpu shape: {pool_gpu.shape}, out shape: {out.shape}: {torch.equal(pool_gpu.cpu(), out)}')
-		del x
+			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
+
+		del x, input_slice, output_slice
 		return out
 
 class Multiresblock(Module):
@@ -993,7 +986,7 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
-		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
+		x_pool1 = self.pool1(x_multires1, model_device, model_dtype)
 		
 		gc.collect()
 		torch.cuda.empty_cache()
