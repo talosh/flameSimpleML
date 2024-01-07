@@ -451,9 +451,9 @@ class Multiresblock_MemOpt(Module):
 		self.act = Sliced_SELU(inplace = True)
 
 	def forward(self,x):
-		model_device = self.shortcut.conv1.weight.device
-		model_dtype = self.shortcut.conv1.weight.dtype
-		print (f'multires block: x device: {x.device}, x dtype: {x.dtype}')
+		model_device = next(self.parameters()).device
+		model_dtype = next(self.parameters()).dtype
+		print (f'multires block: model_dtype: {model_device}, model_dtype: {model_dtype}')
 		shrtct = self.shortcut(x)
 		print (f'shortcut: device: {shrtct.device}, dtype: {shrtct.dtype}')
 		a = self.conv_3x3(x)
@@ -964,6 +964,8 @@ class MultiResUnet_MemOpt(Module):
 		self.msg = Message(msg_queue)
 
 	def forward(self, x):
+		import gc
+
 		model_device = next(self.parameters()).device
 		model_dtype = next(self.parameters()).dtype
 		input_device = x.device
@@ -971,9 +973,12 @@ class MultiResUnet_MemOpt(Module):
 
 		x = x.clone().detach().cpu()
 
-		import gc
-		# try:
-		x_multires1 = self.multiresblock1(x)
+		try:
+			x_multires1 = self.multiresblock1(x)
+		except:
+			x = x.clone().detach().cpu()
+			x_multires1 = self.multiresblock1(x)
+		del x
 
 		gc.collect()
 		torch.cuda.empty_cache()
@@ -984,8 +989,6 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
-		x = 1/0
 
 		x_pool1 = self.pool1(x_multires1, x_device, x_dtype)
 		
