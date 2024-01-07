@@ -103,7 +103,7 @@ class Conv2d_MemOPT(Module):
 			)
 	
 	def forward(self,x):
-		print (f'dev: {self.conv1.device}, dtype: {self.conv1.dtype}')
+		print (f'dev: {self.conv1.weight.device}, dtype: {self.conv1.weight.dtype}')
 		x_device = x.device
 		x_dtype = x.dtype
 		n, d, h, w = x.shape
