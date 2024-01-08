@@ -287,8 +287,9 @@ while epoch < num_epochs + 1:
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
         rgb_output_restored = restore(rgb_output)
         rgb_after_restored = restore(rgb_after)
-        loss = criterion_mse(rgb_output_restored, rgb_after_restored)
-        loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
+
+        loss = 0.9 * criterion_mse(rgb_output, rgb_after) + 0.1 * criterion_mse(rgb_output_restored, rgb_after_restored)
+        loss_l1 = 0.9 * criterion_l1(rgb_output_restored, rgb_after_restored) + 0.1 * criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
         epoch_loss.append(float(loss_l1))
