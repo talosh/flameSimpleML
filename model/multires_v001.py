@@ -82,7 +82,8 @@ class Conv2d(Module):
 			padding_mode = 'reflect',
 			bias=False
 			)
-		torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		torch.nn.init.dirac_(self.conv1.weight)
 	
 	def forward(self,x):
 		x = self.conv1(x)
@@ -136,7 +137,8 @@ class Conv2d_ReLU(Module):
 			bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
-		torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		torch.nn.init.dirac_(self.conv1.weight)
 
 	def forward(self,x):
 		x = self.conv1(x)
@@ -200,7 +202,8 @@ class Conv2d_SameInOut(Module):
 			padding_mode = 'reflect',
 			bias=False
 			)
-		torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		torch.nn.init.dirac_(self.conv1.weight)
 	
 	def forward(self,x):
 		x = self.conv1(x)
@@ -251,7 +254,8 @@ class Conv2d_SameInOut_ReLU(Module):
 			bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
-		torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		torch.nn.init.dirac_(self.conv1.weight)
 
 	def forward(self,x):
 		x = self.conv1(x)
