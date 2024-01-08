@@ -1,10 +1,11 @@
 try:
     import torch
-    import torch.nn as nn
+    from torch.nn import Module
     import torch.nn.functional as F
-    from torch.nn import init
 except:
-    pass
+    torch = object
+    Module = object
+    F = object
 
 def weights_init_normal(m):
     classname = m.__class__.__name__
@@ -67,8 +68,8 @@ def init_weights(net, init_type='normal'):
     else:
         raise NotImplementedError('initialization method [%s] is not implemented' % init_type)
 
-class unetConv2(nn.Module):
-    def __init__(self, in_size, out_size, is_batchnorm, n=2, ks=3, stride=1, padding=1):
+class unetConv2(Module):
+    def __init__(self, in_size, out_size, n=2, ks=3, stride=1, padding=1):
         super(unetConv2, self).__init__()
         self.n = n
         self.ks = ks
@@ -77,26 +78,9 @@ class unetConv2(nn.Module):
         s = stride
         p = padding
 
-        '''
-        if is_batchnorm:
-            for i in range(1, n + 1):
-                conv = nn.Sequential(nn.Conv2d(in_size, out_size, ks, s, p, padding_mode = 'reflect'),
-                                     nn.BatchNorm2d(out_size),
-                                     nn.SELU(inplace=True), )
-                setattr(self, 'conv%d' % i, conv)
-                in_size = out_size
-
-        else:
-            for i in range(1, n + 1):
-                conv = nn.Sequential(nn.Conv2d(in_size, out_size, ks, s, p, padding_mode = 'reflect'),
-                                     nn.SELU(inplace=True), )
-                setattr(self, 'conv%d' % i, conv)
-                in_size = out_size
-        '''
-
         for i in range(1, n + 1):
-            conv = nn.Sequential(nn.Conv2d(in_size, out_size, ks, s, p, padding_mode = 'reflect'),
-                                    nn.SELU(inplace=True), )
+            conv = torch.nn.Sequential(torch.nn.Conv2d(in_size, out_size, ks, s, p, padding_mode = 'reflect'),
+                                    torch.nn.SELU(inplace=True), )
             setattr(self, 'conv%d' % i, conv)
             in_size = out_size
 
@@ -112,34 +96,112 @@ class unetConv2(nn.Module):
 
         return x
 
+class DoubleConv2(Module):
+    def __init__(self, in_size, out_size):
+        super().__init__()
+
+        self.conv1 = torch.nn.Conv2d(
+			in_channels=in_size,
+			out_channels=out_size,
+			kernel_size=(3,3),
+			stride=1,
+			padding = 'same',
+			padding_mode = 'reflect',
+			bias=False
+			)
+
+        self.conv2 = torch.nn.Conv2d(
+			in_channels=out_size,
+			out_channels=out_size,
+			kernel_size=(3,3),
+			stride=1,
+			padding = 'same',
+			padding_mode = 'reflect',
+			bias=False
+			)
+        
+        self.act = torch.nn.SELU(inplace=True)
+
+        # initialise the blocks
+        for m in self.children():
+            init_weights(m, init_type='kaiming')
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.act(x)
+        x = self.conv2(x)
+        x = self.act(x)
+        return x
+
+class Conv2d(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'reflect',
+			bias=False
+			)
+		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
+		# torch.nn.init.dirac_(self.conv1.weight)
+
+	def forward(self,x):
+		x = self.conv1(x)
+		return x
+
+class Conv2d_ReLU(Module):
+	def __init__(self, num_in_filters, num_out_filters, kernel_size, stride = (1,1)):
+		super().__init__()
+		self.conv1 = torch.nn.Conv2d(
+			in_channels=num_in_filters,
+			out_channels=num_out_filters,
+			kernel_size=kernel_size,
+			stride=stride,
+			padding = 'same',
+			padding_mode = 'reflect',
+			bias=False
+			)
+		self.act = torch.nn.SELU(inplace = True)
+		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
+		torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
+		# torch.nn.init.dirac_(self.conv1.weight)
+
+	def forward(self,x):
+		x = self.conv1(x)
+		x = self.act(x)
+		return x
+
+
 '''
     UNet 3+
 '''
-class UNet_3Plus(nn.Module):
+class UNet_3Plus(Module):
 
-    def __init__(self, in_channels=3, n_classes=1, feature_scale=4, is_deconv=True, is_batchnorm=False):
+    def __init__(self, in_channels=3, n_classes=3, feature_scale=4):
         super(UNet_3Plus, self).__init__()
-        self.is_deconv = is_deconv
         self.in_channels = in_channels
-        self.is_batchnorm = is_batchnorm
         self.feature_scale = feature_scale
 
         filters = [64, 128, 256, 512, 1024]
 
         ## -------------Encoder--------------
-        self.conv1 = unetConv2(self.in_channels, filters[0], self.is_batchnorm)
-        self.maxpool1 = nn.MaxPool2d(kernel_size=2)
+        self.conv1 = unetConv2(self.in_channels, filters[0])
+        self.maxpool1 = torch.nnMaxPool2d(kernel_size=2)
 
-        self.conv2 = unetConv2(filters[0], filters[1], self.is_batchnorm)
-        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
+        self.conv2 = unetConv2(filters[0], filters[1])
+        self.maxpool2 = torch.nnMaxPool2d(kernel_size=2)
 
-        self.conv3 = unetConv2(filters[1], filters[2], self.is_batchnorm)
-        self.maxpool3 = nn.MaxPool2d(kernel_size=2)
+        self.conv3 = unetConv2(filters[1], filters[2])
+        self.maxpool3 = torch.nnMaxPool2d(kernel_size=2)
 
-        self.conv4 = unetConv2(filters[2], filters[3], self.is_batchnorm)
-        self.maxpool4 = nn.MaxPool2d(kernel_size=2)
+        self.conv4 = unetConv2(filters[2], filters[3])
+        self.maxpool4 = torch.nnMaxPool2d(kernel_size=2)
 
-        self.conv5 = unetConv2(filters[3], filters[4], self.is_batchnorm)
+        self.conv5 = unetConv2(filters[3], filters[4])
 
         ## -------------Decoder--------------
         self.CatChannels = filters[0]
@@ -148,157 +210,130 @@ class UNet_3Plus(nn.Module):
 
         '''stage 4d'''
         # h1->320*320, hd4->40*40, Pooling 8 times
-        self.h1_PT_hd4 = nn.MaxPool2d(8, 8, ceil_mode=True)
-        self.h1_PT_hd4_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_PT_hd4_relu = nn.SELU(inplace=True)
-        self.h1_PT_hd4_sequental = nn.Sequential(
-            nn.MaxPool2d(8, 8, ceil_mode=True),
-            nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect'),
-            nn.SELU(inplace=True)
-        )
+        self.h1_PT_hd4 = torch.nnMaxPool2d(8, 8, ceil_mode=True)
+        self.h1_PT_hd4_conv = torch.nnConv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h1_PT_hd4_relu = torch.nnSELU(inplace=True)
 
         # h2->160*160, hd4->40*40, Pooling 4 times
-        self.h2_PT_hd4 = nn.MaxPool2d(4, 4, ceil_mode=True)
-        self.h2_PT_hd4_conv = nn.Conv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h2_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h2_PT_hd4_relu = nn.SELU(inplace=True)
+        self.h2_PT_hd4 = torch.nnMaxPool2d(4, 4, ceil_mode=True)
+        self.h2_PT_hd4_conv = torch.nnConv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h2_PT_hd4_relu = torch.nnSELU(inplace=True)
 
         # h3->80*80, hd4->40*40, Pooling 2 times
-        self.h3_PT_hd4 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.h3_PT_hd4_conv = nn.Conv2d(filters[2], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h3_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h3_PT_hd4_relu = nn.SELU(inplace=True)
+        self.h3_PT_hd4 = torch.nnMaxPool2d(2, 2, ceil_mode=True)
+        self.h3_PT_hd4_conv = torch.nnConv2d(filters[2], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h3_PT_hd4_relu = torch.nnSELU(inplace=True)
 
         # h4->40*40, hd4->40*40, Concatenation
-        self.h4_Cat_hd4_conv = nn.Conv2d(filters[3], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h4_Cat_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h4_Cat_hd4_relu = nn.SELU(inplace=True)
+        self.h4_Cat_hd4_conv = torch.nnConv2d(filters[3], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h4_Cat_hd4_relu = torch.nnSELU(inplace=True)
 
         # hd5->20*20, hd4->40*40, Upsample 2 times
-        self.hd5_UT_hd4 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd5_UT_hd4_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd4_relu = nn.SELU(inplace=True)
+        self.hd5_UT_hd4 = torch.nnUpsample(scale_factor=2, mode='bilinear')  # 14*14
+        self.hd5_UT_hd4_conv = torch.nnConv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd5_UT_hd4_relu = torch.nnSELU(inplace=True)
 
         # fusion(h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4)
-        self.conv4d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn4d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu4d_1 = nn.SELU(inplace=True)
+        self.conv4d_1 = torch.nnConv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
+        self.relu4d_1 = torch.nnSELU(inplace=True)
 
         '''stage 3d'''
         # h1->320*320, hd3->80*80, Pooling 4 times
-        self.h1_PT_hd3 = nn.MaxPool2d(4, 4, ceil_mode=True)
-        self.h1_PT_hd3_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_PT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_PT_hd3_relu = nn.SELU(inplace=True)
+        self.h1_PT_hd3 = torch.nnMaxPool2d(4, 4, ceil_mode=True)
+        self.h1_PT_hd3_conv = torch.nnConv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h1_PT_hd3_relu = torch.nnSELU(inplace=True)
 
         # h2->160*160, hd3->80*80, Pooling 2 times
-        self.h2_PT_hd3 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.h2_PT_hd3_conv = nn.Conv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h2_PT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h2_PT_hd3_relu = nn.SELU(inplace=True)
+        self.h2_PT_hd3 = torch.nnMaxPool2d(2, 2, ceil_mode=True)
+        self.h2_PT_hd3_conv = torch.nnConv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h2_PT_hd3_bn = torch.nnBatchNorm2d(self.CatChannels)
+        self.h2_PT_hd3_relu = torch.nnSELU(inplace=True)
 
         # h3->80*80, hd3->80*80, Concatenation
-        self.h3_Cat_hd3_conv = nn.Conv2d(filters[2], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h3_Cat_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h3_Cat_hd3_relu = nn.SELU(inplace=True)
+        self.h3_Cat_hd3_conv = torch.nnConv2d(filters[2], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h3_Cat_hd3_relu = torch.nnSELU(inplace=True)
 
         # hd4->40*40, hd4->80*80, Upsample 2 times
-        self.hd4_UT_hd3 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd4_UT_hd3_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd4_UT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd4_UT_hd3_relu = nn.SELU(inplace=True)
+        self.hd4_UT_hd3 = torch.nnUpsample(scale_factor=2, mode='bilinear')  # 14*14
+        self.hd4_UT_hd3_conv = torch.nnConv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd4_UT_hd3_relu = torch.nnSELU(inplace=True)
 
         # hd5->20*20, hd4->80*80, Upsample 4 times
-        self.hd5_UT_hd3 = nn.Upsample(scale_factor=4, mode='bilinear')  # 14*14
-        self.hd5_UT_hd3_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd3_relu = nn.SELU(inplace=True)
+        self.hd5_UT_hd3 = torch.nnUpsample(scale_factor=4, mode='bilinear')  # 14*14
+        self.hd5_UT_hd3_conv = torch.nnConv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd5_UT_hd3_relu = torch.nnSELU(inplace=True)
 
         # fusion(h1_PT_hd3, h2_PT_hd3, h3_Cat_hd3, hd4_UT_hd3, hd5_UT_hd3)
-        self.conv3d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn3d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu3d_1 = nn.SELU(inplace=True)
+        self.conv3d_1 = torch.nnConv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
+        self.bn3d_1 = torch.nnBatchNorm2d(self.UpChannels)
+        self.relu3d_1 = torch.nnSELU(inplace=True)
 
         '''stage 2d '''
         # h1->320*320, hd2->160*160, Pooling 2 times
-        self.h1_PT_hd2 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.h1_PT_hd2_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_PT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_PT_hd2_relu = nn.SELU(inplace=True)
+        self.h1_PT_hd2 = torch.nnMaxPool2d(2, 2, ceil_mode=True)
+        self.h1_PT_hd2_conv = torch.nnConv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h1_PT_hd2_relu = torch.nnSELU(inplace=True)
 
         # h2->160*160, hd2->160*160, Concatenation
-        self.h2_Cat_hd2_conv = nn.Conv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h2_Cat_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h2_Cat_hd2_relu = nn.SELU(inplace=True)
+        self.h2_Cat_hd2_conv = torch.nnConv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h2_Cat_hd2_relu = torch.nnSELU(inplace=True)
 
         # hd3->80*80, hd2->160*160, Upsample 2 times
-        self.hd3_UT_hd2 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd3_UT_hd2_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd3_UT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd3_UT_hd2_relu = nn.SELU(inplace=True)
+        self.hd3_UT_hd2 = torch.nnUpsample(scale_factor=2, mode='bilinear')  # 14*14
+        self.hd3_UT_hd2_conv = torch.nnConv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd3_UT_hd2_relu = torch.nnSELU(inplace=True)
 
         # hd4->40*40, hd2->160*160, Upsample 4 times
-        self.hd4_UT_hd2 = nn.Upsample(scale_factor=4, mode='bilinear')  # 14*14
-        self.hd4_UT_hd2_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd4_UT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd4_UT_hd2_relu = nn.SELU(inplace=True)
+        self.hd4_UT_hd2 = torch.nnUpsample(scale_factor=4, mode='bilinear')  # 14*14
+        self.hd4_UT_hd2_conv = torch.nnConv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd4_UT_hd2_relu = torch.nnSELU(inplace=True)
 
         # hd5->20*20, hd2->160*160, Upsample 8 times
-        self.hd5_UT_hd2 = nn.Upsample(scale_factor=8, mode='bilinear')  # 14*14
-        self.hd5_UT_hd2_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd2_relu = nn.SELU(inplace=True)
+        self.hd5_UT_hd2 = torch.nnUpsample(scale_factor=8, mode='bilinear')  # 14*14
+        self.hd5_UT_hd2_conv = torch.nnConv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd5_UT_hd2_relu = torch.nnSELU(inplace=True)
 
         # fusion(h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2)
-        self.conv2d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn2d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu2d_1 = nn.SELU(inplace=True)
+        self.conv2d_1 = torch.nnConv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
+        self.relu2d_1 = torch.nnSELU(inplace=True)
 
         '''stage 1d'''
         # h1->320*320, hd1->320*320, Concatenation
-        self.h1_Cat_hd1_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_Cat_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_Cat_hd1_relu = nn.SELU(inplace=True)
+        self.h1_Cat_hd1_conv = torch.nnConv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.h1_Cat_hd1_relu = torch.nnSELU(inplace=True)
 
         # hd2->160*160, hd1->320*320, Upsample 2 times
-        self.hd2_UT_hd1 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd2_UT_hd1_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd2_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd2_UT_hd1_relu = nn.SELU(inplace=True)
+        self.hd2_UT_hd1 = torch.nnUpsample(scale_factor=2, mode='bilinear')  # 14*14
+        self.hd2_UT_hd1_conv = torch.nnConv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd2_UT_hd1_relu = torch.nnSELU(inplace=True)
 
         # hd3->80*80, hd1->320*320, Upsample 4 times
-        self.hd3_UT_hd1 = nn.Upsample(scale_factor=4, mode='bilinear')  # 14*14
-        self.hd3_UT_hd1_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd3_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd3_UT_hd1_relu = nn.SELU(inplace=True)
+        self.hd3_UT_hd1 = torch.nnUpsample(scale_factor=4, mode='bilinear')  # 14*14
+        self.hd3_UT_hd1_conv = torch.nnConv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd3_UT_hd1_relu = torch.nnSELU(inplace=True)
 
         # hd4->40*40, hd1->320*320, Upsample 8 times
-        self.hd4_UT_hd1 = nn.Upsample(scale_factor=8, mode='bilinear')  # 14*14
-        self.hd4_UT_hd1_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd4_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd4_UT_hd1_relu = nn.SELU(inplace=True)
+        self.hd4_UT_hd1 = torch.nnUpsample(scale_factor=8, mode='bilinear')  # 14*14
+        self.hd4_UT_hd1_conv = torch.nnConv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd4_UT_hd1_relu = torch.nnSELU(inplace=True)
 
         # hd5->20*20, hd1->320*320, Upsample 16 times
-        self.hd5_UT_hd1 = nn.Upsample(scale_factor=16, mode='bilinear')  # 14*14
-        self.hd5_UT_hd1_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd1_relu = nn.SELU(inplace=True)
+        self.hd5_UT_hd1 = torch.nnUpsample(scale_factor=16, mode='bilinear')  # 14*14
+        self.hd5_UT_hd1_conv = torch.nnConv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
+        self.hd5_UT_hd1_relu = torch.nnSELU(inplace=True)
 
         # fusion(h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1)
-        self.conv1d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn1d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu1d_1 = nn.SELU(inplace=True)
+        self.conv1d_1 = torch.nnConv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
+        self.relu1d_1 = torch.nnSELU(inplace=True)
 
         # output
-        self.outconv1 = nn.Conv2d(self.UpChannels, n_classes, 3, padding=1, padding_mode = 'reflect')
+        self.outconv1 = torch.nnConv2d(self.UpChannels, n_classes, 3, padding=1, padding_mode = 'reflect')
 
         # initialise weights
         for m in self.modules():
-            if isinstance(m, nn.Conv2d):
+            if isinstance(m, torch.nnConv2d):
                 init_weights(m, init_type='kaiming')
-            elif isinstance(m, nn.BatchNorm2d):
+            elif isinstance(m, torch.nnBatchNorm2d):
                 init_weights(m, init_type='kaiming')
 
     def forward(self, inputs):
@@ -318,40 +353,6 @@ class UNet_3Plus(nn.Module):
         hd5 = self.conv5(h5)  # h5->20*20*1024
 
         ## -------------Decoder-------------
-        '''
-        h1_PT_hd4 = self.h1_PT_hd4_relu(self.h1_PT_hd4_bn(self.h1_PT_hd4_conv(self.h1_PT_hd4(h1))))
-        h2_PT_hd4 = self.h2_PT_hd4_relu(self.h2_PT_hd4_bn(self.h2_PT_hd4_conv(self.h2_PT_hd4(h2))))
-        h3_PT_hd4 = self.h3_PT_hd4_relu(self.h3_PT_hd4_bn(self.h3_PT_hd4_conv(self.h3_PT_hd4(h3))))
-        h4_Cat_hd4 = self.h4_Cat_hd4_relu(self.h4_Cat_hd4_bn(self.h4_Cat_hd4_conv(h4)))
-        hd5_UT_hd4 = self.hd5_UT_hd4_relu(self.hd5_UT_hd4_bn(self.hd5_UT_hd4_conv(self.hd5_UT_hd4(hd5))))
-        hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(
-            torch.cat((h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4), 1)))) # hd4->40*40*UpChannels
-
-        h1_PT_hd3 = self.h1_PT_hd3_relu(self.h1_PT_hd3_bn(self.h1_PT_hd3_conv(self.h1_PT_hd3(h1))))
-        h2_PT_hd3 = self.h2_PT_hd3_relu(self.h2_PT_hd3_bn(self.h2_PT_hd3_conv(self.h2_PT_hd3(h2))))
-        h3_Cat_hd3 = self.h3_Cat_hd3_relu(self.h3_Cat_hd3_bn(self.h3_Cat_hd3_conv(h3)))
-        hd4_UT_hd3 = self.hd4_UT_hd3_relu(self.hd4_UT_hd3_bn(self.hd4_UT_hd3_conv(self.hd4_UT_hd3(hd4))))
-        hd5_UT_hd3 = self.hd5_UT_hd3_relu(self.hd5_UT_hd3_bn(self.hd5_UT_hd3_conv(self.hd5_UT_hd3(hd5))))
-        hd3 = self.relu3d_1(self.bn3d_1(self.conv3d_1(
-            torch.cat((h1_PT_hd3, h2_PT_hd3, h3_Cat_hd3, hd4_UT_hd3, hd5_UT_hd3), 1)))) # hd3->80*80*UpChannels
-
-        h1_PT_hd2 = self.h1_PT_hd2_relu(self.h1_PT_hd2_bn(self.h1_PT_hd2_conv(self.h1_PT_hd2(h1))))
-        h2_Cat_hd2 = self.h2_Cat_hd2_relu(self.h2_Cat_hd2_bn(self.h2_Cat_hd2_conv(h2)))
-        hd3_UT_hd2 = self.hd3_UT_hd2_relu(self.hd3_UT_hd2_bn(self.hd3_UT_hd2_conv(self.hd3_UT_hd2(hd3))))
-        hd4_UT_hd2 = self.hd4_UT_hd2_relu(self.hd4_UT_hd2_bn(self.hd4_UT_hd2_conv(self.hd4_UT_hd2(hd4))))
-        hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
-        hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
-            torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
-
-        h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
-        hd2_UT_hd1 = self.hd2_UT_hd1_relu(self.hd2_UT_hd1_bn(self.hd2_UT_hd1_conv(self.hd2_UT_hd1(hd2))))
-        hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3))))
-        hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4))))
-        hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
-        hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(
-            torch.cat((h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1), 1)))) # hd1->320*320*UpChannels
-        '''
-
         h1_PT_hd4 = self.h1_PT_hd4_relu(self.h1_PT_hd4_conv(self.h1_PT_hd4(h1)))
         h2_PT_hd4 = self.h2_PT_hd4_relu(self.h2_PT_hd4_conv(self.h2_PT_hd4(h2)))
         h3_PT_hd4 = self.h3_PT_hd4_relu(self.h3_PT_hd4_conv(self.h3_PT_hd4(h3)))
@@ -386,418 +387,7 @@ class UNet_3Plus(nn.Module):
 
         d1 = self.outconv1(hd1)  # d1->320*320*n_classes
         return d1
-        # return F.sigmoid(d1)
 
-
-class UNet_3PlusMemOpt(nn.Module):
-
-    def __init__(self, in_channels=3, n_classes=1, feature_scale=4, is_deconv=True, is_batchnorm=True):
-        super().__init__()
-        self.is_deconv = is_deconv
-        self.in_channels = in_channels
-        self.is_batchnorm = is_batchnorm
-        self.feature_scale = feature_scale
-
-        filters = [64, 128, 256, 512, 1024]
-
-        ## -------------Encoder--------------
-        self.conv1 = unetConv2(self.in_channels, filters[0], self.is_batchnorm)
-        self.maxpool1 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv2 = unetConv2(filters[0], filters[1], self.is_batchnorm)
-        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv3 = unetConv2(filters[1], filters[2], self.is_batchnorm)
-        self.maxpool3 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv4 = unetConv2(filters[2], filters[3], self.is_batchnorm)
-        self.maxpool4 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv5 = unetConv2(filters[3], filters[4], self.is_batchnorm)
-
-        ## -------------Decoder--------------
-        self.CatChannels = filters[0]
-        self.CatBlocks = 5
-        self.UpChannels = self.CatChannels * self.CatBlocks
-
-        '''stage 4d'''
-        # h1->320*320, hd4->40*40, Pooling 8 times
-        self.h1_PT_hd4 = nn.MaxPool2d(8, 8, ceil_mode=True)
-        self.h1_PT_hd4_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_PT_hd4_relu = nn.SELU(inplace=True)
-
-        # h2->160*160, hd4->40*40, Pooling 4 times
-        self.h2_PT_hd4 = nn.MaxPool2d(4, 4, ceil_mode=True)
-        self.h2_PT_hd4_conv = nn.Conv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h2_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h2_PT_hd4_relu = nn.SELU(inplace=True)
-
-        # h3->80*80, hd4->40*40, Pooling 2 times
-        self.h3_PT_hd4 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.h3_PT_hd4_conv = nn.Conv2d(filters[2], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h3_PT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h3_PT_hd4_relu = nn.SELU(inplace=True)
-
-        # h4->40*40, hd4->40*40, Concatenation
-        self.h4_Cat_hd4_conv = nn.Conv2d(filters[3], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h4_Cat_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h4_Cat_hd4_relu = nn.SELU(inplace=True)
-
-        # hd5->20*20, hd4->40*40, Upsample 2 times
-        self.hd5_UT_hd4 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd5_UT_hd4_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd4_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd4_relu = nn.SELU(inplace=True)
-
-        # fusion(h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4)
-        self.conv4d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn4d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu4d_1 = nn.SELU(inplace=True)
-
-        '''stage 3d'''
-        # h1->320*320, hd3->80*80, Pooling 4 times
-        self.h1_PT_hd3 = nn.MaxPool2d(4, 4, ceil_mode=True)
-        self.h1_PT_hd3_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_PT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_PT_hd3_relu = nn.SELU(inplace=True)
-
-        # h2->160*160, hd3->80*80, Pooling 2 times
-        self.h2_PT_hd3 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.h2_PT_hd3_conv = nn.Conv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h2_PT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h2_PT_hd3_relu = nn.SELU(inplace=True)
-
-        # h3->80*80, hd3->80*80, Concatenation
-        self.h3_Cat_hd3_conv = nn.Conv2d(filters[2], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h3_Cat_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h3_Cat_hd3_relu = nn.SELU(inplace=True)
-
-        # hd4->40*40, hd4->80*80, Upsample 2 times
-        self.hd4_UT_hd3 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd4_UT_hd3_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd4_UT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd4_UT_hd3_relu = nn.SELU(inplace=True)
-
-        # hd5->20*20, hd4->80*80, Upsample 4 times
-        self.hd5_UT_hd3 = nn.Upsample(scale_factor=4, mode='bilinear')  # 14*14
-        self.hd5_UT_hd3_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd3_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd3_relu = nn.SELU(inplace=True)
-
-        # fusion(h1_PT_hd3, h2_PT_hd3, h3_Cat_hd3, hd4_UT_hd3, hd5_UT_hd3)
-        self.conv3d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn3d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu3d_1 = nn.SELU(inplace=True)
-
-        '''stage 2d '''
-        # h1->320*320, hd2->160*160, Pooling 2 times
-        self.h1_PT_hd2 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.h1_PT_hd2_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_PT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_PT_hd2_relu = nn.SELU(inplace=True)
-
-        # h2->160*160, hd2->160*160, Concatenation
-        self.h2_Cat_hd2_conv = nn.Conv2d(filters[1], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h2_Cat_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h2_Cat_hd2_relu = nn.SELU(inplace=True)
-
-        # hd3->80*80, hd2->160*160, Upsample 2 times
-        self.hd3_UT_hd2 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd3_UT_hd2_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd3_UT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd3_UT_hd2_relu = nn.SELU(inplace=True)
-
-        # hd4->40*40, hd2->160*160, Upsample 4 times
-        self.hd4_UT_hd2 = nn.Upsample(scale_factor=4, mode='bilinear')  # 14*14
-        self.hd4_UT_hd2_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd4_UT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd4_UT_hd2_relu = nn.SELU(inplace=True)
-
-        # hd5->20*20, hd2->160*160, Upsample 8 times
-        self.hd5_UT_hd2 = nn.Upsample(scale_factor=8, mode='bilinear')  # 14*14
-        self.hd5_UT_hd2_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd2_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd2_relu = nn.SELU(inplace=True)
-
-        # fusion(h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2)
-        self.conv2d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn2d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu2d_1 = nn.SELU(inplace=True)
-
-        '''stage 1d'''
-        # h1->320*320, hd1->320*320, Concatenation
-        self.h1_Cat_hd1_conv = nn.Conv2d(filters[0], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.h1_Cat_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.h1_Cat_hd1_relu = nn.SELU(inplace=True)
-
-        # hd2->160*160, hd1->320*320, Upsample 2 times
-        self.hd2_UT_hd1 = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
-        self.hd2_UT_hd1_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd2_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd2_UT_hd1_relu = nn.SELU(inplace=True)
-
-        # hd3->80*80, hd1->320*320, Upsample 4 times
-        self.hd3_UT_hd1 = nn.Upsample(scale_factor=4, mode='bilinear')  # 14*14
-        self.hd3_UT_hd1_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd3_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd3_UT_hd1_relu = nn.SELU(inplace=True)
-
-        # hd4->40*40, hd1->320*320, Upsample 8 times
-        self.hd4_UT_hd1 = nn.Upsample(scale_factor=8, mode='bilinear')  # 14*14
-        self.hd4_UT_hd1_conv = nn.Conv2d(self.UpChannels, self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd4_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd4_UT_hd1_relu = nn.SELU(inplace=True)
-
-        # hd5->20*20, hd1->320*320, Upsample 16 times
-        self.hd5_UT_hd1 = nn.Upsample(scale_factor=16, mode='bilinear')  # 14*14
-        self.hd5_UT_hd1_conv = nn.Conv2d(filters[4], self.CatChannels, 3, padding=1, padding_mode = 'reflect')
-        self.hd5_UT_hd1_bn = nn.BatchNorm2d(self.CatChannels)
-        self.hd5_UT_hd1_relu = nn.SELU(inplace=True)
-
-        # fusion(h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1)
-        self.conv1d_1 = nn.Conv2d(self.UpChannels, self.UpChannels, 3, padding=1, padding_mode = 'reflect')  # 16
-        self.bn1d_1 = nn.BatchNorm2d(self.UpChannels)
-        self.relu1d_1 = nn.SELU(inplace=True)
-
-        # output
-        self.outconv1 = nn.Conv2d(self.UpChannels, n_classes, 3, padding=1, padding_mode = 'reflect')
-
-        # initialise weights
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                init_weights(m, init_type='kaiming')
-            elif isinstance(m, nn.BatchNorm2d):
-                init_weights(m, init_type='kaiming')
-
-    def forward(self, inputs):
-        model_device = inputs.device
-        current_device = torch.cuda.current_device()
-
-        ## -------------Encoder-------------
-        h1 = self.conv1(inputs)  # h1->320*320*64
-
-        h2 = self.maxpool1(h1)
-        h2 = self.conv2(h2)  # h2->160*160*128
-
-        h3 = self.maxpool2(h2)
-        h3 = self.conv3(h3)  # h3->80*80*256
-
-        h4 = self.maxpool3(h3)
-        h4 = self.conv4(h4)  # h4->40*40*512
-
-        h5 = self.maxpool4(h4)
-        hd5 = self.conv5(h5)  # h5->20*20*1024
-
-        del h5
-        torch.cuda.empty_cache()
-
-        ## -------------Decoder-------------
-        h1_PT_hd4 = self.h1_PT_hd4_relu(self.h1_PT_hd4_bn(self.h1_PT_hd4_conv(self.h1_PT_hd4(h1))))
-        h2_PT_hd4 = self.h2_PT_hd4_relu(self.h2_PT_hd4_bn(self.h2_PT_hd4_conv(self.h2_PT_hd4(h2))))
-        h3_PT_hd4 = self.h3_PT_hd4_relu(self.h3_PT_hd4_bn(self.h3_PT_hd4_conv(self.h3_PT_hd4(h3))))
-        h4_Cat_hd4 = self.h4_Cat_hd4_relu(self.h4_Cat_hd4_bn(self.h4_Cat_hd4_conv(h4)))
-        hd5_UT_hd4 = self.hd5_UT_hd4_relu(self.hd5_UT_hd4_bn(self.hd5_UT_hd4_conv(self.hd5_UT_hd4(hd5))))
-        hd4 = self.relu4d_1(self.bn4d_1(self.conv4d_1(
-            torch.cat((h1_PT_hd4, h2_PT_hd4, h3_PT_hd4, h4_Cat_hd4, hd5_UT_hd4), 1)))) # hd4->40*40*UpChannels
-        
-        del h1_PT_hd4
-        del h2_PT_hd4
-        del h3_PT_hd4
-        del h4_Cat_hd4
-        del hd5_UT_hd4
-        del h4
-        torch.cuda.empty_cache()
-
-        # - level 04
-
-        '''
-        print ('Decoder pass 01')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-        '''
-        
-        h1_PT_hd3 = self.h1_PT_hd3_relu(self.h1_PT_hd3_bn(self.h1_PT_hd3_conv(self.h1_PT_hd3(h1))))
-        h2_PT_hd3 = self.h2_PT_hd3_relu(self.h2_PT_hd3_bn(self.h2_PT_hd3_conv(self.h2_PT_hd3(h2))))
-        h3_Cat_hd3 = self.h3_Cat_hd3_relu(self.h3_Cat_hd3_bn(self.h3_Cat_hd3_conv(h3)))
-        hd4_UT_hd3 = self.hd4_UT_hd3_relu(self.hd4_UT_hd3_bn(self.hd4_UT_hd3_conv(self.hd4_UT_hd3(hd4))))
-        hd5_UT_hd3 = self.hd5_UT_hd3_relu(self.hd5_UT_hd3_bn(self.hd5_UT_hd3_conv(self.hd5_UT_hd3(hd5))))
-        hd3 = self.relu3d_1(self.bn3d_1(self.conv3d_1(
-            torch.cat((h1_PT_hd3, h2_PT_hd3, h3_Cat_hd3, hd4_UT_hd3, hd5_UT_hd3), 1)))) # hd3->80*80*UpChannels
-        
-        del h1_PT_hd3
-        del h2_PT_hd3
-        del h3_Cat_hd3
-        del hd4_UT_hd3
-        del hd5_UT_hd3
-        del h3
-        torch.cuda.empty_cache()
-
-        # - level 03
-
-        try:
-            h1_PT_hd2 = self.h1_PT_hd2_relu(self.h1_PT_hd2_bn(self.h1_PT_hd2_conv(self.h1_PT_hd2(h1))))
-        except:
-            print (' - level 02.1 - h1_PT_hd2 CPU')
-            self.h1_PT_hd2_conv.to('cpu')
-            self.h1_PT_hd2_bn.to('cpu')
-            self.h1_PT_hd2_relu.to('cpu')
-            h1_PT_hd2 = self.h1_PT_hd2_relu(self.h1_PT_hd2_bn(self.h1_PT_hd2_conv(self.h1_PT_hd2(h1.to('cpu')))))
-            h1_PT_hd2 = h1_PT_hd2.to(model_device)
-        
-        h2_Cat_hd2 = self.h2_Cat_hd2_relu(self.h2_Cat_hd2_bn(self.h2_Cat_hd2_conv(h2)))
-        hd3_UT_hd2 = self.hd3_UT_hd2_relu(self.hd3_UT_hd2_bn(self.hd3_UT_hd2_conv(self.hd3_UT_hd2(hd3))))
-        hd4_UT_hd2 = self.hd4_UT_hd2_relu(self.hd4_UT_hd2_bn(self.hd4_UT_hd2_conv(self.hd4_UT_hd2(hd4))))
-
-        try:
-            hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5))))
-        except:
-            print (' - level 02.5 - hd5_UT_hd2 CPU')
-            self.hd5_UT_hd2.to('cpu')
-            self.hd5_UT_hd2_conv.to('cpu')
-            self.hd5_UT_hd2_bn.to('cpu')
-            self.hd5_UT_hd2_relu.to('cpu')
-            hd5_UT_hd2 = self.hd5_UT_hd2_relu(self.hd5_UT_hd2_bn(self.hd5_UT_hd2_conv(self.hd5_UT_hd2(hd5.to('cpu')))))
-            hd5_UT_hd2 = hd5_UT_hd2.to(model_device)
-            torch.cuda.empty_cache()
-
-        try:
-            hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
-                torch.cat((h1_PT_hd2, h2_Cat_hd2, hd3_UT_hd2, hd4_UT_hd2, hd5_UT_hd2), 1)))) # hd2->160*160*UpChannels
-        except:
-            print (' - level 02.6 - hd2 CPU')
-            self.conv2d_1.to('cpu')
-            self.bn2d_1.to('cpu')
-            self.relu2d_1.to('cpu')
-            h1_PT_hd2_cpu = h1_PT_hd2.to('cpu')
-            h2_Cat_hd2_cpu = h2_Cat_hd2.to('cpu')
-            hd3_UT_hd2_cpu = hd3_UT_hd2.to('cpu')
-            hd4_UT_hd2_cpu = hd4_UT_hd2.to('cpu')
-            hd5_UT_hd2_cpu = hd5_UT_hd2.to('cpu')
-            hd2 = self.relu2d_1(self.bn2d_1(self.conv2d_1(
-                torch.cat((h1_PT_hd2_cpu, h2_Cat_hd2_cpu, hd3_UT_hd2_cpu, hd4_UT_hd2_cpu, hd5_UT_hd2_cpu), 1)))) # hd2->160*160*UpChannels
-            del h1_PT_hd2_cpu
-            del h2_Cat_hd2_cpu
-            del hd3_UT_hd2_cpu
-            del hd4_UT_hd2_cpu
-            del hd5_UT_hd2_cpu
-
-        del h1_PT_hd2
-        del h2_Cat_hd2
-        del hd3_UT_hd2
-        del hd4_UT_hd2
-        del hd5_UT_hd2
-        del h2
-        torch.cuda.empty_cache()
-        hd2 = hd2.to(model_device)
-
-        # - level 02
-        '''
-        print ('Decoder pass 01')
-        allocated_memory = torch.cuda.memory_allocated(current_device)
-        reserved_memory = torch.cuda.memory_reserved(current_device)
-        print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
-        print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-        '''
-
-        try:
-            h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1)))
-        except:
-            print (' - level 01.1 - h1_Cat_hd1 CPU')
-            self.h1_Cat_hd1_conv.to('cpu')
-            self.h1_Cat_hd1_bn.to('cpu')
-            self.h1_Cat_hd1_relu.to('cpu')
-            h1_Cat_hd1 = self.h1_Cat_hd1_relu(self.h1_Cat_hd1_bn(self.h1_Cat_hd1_conv(h1.to('cpu'))))
-
-        del h1
-        h1_Cat_hd1 = h1_Cat_hd1.to(model_device)
-
-        try:
-            hd2_UT_hd1 = self.hd2_UT_hd1_relu(self.hd2_UT_hd1_bn(self.hd2_UT_hd1_conv(self.hd2_UT_hd1(hd2))))
-        except:
-            print (' - level 01.2 - hd2_UT_hd1 CPU')
-            self.hd2_UT_hd1.to('cpu')
-            self.hd2_UT_hd1_conv.to('cpu')
-            self.hd2_UT_hd1_bn.to('cpu')
-            self.hd2_UT_hd1_relu.to('cpu')
-            hd2_UT_hd1 = self.hd2_UT_hd1_relu(self.hd2_UT_hd1_bn(self.hd2_UT_hd1_conv(self.hd2_UT_hd1(hd2.to('cpu')))))
-        
-        del hd2
-        hd2_UT_hd1 = hd2_UT_hd1.to(model_device)
-
-        try:
-            hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3))))
-        except:
-            print (' - level 01.3 - hd3_UT_hd1 CPU')
-            self.hd3_UT_hd1.to('cpu')
-            self.hd3_UT_hd1_conv.to('cpu')
-            self.hd3_UT_hd1_bn.to('cpu')
-            self.hd3_UT_hd1_relu.to('cpu')
-            hd3_UT_hd1 = self.hd3_UT_hd1_relu(self.hd3_UT_hd1_bn(self.hd3_UT_hd1_conv(self.hd3_UT_hd1(hd3.to('cpu')))))
-        del hd3
-        hd3_UT_hd1 = hd3_UT_hd1.to(model_device)
-
-        try:
-            hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4))))
-        except:
-            print (' - level 01.4 - hd4_UT_hd1 CPU')
-            self.hd4_UT_hd1.to('cpu')
-            self.hd4_UT_hd1_conv.to('cpu')
-            self.hd4_UT_hd1_bn.to('cpu')
-            self.hd4_UT_hd1_relu.to('cpu')
-            hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4.to('cpu')))))
-        del hd4
-        hd4_UT_hd1 = hd4_UT_hd1.to(model_device)
-
-        try:
-            hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
-        except:
-            print (' - level 01.5 - hd5_UT_hd1 CPU')
-            self.hd5_UT_hd1.to('cpu')
-            self.hd5_UT_hd1_conv.to('cpu')
-            self.hd5_UT_hd1_bn.to('cpu')
-            self.hd5_UT_hd1_relu.to('cpu')
-            hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5.to('cpu')))))
-        del hd5
-        hd5_UT_hd1 = hd5_UT_hd1.to(model_device)
-
-        try:
-            hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(
-                torch.cat((h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1), 1)))) # hd1->320*320*UpChannels
-        except:
-            print (' - level 01.6 - hd1 CPU')
-            self.conv1d_1.to('cpu')
-            self.bn1d_1.to('cpu')
-            self.relu1d_1.to('cpu')
-            h1_Cat_hd1_cpu = h1_Cat_hd1.to('cpu')
-            hd2_UT_hd1_cpu = hd2_UT_hd1.to('cpu')
-            hd3_UT_hd1_cpu = hd3_UT_hd1.to('cpu')
-            hd4_UT_hd1_cpu = hd4_UT_hd1.to('cpu')
-            hd5_UT_hd1_cpu = hd5_UT_hd1.to('cpu')
-            hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(
-                torch.cat((h1_Cat_hd1_cpu, hd2_UT_hd1_cpu, hd3_UT_hd1_cpu, hd4_UT_hd1_cpu, hd5_UT_hd1_cpu), 1)))) # hd1->320*320*UpChannels
-            del h1_Cat_hd1_cpu
-            del hd2_UT_hd1_cpu
-            del hd3_UT_hd1_cpu
-            del hd4_UT_hd1_cpu
-            del hd5_UT_hd1_cpu
-        
-        del h1_Cat_hd1
-        del hd2_UT_hd1
-        del hd3_UT_hd1
-        del hd4_UT_hd1
-        del hd5_UT_hd1
-        torch.cuda.empty_cache()
-        hd1 = hd1.to(model_device)
-        
-        '''
-            print('hello')
-        '''
-
-        d1 = self.outconv1(hd1)  # d1->320*320*n_classes
-        return d1
 
 class Model:
     @staticmethod
@@ -806,7 +396,7 @@ class Model:
 
     @staticmethod
     def get_model():
-        return UNet_3PlusMemOpt
+        return UNet_3Plus
 
     @staticmethod
     def get_train_model():
