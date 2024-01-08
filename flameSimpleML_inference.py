@@ -856,6 +856,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.save_thread.start()
         self.log_debug('frame save thread started')
 
+        self.render_loop_thread = None
 
         #### UI INITIALIZATION ####
 
