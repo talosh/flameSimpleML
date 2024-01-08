@@ -397,7 +397,7 @@ class Sliced_Upsample(Module):
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
 			output_slice = upsample(input_slice)
-			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
+			out[:, :, :, (w_index*slice_width)*2:(w_index*slice_width+slice_width)*2] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
 
 		del x, input_slice, output_slice
 		return out
