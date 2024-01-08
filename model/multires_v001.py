@@ -1035,9 +1035,9 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
 
-		# up6 = self.sliced_upsample(x_multires5, self.upsample6, model_device, model_dtype)
-		up6 = self.sliced_upsample(x_multires5, self.upsample6, 32*8, model_device, model_dtype)
-		up6 = torch.cat([up6, x_multires4],axis=1)
+		# up6 = self.sliced_upsample(x_multires5, self.upsample6, 32*8, model_device, model_dtype)
+		# up6 = torch.cat([up6, x_multires4],axis=1)
+		up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
 		del x_multires4, x_multires5, up6
 
@@ -1052,8 +1052,9 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
-		up7 = self.sliced_upsample(x_multires6, self.upsample7, 32*4, model_device, model_dtype)
-		up7 = torch.cat([up7,x_multires3],axis=1)
+		# up7 = self.sliced_upsample(x_multires6, self.upsample7, 32*4, model_device, model_dtype)
+		# up7 = torch.cat([up7,x_multires3],axis=1)
+		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
 		x_multires7 = self.multiresblock7(up7)
 		del x_multires6
 		del x_multires3
@@ -1071,8 +1072,9 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
 
-		up8 = self.sliced_upsample(x_multires7, self.upsample8, 32*2, model_device, model_dtype)
-		up8 = torch.cat([up8,x_multires2],axis=1)
+		# up8 = self.sliced_upsample(x_multires7, self.upsample8, 32*2, model_device, model_dtype)
+		# up8 = torch.cat([up8,x_multires2],axis=1)
+		up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
 		x_multires8 = self.multiresblock8(up8)
 		del x_multires7
 		del x_multires2
@@ -1090,8 +1092,9 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
 
-		up9 = self.sliced_upsample(x_multires8, self.upsample9, 32, model_device, model_dtype)
-		up9 = torch.cat([up9,x_multires1],axis=1)
+		# up9 = self.sliced_upsample(x_multires8, self.upsample9, 32, model_device, model_dtype)
+		# up9 = torch.cat([up9,x_multires1],axis=1)
+		up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
 		x_multires9 = self.multiresblock9(up9)
 		del x_multires8
 		del x_multires1
