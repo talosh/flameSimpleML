@@ -2397,7 +2397,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                         half_float = False
                     )
                 else:
-                    self.parent_app.write_exr(
+                    self.write_exr(
                         file_path,
                         width,
                         height,
@@ -2408,7 +2408,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     )
 
             else:
-                self.parent_app.write_dpx(
+                self.write_dpx(
                     file_path,
                     width,
                     height,
@@ -2416,7 +2416,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     green,
                     blue,
                     alpha = alpha,
-                    bit_depth = self.parent_app.bits_per_channel
+                    bit_depth = self.bits_per_channel
                 )
 
             file_save_time = time.time() - save_file_start
@@ -2469,7 +2469,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if not destination_node_handle.getNumChildren(num_children):
                 raise Exception(
                     "Unable to obtain number of children: %s"
-                    % parent_node_handle.lastError()
+                    % destination_node_handle.lastError()
                 )
 
             child = WireTapNodeHandle()
