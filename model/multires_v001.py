@@ -984,6 +984,7 @@ class MultiResUnet_MemOpt(Module):
 		del x_pool4
 
 		gc.collect()
+		torch.cuda.empty_cache()
 		print (f'x_multires4 device: {x_multires5.device}, shape: {x_multires5.shape}')
 		print (f'enc step 05')
 		# mem test report block
@@ -999,6 +1000,14 @@ class MultiResUnet_MemOpt(Module):
 		del up6
 
 		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'x_multires6 device: {x_multires6.device}, shape: {x_multires6.shape}')
+		print (f'dec step 01')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(input_device)
+		reserved_memory = torch.cuda.memory_reserved(input_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
 		x_multires7 = self.multiresblock7(up7)
