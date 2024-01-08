@@ -2017,7 +2017,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def _render_loop(self):
         render_loop_start = time.time()
         print (f'min frame: {self.min_frame}, max frame: {self.max_frame}')
-        for frame in range(self.min_frame, self.max_frame):
+        for frame in range(self.min_frame, self.max_frame + 1):
             print (f'Frame = {frame}')
             if not self.threads:
                 return
