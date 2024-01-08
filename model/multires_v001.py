@@ -363,7 +363,6 @@ class Sliced_MaxPool(Module):
 
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
-			print (f'pool2d input slice dev: {input_slice.device}, dtype: {input_slice.dtype}')
 			output_slice = self.pool(input_slice)
 			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
 
@@ -701,7 +700,7 @@ class Respath2_MemOPT(Module):
 		self.shortcut1 = Conv2d_MemOPT(num_in_filters, num_out_filters, kernel_size = (1,1))
 		self.shortcut2 = Conv2d_SameInOut_MemOPT(num_out_filters, num_out_filters, kernel_size = (1,1))
 		self.conv1 = Conv2d_ReLU_MemOPT(num_in_filters, num_out_filters, kernel_size = (3,3))
-		self.conv2 = Conv2d_SameInOut_ReLU(num_out_filters, num_out_filters, kernel_size = (3,3))
+		self.conv2 = Conv2d_SameInOut_ReLU_MemOPT(num_out_filters, num_out_filters, kernel_size = (3,3))
 		
 	def forward(self,x):
 		model_device = next(self.parameters()).device
