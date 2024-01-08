@@ -914,9 +914,7 @@ class MultiResUnet_MemOpt(Module):
 		self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
 		# Decoder path
-
-		self.sliced_upsample = Sliced_Upsample()
-
+		# self.sliced_upsample = Sliced_Upsample()
 		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))
 		self.concat_filters1 = 32*8*2
 		self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
