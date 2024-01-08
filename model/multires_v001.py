@@ -1035,7 +1035,9 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
 
-		up6 = self.sliced_upsample(x_multires5, self.upsample6, model_device, model_dtype)
+		# up6 = self.sliced_upsample(x_multires5, self.upsample6, model_device, model_dtype)
+		up6 = self.upsample6(x_multires5)
+		print (f'x_multires5 shape: {x_multires5.shape}, up6 shape: {up6.shape}')
 		up6 = torch.cat([up6, x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
 		del x_multires4, x_multires5, up6
