@@ -382,9 +382,14 @@ class Sliced_MaxPool(Module):
 		return out
 
 class Sliced_Upsample(Module):
-	def __init__(self):
+	def __init__(self, in_filters, out_filters, kernel_size=(2,2),stride=(2,2)):
 		super().__init__()
+		self.in_filters = in_filters
+		self.out_filters = out_filters
+		self.kernel_size = kernel_size
+		self.stride = stride
 		self.num_slices = 8
+		self.upsample = torch.nn.ConvTranspose2d(in_filters,out_filters,kernel_size=kernel_size,stride=stride)
 	
 	def forward(self, x, upsample, model_device, model_dtype):
 		input_device = x.device
@@ -392,11 +397,11 @@ class Sliced_Upsample(Module):
 		n, d, h, w = x.shape
 		slice_width = w // self.num_slices
 
-		out = torch.empty(n, d, h*2, w*2, device=input_device, dtype=input_dtype)
+		out = torch.empty(n, self.out_filters, h*2, w*2, device=input_device, dtype=input_dtype)
 
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
-			output_slice = upsample(input_slice)
+			output_slice = self.upsample(input_slice)
 			out[:, :, :, (w_index*slice_width)*2:(w_index*slice_width+slice_width)*2] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
 
 		del x, input_slice, output_slice
@@ -915,9 +920,8 @@ class MultiResUnet_MemOpt(Module):
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
 		# Decoder path
 
-		self.sliced_upsample = Sliced_Upsample()
-
-		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
+		self.upsample6_test = Sliced_Upsample(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))
+		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))
 		self.concat_filters1 = 32*8*2
 		self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
 		self.in_filters6 = int(32*8*self.alpha*0.167)+int(32*8*self.alpha*0.333)+int(32*8*self.alpha* 0.5)
