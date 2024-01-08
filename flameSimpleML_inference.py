@@ -1221,7 +1221,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def f4_key_pressed(self):
         self.current_state['view_mode'] = 'F4'
         print (self.current_state['view_mode'])
-        
+
         if self.current_state.get('rendering_by_render_button'):
             return
 
@@ -2107,7 +2107,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
 
         self.current_state['res_image_data'] = res_image_data
-        
+
+        if self.current_state.get('rendering_by_render_button'):
+            save_image_data = res_image_data.cpu().detach().numpy()
+            self.save_result_frame(
+                save_image_data,
+                self.current_frame - 1
+            )
+            del save_image_data
+
         '''
         del res_image_data
         print (f'after inference')
@@ -2341,6 +2349,187 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         finally:
             server_handle = None
             clip_node_handle = None
+
+    def save_result_frame(self, image_data, frame_number):
+        self.frames_to_save_queue.put(
+            {
+                'image_data': image_data,
+                'frame_number': frame_number
+            }
+        )
+
+    def _save_result_frame(self, image_data, frame_number):
+        import flame
+        import numpy as np
+
+        ext = '.exr' if 'float' in self.fmt.formatTag() else '.dpx'
+            
+        file_path = os.path.join(
+            self.temp_folder,
+            str(frame_number) + ext
+        )
+
+        save_file_start = time.time()
+
+        try:
+            if not os.path.isdir(os.path.dirname(file_path)):
+                os.makedirs(os.path.dirname(file_path))
+
+            height, width, depth = image_data.shape
+            red = image_data[:, :, 0]
+            green = image_data[:, :, 1]
+            blue = image_data[:, :, 2]
+            if depth > 3:
+                alpha = image_data[:, :, 3]
+            else:
+                alpha = np.array([])
+
+            if file_path.endswith('exr'):
+                if self.bits_per_channel == 32:
+                    self.parent_app.write_exr(
+                        file_path,
+                        width,
+                        height,
+                        red,
+                        green,
+                        blue,
+                        alpha = alpha,
+                        half_float = False
+                    )
+                else:
+                    self.parent_app.write_exr(
+                        file_path,
+                        width,
+                        height,
+                        red.astype(np.float16),
+                        green.astype(np.float16),
+                        blue.astype(np.float16),
+                        alpha = alpha.astype(np.float16)
+                    )
+
+            else:
+                self.parent_app.write_dpx(
+                    file_path,
+                    width,
+                    height,
+                    red,
+                    green,
+                    blue,
+                    alpha = alpha,
+                    bit_depth = self.parent_app.bits_per_channel
+                )
+
+            file_save_time = time.time() - save_file_start
+            read_back_start = time.time()
+
+            gateway_server_id = WireTapServerId('Gateway', 'localhost')
+            gateway_server_handle = WireTapServerHandle(gateway_server_id)
+            clip_node_handle = WireTapNodeHandle(gateway_server_handle, file_path + '@CLIP')
+            fmt = WireTapClipFormat()
+            if not clip_node_handle.getClipFormat(fmt):
+                raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
+            
+            buff = "0" * fmt.frameBufferSize()
+
+            if not clip_node_handle.readFrame(0, buff, fmt.frameBufferSize()):
+                raise Exception(
+                    'Unable to obtain read frame %i: %s.' % (frame_number, clip_node_handle.lastError())
+                )
+            
+            read_back_time = time.time() - read_back_start
+            framestore_write_start = time.time()
+
+            server_handle = WireTapServerHandle('localhost')
+            destination_node_handle = WireTapNodeHandle(server_handle, self.destination_node_id)
+            dest_fmt = WireTapClipFormat()
+            if not destination_node_handle.getClipFormat(dest_fmt):
+                raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
+            
+            '''
+            frame_id = WireTapStr()
+            if not destination_node_handle. getFrameId(
+                frame_number, frame_id
+            ):
+                raise Exception(
+                    "Unable to obtain write frame %i: %s."
+                    % (frame_number, destination_node_handle.lastError())
+                )
+            
+            if not server_handle.writeFrame(
+                frame_id, buff, dest_fmt.frameBufferSize()
+            ):
+                raise Exception(
+                    "Unable to obtain write frame %i: %s."
+                    % (frame_number, destination_node_handle.lastError())
+                )
+
+            '''
+
+            num_children = WireTapInt(0)
+            if not destination_node_handle.getNumChildren(num_children):
+                raise Exception(
+                    "Unable to obtain number of children: %s"
+                    % parent_node_handle.lastError()
+                )
+
+            child = WireTapNodeHandle()
+            child_name = WireTapStr()
+            child_type_str = WireTapStr()
+            for child_index in range(0, num_children):
+                # Get the child node.
+                #
+                destination_node_handle.getChild(child_index, child)
+
+                # Get the node's display name and type.
+                #
+                if not child.getDisplayName(child_name):
+                    raise Exception(
+                        "Unable to obtain node name: %s." % child.lastError()
+                    )
+
+                if not child.getNodeTypeStr(child_type_str):
+                    raise Exception(
+                        "Unable to obtain node type: %s." % child.lastError()
+                    )
+                
+                if child_type_str.c_str() == 'LOWRES':
+                    if not child.writeFrame(
+                        frame_number, buff, dest_fmt.frameBufferSize()
+                    ):
+                        raise Exception(
+                            "Unable to obtain write frame %i: %s."
+                            % (frame_number, destination_node_handle.lastError())
+                        )
+
+                # Print the node info.
+                #
+                # print("Node: '%s' type: %s" % (child_name.c_str(), child_type_str.c_str()))
+
+            if not destination_node_handle.writeFrame(
+                frame_number, buff, dest_fmt.frameBufferSize()
+            ):
+                raise Exception(
+                    "Unable to obtain write frame %i: %s."
+                    % (frame_number, destination_node_handle.lastError())
+                )
+            
+            framestore_write_time = time.time() - framestore_write_start
+
+            self.log_debug(f'save file: {file_save_time:.2f}, read back: {read_back_time:.2f}, fs save: {framestore_write_time:.2f}')
+
+            os.remove(file_path)
+
+        except Exception as e:
+            pprint (e)
+            self.message('Error: %s' % e)
+        finally:
+            gateway_server_handle = None
+            clip_node_handle = None
+            server_handle = None
+            destination_node_handle = None
+
+        # flame.schedule_idle_event(wiretap_test)
+
 
     def empty_torch_cache(self):
         if sys.platform == 'darwin':
