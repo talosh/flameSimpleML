@@ -35,18 +35,42 @@ dataset = myDataset('test')
 def moving_average(data, window_size):
     return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
 
-def normalize(img) :
-    def custom_bend(x) :
+def normalize(image_array):
+    def custom_bend(x):
         linear_part = x
         exp_positive = torch.pow( x, 1 / 4 )
-        exp_negative = - torch.pow( -x, 1 / 4 )
+        exp_negative = -torch.pow( -x, 1 / 4 )
         return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
-    
-    img = (img * 2) - 1
-    img = custom_bend(img)
-    img = torch.tanh(img)
-    img = (img + 1) / 2
-    return img
+
+    # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
+    image_array = (image_array * 2) - 1
+    # bend values below -1.0 and above 1.0 exponentially so they are not larger then (-4.0 - 4.0)
+    image_array = custom_bend(image_array)
+    # bend everything to fit -1.0 - 1.0 with hyperbolic tanhent
+    image_array = torch.tanh(image_array)
+    # move it to 0.0 - 1.0 range
+    image_array = (image_array + 1) / 2
+
+    return image_array
+
+def restore(image_array):
+    def custom_de_bend(x):
+        linear_part = x
+        inv_positive = torch.pow( x, 4 )
+        inv_negative = -torch.pow( -x, 4 )
+        return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
+
+    epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
+    # clamp image befor arctanh
+    image_array = torch.clamp((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
+    # restore values from tanh  s-curve
+    image_array = torch.arctanh(image_array)
+    # restore custom bended values
+    image_array = custom_de_bend(image_array)
+    # move it to 0.0 - 1.0 range
+    image_array = ( image_array + 1.0) / 2.0
+
+    return image_array
 
 def rgb_to_hsl(rgb):
     # Ensure RGB values are in [0, 1]
@@ -260,8 +284,10 @@ while epoch < num_epochs + 1:
         # hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
         # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
-        loss = criterion_mse(rgb_output, rgb_after)
-        loss_l1 = criterion_l1(rgb_output, rgb_after)
+        rgb_output_restored = restore(rgb_output)
+        rgb_after_restored = restore(rgb_after)
+        loss = 0.5 * criterion_mse(rgb_output, rgb_after) + 0.5 * criterion_mse(rgb_output_restored, rgb_after_restored)
+        loss_l1 = 0.5 * criterion_l1(rgb_output, rgb_after) + 0.5 * criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
         epoch_loss.append(float(loss_l1))
