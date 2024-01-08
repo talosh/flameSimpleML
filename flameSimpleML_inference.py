@@ -713,7 +713,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             # Render button
             self.render_button = QtWidgets.QPushButton("Render")
-            self.render_button.clicked.connect(Progress.render_button)
+            self.render_button.clicked.connect(Progress.toggle_render_button)
             self.render_button.setContentsMargins(4, 4, 10, 4)
             self.set_button_style(self.render_button)
             bottom_layout.addWidget(self.render_button, alignment=QtCore.Qt.AlignRight)
