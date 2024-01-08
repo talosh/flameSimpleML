@@ -2013,6 +2013,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.render_loop_thread.start()
 
     def _render_loop(self):
+        print ('_render_loop start')
         render_loop_start = time.time()
 
         for frame in range(self.min_frame, self.max_frame):
