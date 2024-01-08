@@ -1085,7 +1085,7 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
-		
+
 		return out
 		'''
 		except:
@@ -1327,7 +1327,7 @@ class Model:
 
     @staticmethod
     def get_model():
-        return MultiResUnet_MemOpt
+        return MultiResUnet
 	
     @staticmethod
     def get_training_model():
