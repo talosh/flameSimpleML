@@ -391,7 +391,7 @@ class Sliced_Upsample(Module):
 		self.num_slices = 8
 		self.upsample = torch.nn.ConvTranspose2d(in_filters,out_filters,kernel_size=kernel_size,stride=stride)
 	
-	def forward(self, x, upsample, model_device, model_dtype):
+	def forward(self, x, model_device, model_dtype):
 		input_device = x.device
 		input_dtype = x.dtype
 		n, d, h, w = x.shape
@@ -1040,8 +1040,11 @@ class MultiResUnet_MemOpt(Module):
 		'''
 
 		# up6 = self.sliced_upsample(x_multires5, self.upsample6, model_device, model_dtype)
+		up6_test = self.upsample6_test(x_multires5, model_device, model_dtype)
+		print (f'x_multires5 shape: {x_multires5.shape}, up6test shape: {up6_test.shape}')
 		up6 = self.upsample6(x_multires5)
 		print (f'x_multires5 shape: {x_multires5.shape}, up6 shape: {up6.shape}')
+		print (f'equal: {torch.equal(up6, up6_test)}')
 		up6 = torch.cat([up6, x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
 		del x_multires4, x_multires5, up6
