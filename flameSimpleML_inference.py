@@ -2020,9 +2020,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return
             if not self.rendering:
                 return
-            if self.frames_map[frame].get('saved'):
-                self.info('Frame ' + str(self.current_frame) + ': Already saved')
-                continue
+            # if self.frames_map[frame].get('saved'):
+            #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
+            #    continue
             self.set_current_frame(frame, render = False)
             self._process_current_frame()
 
