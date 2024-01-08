@@ -2378,6 +2378,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import flame
 
         self.stop_frame_rendering_thread()
+        del self.current_state['src_image_data'], self.current_state['res_image_data']
 
         '''
         def print_all_tensors():
