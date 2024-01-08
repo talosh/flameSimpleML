@@ -2026,7 +2026,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
             #    continue
             self.set_current_frame(frame, render = False)
-            # self._process_current_frame()
+            self._process_current_frame()
 
         time_spent = time.time() - render_loop_start
         self.info(f'Rendering completed in {int(time_spent // 60)} min {int(time_spent % 60)} sec')
