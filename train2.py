@@ -129,7 +129,7 @@ read_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
-lr = 4e-3
+lr = 4e-4
 batch_size = 1
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 
