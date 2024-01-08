@@ -2530,6 +2530,210 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # flame.schedule_idle_event(wiretap_test)
 
+    def write_exr(self, filename, width, height, red, green, blue, alpha, half_float = True, pixelAspectRatio = 1.0):
+        import numpy as np
+        import struct
+
+        MAGIC = 20000630
+        VERSION = 2
+        UINT = 0
+        HALF = 1
+        FLOAT = 2
+
+        channels_list = ['B', 'G', 'R'] if not alpha.size else ['A', 'B', 'G', 'R']
+
+        def write_attr(f, name, type, value):
+            f.write(name.encode('utf-8') + b'\x00')
+            f.write(type.encode('utf-8') + b'\x00')
+            f.write(struct.pack('<I', len(value)))
+            f.write(value)
+
+        def get_channels_attr(channels_list):
+            channel_list = b''
+            for channel_name in channels_list:
+                name_padded = channel_name[:254] + '\x00'
+                bit_depth = 1 if half_float else 2
+                pLinear = 0
+                reserved = (0, 0, 0)  # replace with your values if needed
+                xSampling = 1  # replace with your value
+                ySampling = 1  # replace with your value
+                channel_list += struct.pack(
+                    f"<{len(name_padded)}s i B 3B 2i",
+                    name_padded.encode(), 
+                    bit_depth, 
+                    pLinear, 
+                    *reserved, 
+                    xSampling, 
+                    ySampling
+                    )
+            channel_list += struct.pack('c', b'\x00')
+
+                # channel_list += (f'{i}\x00').encode('utf-8')
+                # channel_list += struct.pack("<i4B", HALF, 1, 1, 0, 0)
+            return channel_list
+        
+        def get_box2i_attr(x_min, y_min, x_max, y_max):
+            return struct.pack('<iiii', x_min, y_min, x_max, y_max)
+
+        with open(filename, 'wb') as f:
+            # Magic number and version field
+            f.write(struct.pack('I', 20000630))  # Magic number
+            f.write(struct.pack('H', 2))  # Version field
+            f.write(struct.pack('H', 0))  # Version field
+            write_attr(f, 'channels', 'chlist', get_channels_attr(channels_list))
+            write_attr(f, 'compression', 'compression', b'\x00')  # no compression
+            write_attr(f, 'dataWindow', 'box2i', get_box2i_attr(0, 0, width - 1, height - 1))
+            write_attr(f, 'displayWindow', 'box2i', get_box2i_attr(0, 0, width - 1, height - 1))
+            write_attr(f, 'lineOrder', 'lineOrder', b'\x00')  # increasing Y
+            write_attr(f, 'pixelAspectRatio', 'float', struct.pack('<f', pixelAspectRatio))
+            write_attr(f, 'screenWindowCenter', 'v2f', struct.pack('<ff', 0.0, 0.0))
+            write_attr(f, 'screenWindowWidth', 'float', struct.pack('<f', 1.0))
+            f.write(b'\x00')  # end of header
+
+            # Scan line offset table size and position
+            line_offset_pos = f.tell()
+            pixel_data_start = line_offset_pos + 8 * height
+            bytes_per_channel = 2 if half_float else 4
+            # each scan line starts with 4 bytes for y coord and 4 bytes for pixel data size
+            bytes_per_scan_line = width * len(channels_list) * bytes_per_channel + 8 
+
+            for y in range(height):
+                f.write(struct.pack('<Q', pixel_data_start + y * bytes_per_scan_line))
+
+            channel_data = {'R': red, 'G': green, 'B': blue, 'A': alpha}
+
+            # Pixel data
+            for y in range(height):
+                f.write(struct.pack('I', y))  # Line number
+                f.write(struct.pack('I', bytes_per_channel * len(channels_list) * width))  # Pixel data size
+                for channel in sorted(channels_list):
+                    f.write(channel_data[channel][y].tobytes())
+            f.close
+
+    def write_dpx(self, filename, width, height, red, green, blue, alpha, bit_depth):
+        import struct
+        import numpy as np
+
+        depth = 3 if not alpha.size else 4
+        if bit_depth == 8:
+            dt = np.uint8
+            red = (red * 255).astype(dt)
+            green = (green * 255).astype(dt)
+            blue = (blue * 255).astype(dt)
+            alpha = (alpha * 255).astype(dt)
+        elif bit_depth == 16:
+            dt = np.uint16
+            red = (red * 65535).astype(dt)
+            green = (green * 65535).astype(dt)
+            blue = (blue * 65535).astype(dt)
+            alpha = (alpha * 65535).astype(dt)
+        else:
+            dt = np.float32
+
+        arr = np.ones((height, width, depth), dtype=dt)
+
+        arr[:,:,0] = red
+        arr[:,:,1] = green
+        arr[:,:,2] = blue
+        if alpha.size:
+            arr[:,:,3] = alpha
+            
+        file_size = 8192 + arr.size * bit_depth // 8
+
+        new_meta = {}
+        new_meta['colorimetry'] = 4
+        new_meta['copyright'] = '\x00' * 200
+        new_meta['creator'] = '\x00' * 100
+        new_meta['data_sign'] = 0
+        new_meta['depth'] = bit_depth
+        new_meta['descriptor'] = 50 if not alpha.size else 51
+        new_meta['ditto'] = 1
+        new_meta['dpx_version'] = 'V1.0\x00\x00\x00\x00'
+        new_meta['encoding'] = 0
+        new_meta['encryption_key'] = 4294967295
+        new_meta['endianness'] = 'be'
+        new_meta['file_size'] = file_size
+        new_meta['filename'] = os.path.basename(filename) + '\x00' * (100 - len(filename))
+        new_meta['height'] = height
+        new_meta['image_element_count'] = 1
+        new_meta['image_element_description'] = 'IMAGE DESCRIPTION DATA        \x00P'
+        new_meta['image_padding'] = 0
+        new_meta['input_device_name'] = '\x00' * 32
+        new_meta['input_device_sn'] = '\x00' * 32
+        new_meta['line_padding'] = 0
+        new_meta['magic'] = 'SDPX'
+        new_meta['offset'] = 8192
+        new_meta['orientation'] = 0
+        new_meta['packing'] = 0 if bit_depth != 10 else 1
+        new_meta['project_name'] = '\x00' * 200
+        new_meta['timestamp'] = '\x00' * 24
+        new_meta['transfer_characteristic'] = 4
+        new_meta['width'] = width
+
+        propertymap = [
+            #(field name, offset, length, type)
+
+            ('magic', 0, 4, 'magic'),
+            ('offset', 4, 4, 'I'),
+            ('dpx_version', 8, 8, 'utf8'),
+            ('file_size', 16, 4, 'I'),
+            ('ditto', 20, 4, 'I'),
+            ('filename', 36, 100, 'utf8'),
+            ('timestamp', 136, 24, 'utf8'),
+            ('creator', 160, 100, 'utf8'),
+            ('project_name', 260, 200, 'utf8'),
+            ('copyright', 460, 200, 'utf8'),
+            ('encryption_key', 660, 4, 'I'),
+
+            ('orientation', 768, 2, 'H'),
+            ('image_element_count', 770, 2, 'H'),
+            ('width', 772, 4, 'I'),
+            ('height', 776, 4, 'I'),
+
+            ('data_sign', 780, 4, 'I'),
+            ('descriptor', 800, 1, 'B'),
+            ('transfer_characteristic', 801, 1, 'B'),
+            ('colorimetry', 802, 1, 'B'),
+            ('depth', 803, 1, 'B'),
+            ('packing', 804, 2, 'H'),
+            ('encoding', 806, 2, 'H'),
+            ('line_padding', 812, 4, 'I'),
+            ('image_padding', 816, 4, 'I'),
+            ('image_element_description', 820, 32, 'utf8'),
+
+            ('input_device_name', 1556, 32, 'utf8'),
+            ('input_device_sn', 1588, 32, 'utf8')
+        ]
+
+        def writeDPX(f, image, meta):
+            endianness = ">" if meta['endianness'] == 'be' else "<"
+            for p in propertymap:
+                if p[0] in meta:
+                    f.seek(p[1])
+                    if p[3] == 'magic':
+                        bytes = ('SDPX' if meta['endianness'] == 'be' else 'XPDS').encode(encoding='UTF-8')
+                    elif p[3] == 'utf8':
+                        bytes = meta[p[0]].encode(encoding='UTF-8')
+                    else:
+                        bytes = struct.pack(endianness + p[3], meta[p[0]])
+                    f.write(bytes)
+            if meta['depth'] == 10:
+                raw = ((((image[:,:,0] * 0x000003FF).astype(np.dtype(np.int32)) & 0x000003FF) << 22) 
+                        | (((image[:,:,1] * 0x000003FF).astype(np.dtype(np.int32)) & 0x000003FF) << 12)
+                        | (((image[:,:,2] * 0x000003FF).astype(np.dtype(np.int32)) & 0x000003FF) << 2)
+                    )
+            else:
+                raw = image.flatten()
+
+            if meta['endianness'] == 'be':
+                raw = raw.byteswap()
+
+            f.seek(meta['offset'])
+            raw.tofile(f, sep="")
+
+        with open(filename, 'wb') as f:
+            writeDPX(f, arr, new_meta)
+            f.close()
 
     def empty_torch_cache(self):
         if sys.platform == 'darwin':
