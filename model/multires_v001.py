@@ -1036,11 +1036,7 @@ class MultiResUnet_MemOpt(Module):
 		'''
 
 		# up6 = self.sliced_upsample(x_multires5, self.upsample6, model_device, model_dtype)
-		up6_test = self.sliced_upsample(x_multires5, self.upsample6, 32*8, model_device, model_dtype)
-		print (f'x_multires5 shape: {x_multires5.shape}, up6test shape: {up6_test.shape}')
-		up6 = self.upsample6(x_multires5)
-		print (f'x_multires5 shape: {x_multires5.shape}, up6 shape: {up6.shape}')
-		print (f'equal: {torch.equal(up6, up6_test)}')
+		up6 = self.sliced_upsample(x_multires5, self.upsample6, 32*8, model_device, model_dtype)
 		up6 = torch.cat([up6, x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
 		del x_multires4, x_multires5, up6
@@ -1056,8 +1052,8 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
-
-		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
+		up7 = self.sliced_upsample(x_multires6, self.upsample7, 32*4, model_device, model_dtype)
+		up7 = torch.cat([up7,x_multires3],axis=1)
 		x_multires7 = self.multiresblock7(up7)
 		del x_multires6
 		del x_multires3
