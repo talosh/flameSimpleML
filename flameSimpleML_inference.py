@@ -2049,7 +2049,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return
         
-        if self.view_mode == 'F1':
+        if self.current_state.get('view_mode') == 'F1':
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
