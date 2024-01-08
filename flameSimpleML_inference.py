@@ -2018,6 +2018,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         render_loop_start = time.time()
 
         for frame in range(self.min_frame, self.max_frame):
+            print (f'Frame = {self.current_frame}')
             if not self.threads:
                 return
             if not self.current_state.get('rendering_by_render_button'):
@@ -2025,7 +2026,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # if self.frames_map[frame].get('saved'):
             #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
             #    continue
-            self.set_current_frame(frame, render = True)
+            # self.set_current_frame(frame, render = True)
+            '''
+            if self.current_state.get('rendering_by_render_button'):
+                save_image_data = self.current_state.get('res_image_data')
+                self.save_result_frame(
+                    save_image_data,
+                    self.current_frame - 1
+                )
+                del save_image_data
+            '''
+
             # self._process_current_frame()
 
         time_spent = time.time() - render_loop_start
