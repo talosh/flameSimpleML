@@ -1506,7 +1506,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
 
-    def set_current_frame(self, new_current_frame, render = False):
+    def set_current_frame(self, new_current_frame, render = True):
         self.current_frame = new_current_frame
         self.message_queue.put(
             {'type': 'setText',
@@ -1524,9 +1524,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'text': 'Stop'}
             )
 
-        self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
-        self.frame_thread.daemon = True
-        self.frame_thread.start()
+        if render:
+            self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
+            self.frame_thread.daemon = True
+            self.frame_thread.start()
 
     def create_temp_library(self, selection):        
         try:
