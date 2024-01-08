@@ -913,7 +913,7 @@ class MultiResUnet_MemOpt(Module):
 		input_device = x.device
 		input_dtype = x.dtype
 
-		x = x.clone().detach().cpu()
+		# x = x.clone().detach().cpu()
 
 		x_multires1 = self.multiresblock1(x)
 		del x
