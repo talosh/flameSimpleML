@@ -2052,7 +2052,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         src_image_data = self.read_selection_data(
             self.selection, 
-            self.current_frame
+            self.current_frame - 1
             )
         
         if self.current_model is None:
@@ -2079,6 +2079,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 text = 'Frame: ' + str(self.current_frame)
             )
 
+        '''
         print (f'before inference')
         # mem test report block
         import torch
@@ -2093,6 +2094,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
         print(f"Model size:  {sys.getsizeof(self.current_model) / 1e9:.2f} GB")
         # print(torch.cuda.memory_summary(device=None, abbreviated=False))
+        '''
 
 
         try:
@@ -2116,7 +2118,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     self.ui.image_res_label,
                     text = 'Frame: ' + str(self.current_frame)
                 )
-            
+        
+        '''
         del res_image_data
         print (f'after inference')
         import torch
@@ -2131,6 +2134,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
         print(f"Model size:  {sys.getsizeof(self.current_model) / 1e9:.2f} GB")
         # print(torch.cuda.memory_summary(device=None, abbreviated=False))
+        '''
 
     def apply_model(self, src_image_data):
         import torch
@@ -2149,8 +2153,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         src_image_data = F.pad(src_image_data, padding)
         src_image_data = src_image_data.unsqueeze(0)
         src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+        
+        time_stamp = time.time()
+        
         with torch.no_grad():
             output = self.current_model(src_image_data*2 -1)
+        
+        frame_time = time.time() - time_stamp
+        frame_time_str = str(f'{frame_time:.2f}')
+        print (f'time: {frame_time_str}')
+
         rgb_output = (output[0] + 1) / 2
         rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
 
