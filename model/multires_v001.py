@@ -363,6 +363,7 @@ class Sliced_MaxPool(Module):
 
 		for w_index in range(0, self.num_slices):
 			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
+			print (f'pool2d input slice dev: {input_slice.device}, dtype: {input_slice.dtype}')
 			output_slice = self.pool(input_slice)
 			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
 
@@ -952,6 +953,7 @@ class MultiResUnet_MemOpt(Module):
 		del x_pool2
 		print ('xpool3')
 		x_pool3 = self.pool3(x_multires3, model_device, model_dtype)
+		print ('self.respath3(x_multires3)')
 		x_multires3 = self.respath3(x_multires3)
 
 		gc.collect()
