@@ -820,25 +820,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.frame_thread = None
         self.rendering = False
         self.rendering_by_render_button = False
-        self.view_mode = 'F4'
 
-        # A flag to check if all events have been processed
-        self.allEventsFlag = False
-        # Connect signals to slots
-        self.allEventsProcessed.connect(self.on_allEventsProcessed)
-        self.updateInterfaceImage.connect(self.on_UpdateInterfaceImage)
-        self.setText.connect(self.on_setText)
-        self.setMenu.connect(self.on_setMenu)
-        self.showMessageBox.connect(self.on_showMessageBox)
-        self.updateFramePositioner.connect(self.update_frame_positioner)
+        #### APP STATE MEGA DICT ####
 
-        # load in the UI
-        self.log_debug('Initializing UI')
-        self.ui = self.Ui_Progress()
-        self.log_debug('Loading SetupUI')
-        self.ui.setupUi(self)
-        self.log_debug('Loaded')
+        self.current_state = {
+            'view_mode': 'F4',
+            'source_frame_data': None,
+            'rendered_frame_data': None
+        }
 
+        #### THREADS INITIALIZAION ####
 
         self.threads = True
 
@@ -863,14 +854,34 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.save_thread.start()
         self.log_debug('frame save thread started')
 
+
+        #### UI INITIALIZATION ####
+
+        # A flag to check if all events have been processed
+        self.allEventsFlag = False
+        # Connect signals to slots
+        self.allEventsProcessed.connect(self.on_allEventsProcessed)
+        self.updateInterfaceImage.connect(self.on_UpdateInterfaceImage)
+        self.setText.connect(self.on_setText)
+        self.setMenu.connect(self.on_setMenu)
+        self.showMessageBox.connect(self.on_showMessageBox)
+        self.updateFramePositioner.connect(self.update_frame_positioner)
+
+        # load in the UI
+        self.log_debug('Initializing UI')
+        self.ui = self.Ui_Progress()
+        self.log_debug('Loading SetupUI')
+        self.ui.setupUi(self)
+        self.log_debug('Loaded')
+
+        self.ui.info_label.setText('Initializing...')
+
         # set window flags
         self.setWindowFlags(
             # QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint
             # QtCore.Qt.Window | QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint
             QtCore.Qt.Window | QtCore.Qt.Tool
         )
-
-        self.ui.info_label.setText('Initializing...')
 
         # calculate window dimentions
         try:
