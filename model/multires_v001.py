@@ -920,6 +920,7 @@ class MultiResUnet_MemOpt(Module):
 		x_pool1 = self.pool1(x_multires1, model_device, model_dtype)
 		x_multires1 = self.respath1(x_multires1)
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()		
 		print (f'x_multires1 device: {x_multires1.device}, shape: {x_multires1.shape}')
@@ -929,12 +930,14 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		x_multires2 = self.multiresblock2(x_pool1)
 		del x_pool1
 		x_pool2 = self.pool2(x_multires2, model_device, model_dtype)
 		x_multires2 = self.respath2(x_multires2)
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires2 device: {x_multires2.device}, shape: {x_multires2.shape}')
@@ -945,16 +948,14 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
-		print ('starting multiresblock3')
 		x_multires3 = self.multiresblock3(x_pool2)
-		print ('del x_pool2')
 		del x_pool2
-		print ('xpool3')
 		x_pool3 = self.pool3(x_multires3, model_device, model_dtype)
-		print ('self.respath3(x_multires3)')
 		x_multires3 = self.respath3(x_multires3)
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires3 device: {x_multires3.device}, shape: {x_multires3.shape}')
@@ -964,12 +965,14 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		x_multires4 = self.multiresblock4(x_pool3)
 		del x_pool3
 		x_pool4 = self.pool4(x_multires4, model_device, model_dtype)
 		x_multires4 = self.respath4(x_multires4)
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires4 device: {x_multires4.device}, shape: {x_multires4.shape}')
@@ -979,10 +982,12 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		x_multires5 = self.multiresblock5(x_pool4)
 		del x_pool4
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires4 device: {x_multires5.device}, shape: {x_multires5.shape}')
@@ -992,6 +997,7 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
@@ -999,6 +1005,7 @@ class MultiResUnet_MemOpt(Module):
 		del x_multires4
 		del up6
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires6 device: {x_multires6.device}, shape: {x_multires6.shape}')
@@ -1008,6 +1015,7 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		up7 = torch.cat([self.upsample7(x_multires6),x_multires3],axis=1)
 		x_multires7 = self.multiresblock7(up7)
@@ -1015,6 +1023,7 @@ class MultiResUnet_MemOpt(Module):
 		del x_multires3
 		del up7
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires7 device: {x_multires7.device}, shape: {x_multires7.shape}')
@@ -1024,6 +1033,7 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
 		x_multires8 = self.multiresblock8(up8)
@@ -1031,6 +1041,7 @@ class MultiResUnet_MemOpt(Module):
 		del x_multires2
 		del up8
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires8 device: {x_multires8.device}, shape: {x_multires8.shape}')
@@ -1040,7 +1051,7 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
+		'''
 
 		up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
 		x_multires9 = self.multiresblock9(up9)
@@ -1048,6 +1059,7 @@ class MultiResUnet_MemOpt(Module):
 		del x_multires1
 		del up9
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'x_multires9 device: {x_multires9.device}, shape: {x_multires9.shape}')
@@ -1057,10 +1069,12 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+		'''
 
 		out =  self.conv_final(x_multires9)
 		del x_multires9
 
+		'''
 		gc.collect()
 		torch.cuda.empty_cache()
 		print (f'out device: {out.device}, shape: {out.shape}')
@@ -1070,7 +1084,8 @@ class MultiResUnet_MemOpt(Module):
 		reserved_memory = torch.cuda.memory_reserved(input_device)
 		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
-
+		'''
+		
 		return out
 		'''
 		except:
