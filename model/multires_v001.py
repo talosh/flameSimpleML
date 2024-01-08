@@ -1016,6 +1016,14 @@ class MultiResUnet_MemOpt(Module):
 		del up7
 
 		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'x_multires7 device: {x_multires7.device}, shape: {x_multires7.shape}')
+		print (f'dec step 02')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(input_device)
+		reserved_memory = torch.cuda.memory_reserved(input_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		up8 = torch.cat([self.upsample8(x_multires7),x_multires2],axis=1)
 		x_multires8 = self.multiresblock8(up8)
@@ -1024,16 +1032,44 @@ class MultiResUnet_MemOpt(Module):
 		del up8
 
 		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'x_multires8 device: {x_multires8.device}, shape: {x_multires8.shape}')
+		print (f'dec step 03')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(input_device)
+		reserved_memory = torch.cuda.memory_reserved(input_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
 
 		up9 = torch.cat([self.upsample9(x_multires8),x_multires1],axis=1)
 		x_multires9 = self.multiresblock9(up9)
 		del x_multires8
 		del x_multires1
 		del up9
+
+		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'x_multires9 device: {x_multires9.device}, shape: {x_multires9.shape}')
+		print (f'dec step 04')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(input_device)
+		reserved_memory = torch.cuda.memory_reserved(input_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
+
 		out =  self.conv_final(x_multires9)
 		del x_multires9
 
 		gc.collect()
+		torch.cuda.empty_cache()
+		print (f'out device: {out.device}, shape: {out.shape}')
+		print (f'dec step 05')
+		# mem test report block
+		allocated_memory = torch.cuda.memory_allocated(input_device)
+		reserved_memory = torch.cuda.memory_reserved(input_device)
+		print(f"Allocated memory: {allocated_memory / 1e9:.2f} GB")
+		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 
 		return out
 		'''
