@@ -2013,13 +2013,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.render_loop_thread.start()
 
     def _render_loop(self):
-        print ('_render_loop start')
         render_loop_start = time.time()
 
         for frame in range(self.min_frame, self.max_frame):
             if not self.threads:
                 return
-            if not self.rendering:
+            if not self.current_state.get('rendering_by_render_button'):
                 return
             # if self.frames_map[frame].get('saved'):
             #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
