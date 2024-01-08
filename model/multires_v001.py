@@ -83,8 +83,9 @@ class Conv2d(Module):
 			bias=False
 			)
 		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-		torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
-	
+		# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
+		torch.nn.init.normal_()
+
 	def forward(self,x):
 		x = self.conv1(x)
 		return x
@@ -138,7 +139,8 @@ class Conv2d_ReLU(Module):
 			)
 		self.act = torch.nn.SELU(inplace = True)
 		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-		torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
+		# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
+		torch.nn.init.normal_()
 
 	def forward(self,x):
 		x = self.conv1(x)
@@ -203,8 +205,9 @@ class Conv2d_SameInOut(Module):
 			bias=False
 			)
 		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-		torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
-	
+		# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
+		torch.nn.init.normal_()
+
 	def forward(self,x):
 		x = self.conv1(x)
 		return x
@@ -255,7 +258,8 @@ class Conv2d_SameInOut_ReLU(Module):
 			)
 		self.act = torch.nn.SELU(inplace = True)
 		# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-		torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
+		# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('linear'))
+		torch.nn.init.normal_()
 
 	def forward(self,x):
 		x = self.conv1(x)
