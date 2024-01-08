@@ -2163,6 +2163,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         frame_time_str = str(f'{frame_time:.2f}')
         print (f'time: {frame_time_str}')
 
+        self.empty_torch_cache()
+
         rgb_output = (output[0] + 1) / 2
         rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
 
