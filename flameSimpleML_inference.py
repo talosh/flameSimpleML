@@ -2008,10 +2008,34 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.render_loop()
 
     def render_loop(self):
-        return
         self.render_loop_thread = threading.Thread(target=self._render_loop)
         self.render_loop_thread.daemon = True
         self.render_loop_thread.start()
+
+    def _render_loop(self):
+        render_loop_start = time.time()
+
+        for frame in range(self.min_frame, self.max_frame):
+            if not self.threads:
+                return
+            if not self.rendering:
+                return
+            if self.frames_map[frame].get('saved'):
+                self.info('Frame ' + str(self.current_frame) + ': Already saved')
+                continue
+            self.set_current_frame(frame, render = False)
+            self._process_current_frame()
+
+        time_spent = time.time() - render_loop_start
+        self.info(f'Rendering completed in {int(time_spent // 60)} min {int(time_spent % 60)} sec')
+        self.rendering = False
+        self.message_queue.put(
+                {'type': 'setText',
+                'widget': 'render_button',
+                'text': 'Render'}
+            )
+        self.processEvents()
+        return
 
     def stop_frame_rendering_thread(self):
         if isinstance(self.frame_thread, threading.Thread):
