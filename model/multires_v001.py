@@ -382,7 +382,7 @@ class Sliced_MaxPool(Module):
 		return out
 
 class Sliced_Upsample(Module):
-	def __init__(self, size):
+	def __init__(self):
 		super().__init__()
 		self.num_slices = 8
 	
@@ -914,6 +914,9 @@ class MultiResUnet_MemOpt(Module):
 		self.multiresblock5 = Multiresblock_MemOpt(self.in_filters4,32*16)
 		self.in_filters5 = int(32*16*self.alpha*0.167)+int(32*16*self.alpha*0.333)+int(32*16*self.alpha* 0.5)
 		# Decoder path
+
+		self.sliced_upsample = Sliced_Upsample()
+
 		self.upsample6 = torch.nn.ConvTranspose2d(self.in_filters5,32*8,kernel_size=(2,2),stride=(2,2))  
 		self.concat_filters1 = 32*8*2
 		self.multiresblock6 = Multiresblock_MemOpt(self.concat_filters1,32*8)
@@ -1032,7 +1035,7 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
 
-		up6 = Sliced_Upsample(x_multires5, self.upsample6, model_device, model_dtype)
+		up6 = self.sliced_upsample(x_multires5, self.upsample6, model_device, model_dtype)
 		up6 = torch.cat([up6, x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
 		del x_multires4, x_multires5, up6
