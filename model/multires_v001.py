@@ -80,7 +80,7 @@ class Conv2d(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 	
 	def forward(self,x):
@@ -99,7 +99,7 @@ class Conv2d_MemOPT(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 	
 	def forward(self,x):
@@ -131,8 +131,8 @@ class Conv2d_ReLU(Module):
 			kernel_size=kernel_size,
 			stride=stride,
 			padding = 'same',
-			padding_mode = 'replicate',
-			# bias=False
+			padding_mode = 'reflect',
+			bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
 	
@@ -153,7 +153,7 @@ class Conv2d_ReLU_MemOPT(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
 	
@@ -196,7 +196,7 @@ class Conv2d_SameInOut(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 	
 	def forward(self,x):
@@ -215,7 +215,7 @@ class Conv2d_SameInOut_MemOPT(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 	
 	def forward(self, x):
@@ -245,7 +245,7 @@ class Conv2d_SameInOut_ReLU(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
 	
@@ -266,7 +266,7 @@ class Conv2d_SameInOut_ReLU_MemOPT(Module):
 			stride=stride,
 			padding = 'same',
 			padding_mode = 'reflect',
-			# bias=False
+			bias=False
 			)
 		self.act = torch.nn.SELU(inplace = True)
 	
