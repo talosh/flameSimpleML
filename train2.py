@@ -61,7 +61,7 @@ def restore(image_array):
         return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
 
     # epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
-    epsilon = 4e-6
+    epsilon = 4e-8
     # clamp image befor arctanh
     image_array = torch.clamp((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
     # restore values from tanh  s-curve
