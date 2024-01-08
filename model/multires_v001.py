@@ -381,6 +381,27 @@ class Sliced_MaxPool(Module):
 		del x, input_slice, output_slice
 		return out
 
+class Sliced_Upsample(Module):
+	def __init__(self, size):
+		super().__init__()
+		self.num_slices = 8
+	
+	def forward(self, x, upsample, model_device, model_dtype):
+		input_device = x.device
+		input_dtype = x.dtype
+		n, d, h, w = x.shape
+		slice_width = w // self.num_slices
+
+		out = torch.empty(n, d, h*2, w*2, device=input_device, dtype=input_dtype)
+
+		for w_index in range(0, self.num_slices):
+			input_slice = x[:, :, :, w_index*slice_width:w_index*slice_width+slice_width].clone().detach().to(device=model_device, dtype=model_dtype)
+			output_slice = upsample(input_slice)
+			out[:, :, :, (w_index*slice_width)//self.size:(w_index*slice_width+slice_width)//self.size] = output_slice.clone().detach().to(device=input_device, dtype=input_dtype)
+
+		del x, input_slice, output_slice
+		return out
+
 class Multiresblock(Module):
 	'''
 	MultiRes Block
@@ -1011,11 +1032,10 @@ class MultiResUnet_MemOpt(Module):
 		print(f"Reserved memory:  {reserved_memory / 1e9:.2f} GB")
 		'''
 
-		up6 = torch.cat([self.upsample6(x_multires5),x_multires4],axis=1)
+		up6 = Sliced_Upsample(x_multires5, self.upsample6, model_device, model_dtype)
+		up6 = torch.cat([up6, x_multires4],axis=1)
 		x_multires6 = self.multiresblock6(up6)
-		del x_multires5
-		del x_multires4
-		del up6
+		del x_multires4, x_multires5, up6
 
 		'''
 		gc.collect()
@@ -1099,232 +1119,6 @@ class MultiResUnet_MemOpt(Module):
 		'''
 
 		return out
-		'''
-		except:
-			import gc
-			import time
-			print (f'GPU Mem low failure')
-			x_device = x.device
-			x_dtype = x.dtype
-			
-			try:
-				del x_multires1
-				print ('x_multires1')
-				del x_pool1
-				print ('x_pool1')
-				del x_multires2
-				print ('x_multires2')
-				del x_pool2
-				print ('x_pool2')
-				del x_multires3
-				del x_pool3
-				del x_multires4
-				del x_pool4
-				del x_multires5
-				del up6
-				del x_multires6
-				del up7
-				del x_multires7
-				del up8
-				del x_multires8
-				del up9
-				del x_multires9
-			except:
-				pass
-			
-			print ('cache and sleep')
-			gc.collect()
-			torch.cuda.empty_cache()
-			time.sleep(2)
-
-
-			print ('encoder step1 of 5')
-			try:
-				x_multires1 = self.multiresblock1(x)
-			except:
-				multiresblock1cpu = self.multiresblock1.to(device='cpu', dtype=torch.float32)
-				x_multires1 = multiresblock1cpu(x.to(device='cpu', dtype=torch.float32))
-				del multiresblock1cpu
-			del x
-			try:
-				x_pool1 = self.pool1(x_multires1.to(device=x_device, dtype=x_dtype))
-			except:
-				x_pool1cpu = self.pool1.to(device='cpu', dtype=torch.float32)
-				x_pool1 = x_pool1cpu(x_multires1.to(device='cpu', dtype=torch.float32))
-				del x_pool1cpu
-			try:
-				x_multires1 = self.respath1(x_multires1.to(device=x_device, dtype=x_dtype))
-			except:
-				respath1cpu = self.respath1.to(device='cpu', dtype=torch.float32)
-				x_multires1 = respath1cpu(x_multires1.to(device='cpu', dtype=torch.float32))
-				del respath1cpu
-			x_multires1 = x_multires1.to(device='cpu', dtype=torch.float32)
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('encoder step2 of 5')
-			try:
-				x_multires2 = self.multiresblock2(x_pool1.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock2cpu = self.multiresblock2.to(device='cpu', dtype=torch.float32)
-				x_multires2 = multiresblock2cpu(x_pool1.to(device='cpu', dtype=torch.float32))
-				del multiresblock2cpu
-			del x_pool1
-			try:
-				x_pool2 = self.pool2(x_multires2.to(device=x_device, dtype=x_dtype))
-			except:
-				x_pool2cpu = self.pool2.to(device='cpu', dtype=torch.float32)
-				x_pool2 = x_pool2cpu(x_multires2.to(device='cpu', dtype=torch.float32))
-				del x_pool2cpu
-			try:
-				x_multires2 = self.respath2(x_multires2.to(device=x_device, dtype=x_dtype))
-			except:
-				respath2cpu = self.respath2.to(device='cpu', dtype=torch.float32)
-				x_multires2 = respath2cpu(x_multires2.to(device='cpu', dtype=torch.float32))
-				del respath2cpu
-			x_multires2 = x_multires2.to(device='cpu', dtype=torch.float32)
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('encoder step3 of 5')
-			try:
-				x_multires3 = self.multiresblock3(x_pool2.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock3cpu = self.multiresblock3.to(device='cpu', dtype=torch.float32)
-				x_multires3 = multiresblock3cpu(x_pool2.to(device='cpu', dtype=torch.float32))
-				del multiresblock3cpu
-			del x_pool2
-			try:
-				x_pool3 = self.pool3(x_multires3.to(device=x_device, dtype=x_dtype))
-			except:
-				x_pool3cpu = self.pool3.to(device='cpu', dtype=torch.float32)
-				x_pool3 = x_pool3cpu(x_multires3.to(device='cpu', dtype=torch.float32))
-				del x_pool3cpu
-			try:
-				x_multires3 = self.respath3(x_multires3.to(device=x_device, dtype=x_dtype))
-			except:
-				respath3cpu = self.respath3.to(device='cpu', dtype=torch.float32)
-				x_multires3 = respath3cpu(x_multires3.to(device='cpu', dtype=torch.float32))
-				del respath3cpu
-			x_multires3 = x_multires3.to(device='cpu', dtype=torch.float32)
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('encoder step4 of 5')
-			try:
-				x_multires4 = self.multiresblock4(x_pool3.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock4cpu = self.multiresblock4.to(device='cpu', dtype=torch.float32)
-				x_multires4 = multiresblock4cpu(x_pool3.to(device='cpu', dtype=torch.float32))
-				del multiresblock4cpu
-			del x_pool3
-			try:
-				x_pool4 = self.pool4(x_multires4.to(device=x_device, dtype=x_dtype))
-			except:
-				x_pool4cpu = self.pool4.to(device='cpu', dtype=torch.float32)
-				x_pool4 = x_pool4cpu(x_multires4.to(device='cpu', dtype=torch.float32))
-				del x_pool4cpu
-			try:
-				x_multires4 = self.respath4(x_multires4.to(device=x_device, dtype=x_dtype))
-			except:
-				respath4cpu = self.respath4.to(device='cpu', dtype=torch.float32)
-				x_multires4 = respath4cpu(x_multires4.to(device='cpu', dtype=torch.float32))
-				del respath4cpu
-			x_multires4 = x_multires4.to(device='cpu', dtype=torch.float32)
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('encoder step5 of 5')
-			try:
-				x_multires5 = self.multiresblock5(x_pool4.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock5cpu = self.multiresblock5.to(device='cpu', dtype=torch.float32)
-				x_multires5 = multiresblock5cpu(x_pool4.to(device='cpu', dtype=torch.float32))
-			x_multires5 = x_multires5.to(device='cpu', dtype=torch.float32)
-			del x_pool4
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('encoder completed')
-
-			print ('decoder step 1 of 5')
-			try:
-				up6 = torch.cat([self.upsample6(x_multires5.to(device=x_device, dtype=x_dtype)),x_multires4.to(device=x_device, dtype=x_dtype)],axis=1)
-			except:
-				upsample6cpu = self.upsample6.to(device='cpu', dtype=torch.float32)
-				up6 = torch.cat([upsample6cpu(x_multires5.to(device='cpu', dtype=torch.float32)),x_multires4.to(device='cpu', dtype=torch.float32)],axis=1)
-				del upsample6cpu
-			try:
-				x_multires6 = self.multiresblock6(up6.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock6cpu = self.multiresblock6.to(device='cpu', dtype=torch.float32)
-				x_multires6 = multiresblock6cpu(up6.to(device='cpu', dtype=torch.float32))
-			del x_multires5, x_multires4, up6
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('decoder step 2 of 5')
-			try:
-				up7 = torch.cat([self.upsample7(x_multires6.to(device=x_device, dtype=x_dtype)),x_multires3.to(device=x_device, dtype=x_dtype)],axis=1)
-			except:
-				upsample7cpu = self.upsample7.to(device='cpu', dtype=torch.float32)
-				up7 = torch.cat([upsample7cpu(x_multires6.to(device='cpu', dtype=torch.float32)),x_multires3.to(device='cpu', dtype=torch.float32)],axis=1)
-				del upsample7cpu
-			try:
-				x_multires7 = self.multiresblock7(up7.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock7cpu = self.multiresblock7.to(device='cpu', dtype=torch.float32)
-				x_multires7 = multiresblock7cpu(up7.to(device='cpu', dtype=torch.float32))
-			del x_multires6, x_multires3, up7
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('decoder step 3 of 5')
-			try:
-				up8 = torch.cat([self.upsample8(x_multires7.to(device=x_device, dtype=x_dtype)),x_multires2.to(device=x_device, dtype=x_dtype)],axis=1)
-			except:
-				upsample8cpu = self.upsample8.to(device='cpu', dtype=torch.float32)
-				up8 = torch.cat([upsample8cpu(x_multires7.to(device='cpu', dtype=torch.float32)),x_multires2.to(device='cpu', dtype=torch.float32)],axis=1)
-				del upsample8cpu
-			try:
-				x_multires8 = self.multiresblock8(up8.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock8cpu = self.multiresblock8.to(device='cpu', dtype=torch.float32)
-				x_multires8 = multiresblock8cpu(up8.to(device='cpu', dtype=torch.float32))
-			del x_multires7, x_multires2, up8
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('decoder step 4 of 5')
-			try:
-				up9 = torch.cat([self.upsample9(x_multires8.to(device=x_device, dtype=x_dtype)),x_multires1.to(device=x_device, dtype=x_dtype)],axis=1)
-			except:
-				upsample9cpu = self.upsample9.to(device='cpu', dtype=torch.float32)
-				up9 = torch.cat([upsample9cpu(x_multires8.to(device='cpu', dtype=torch.float32)),x_multires1.to(device='cpu', dtype=torch.float32)],axis=1)
-				del upsample9cpu
-			try:
-				x_multires9 = self.multiresblock9(up9.to(device=x_device, dtype=x_dtype))
-			except:
-				multiresblock9cpu = self.multiresblock9.to(device='cpu', dtype=torch.float32)
-				x_multires9 = multiresblock9cpu(up9.to(device='cpu', dtype=torch.float32))
-			del x_multires8, x_multires1, up9
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('decoder step 5 of 5')
-			try:
-				out =  self.conv_final(x_multires9.to(device=x_device, dtype=x_dtype))
-			except:
-				conv_final_cpu = self.conv_final.to(device='cpu', dtype=torch.float32)
-				out = conv_final_cpu(x_multires9.to(device='cpu', dtype=torch.float32))
-			del x_multires9
-			gc.collect()
-			torch.cuda.empty_cache()
-
-			print ('decoder completed')
-
-			return out.to(device=x_device, dtype=x_dtype)
-		'''
 
 class Message:
 	def __init__(self, queue) -> None:
