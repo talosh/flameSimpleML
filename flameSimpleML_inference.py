@@ -1207,7 +1207,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def f1_key_pressed(self):
         self.current_state['view_mode'] = 'F1'
-        
+        print (self.current_state['view_mode'])
         if self.current_state.get('rendering_by_render_button'):
             return
         
@@ -1220,7 +1220,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def f4_key_pressed(self):
         self.current_state['view_mode'] = 'F4'
-
+        print (self.current_state['view_mode'])
+        
         if self.current_state.get('rendering_by_render_button'):
             return
 
