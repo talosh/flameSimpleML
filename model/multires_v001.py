@@ -985,7 +985,7 @@ class MultiResUnet_MemOpt(Module):
 
 		gc.collect()
 		print (f'x_multires4 device: {x_multires5.device}, shape: {x_multires5.shape}')
-		print (f'enc step 04')
+		print (f'enc step 05')
 		# mem test report block
 		allocated_memory = torch.cuda.memory_allocated(input_device)
 		reserved_memory = torch.cuda.memory_reserved(input_device)
