@@ -2030,6 +2030,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         time_spent = time.time() - render_loop_start
         self.info(f'Rendering completed in {int(time_spent // 60)} min {int(time_spent % 60)} sec')
         self.rendering = False
+        self.current_state['rendering_by_render_button'] = False
         self.message_queue.put(
                 {'type': 'setText',
                 'widget': 'render_button',
