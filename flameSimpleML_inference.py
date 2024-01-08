@@ -2136,6 +2136,47 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # print(torch.cuda.memory_summary(device=None, abbreviated=False))
         '''
 
+        def normalize_values(self, image_array):
+            import torch
+
+            def custom_bend(x):
+                linear_part = x
+                exp_positive = torch.pow( x, 1 / 4 )
+                exp_negative = -torch.pow( -x, 1 / 4 )
+                return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
+
+            # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
+            image_array = (image_array * 2) - 1
+            # bend values below -1.0 and above 1.0 exponentially so they are not larger then (-4.0 - 4.0)
+            image_array = custom_bend(image_array)
+            # bend everything to fit -1.0 - 1.0 with hyperbolic tanhent
+            image_array = torch.tanh(image_array)
+            # move it to 0.0 - 1.0 range
+            image_array = (image_array + 1) / 2
+
+            return image_array
+        
+        def restore_normalized_values(self, image_array):
+            import torch
+
+            def custom_de_bend(x):
+                linear_part = x
+                inv_positive = torch.pow( x, 4 )
+                inv_negative = -torch.pow( -x, 4 )
+                return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
+
+            epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
+            # clamp image befor arctanh
+            image_array = torch.clamp((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
+            # restore values from tanh  s-curve
+            image_array = torch.arctanh(image_array)
+            # restore custom bended values
+            image_array = custom_de_bend(image_array)
+            # move it to 0.0 - 1.0 range
+            image_array = ( image_array + 1.0) / 2.0
+
+            return image_array
+
     def apply_model(self, src_image_data):
         import torch
         from torch.nn import functional as F
@@ -2152,8 +2193,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         src_image_data = src_image_data.permute (2, 0, 1)
         src_image_data = F.pad(src_image_data, padding)
         src_image_data = src_image_data.unsqueeze(0)
-        src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
-        
+        src_image_data = self.normalize_values(src_image_data)
+        src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)        
+
         time_stamp = time.time()
         
         with torch.no_grad():
@@ -2166,6 +2208,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.empty_torch_cache()
 
         rgb_output = (output[0] + 1) / 2
+        rgb_output = self.restore_normalized_values(rgb_output)
         rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
 
         result_image = rgb_output.to(dtype=torch.float32)
