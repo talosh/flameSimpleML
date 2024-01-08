@@ -285,8 +285,9 @@ while epoch < num_epochs + 1:
         # hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
         # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
-        rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.1, max=0.9))
-        rgb_after_restored_clmp = restore(torch.clamp(rgb_output, min=0.1, max=0.9))
+
+        rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.05, max=0.95))
+        rgb_after_restored_clmp = restore(torch.clamp(rgb_output, min=0.05, max=0.95))
 
         loss = 0.1 * criterion_mse(rgb_output, rgb_after) + 0.9 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
         loss_l1 = 0.1 * criterion_l1(rgb_output, rgb_after) + 0.9 * criterion_l1(rgb_output_restored_clmp, rgb_after_restored_clmp)
