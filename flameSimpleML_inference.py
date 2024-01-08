@@ -665,6 +665,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             bottom_layout.addWidget(self.end_frame_label)
             bottom_layout.addSpacing(4)
 
+            '''
             # Tiles selector button
             self.tiles_selector = QtWidgets.QPushButton('Tiles')
             self.tiles_selector.setContentsMargins(10, 4, 10, 4)
@@ -678,6 +679,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.set_cpu_button_style(self.cpu_selector)
             bottom_layout.addWidget(self.cpu_selector, alignment=QtCore.Qt.AlignRight)
             bottom_layout.addSpacing(4)
+            '''
 
             '''
             # TW Speed test field:
@@ -819,14 +821,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.frame_thread = None
         self.rendering = False
-        self.rendering_by_render_button = False
 
         #### APP STATE MEGA DICT ####
 
         self.current_state = {
             'view_mode': 'F4',
-            'source_frame_data': None,
-            'rendered_frame_data': None
+            'rendering_by_render_button': False,
+            'src_image_data': None,
+            'res_image_data': None
         }
 
         #### THREADS INITIALIZAION ####
@@ -939,65 +941,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.setFixedSize(self.size())
 
         QtCore.QTimer.singleShot(99, self.after_show)
-
-        '''
-
-        # Module defaults
-        self.new_speed = 1
-        self.dedup_mode = 0
-        self.cpu = False
-        self.flow_scale = self.prefs.get('flow_scale', 1.0)
-
-        self.flow_res = {
-            1.0: 'Use Full Resolution',
-            0.5: 'Use 1/2 Resolution',
-            0.25: 'Use 1/4 Resolution',
-            0.125: 'Use 1/8 Resolution',
-        }
-
-        self.modes = {
-            1: 'Normal',
-            2: 'Faster',
-            3: 'Slower',
-            4: 'CPU - Normal',
-            5: 'CPU - Faster',
-            6: 'CPU - Slower'
-        }
-
-        self.current_mode = self.prefs.get('current_mode', 1)
-
-
-        self.trained_models_path = os.path.join(
-            self.framework.bundle_folder,
-            'trained_models', 
-            'default',
-        )
-
-        self.model_path = os.path.join(
-            self.trained_models_path,
-            'v4.6.model'
-            )
-
-        self.flownet_model_path = os.path.join(
-            self.trained_models_path,
-            'v2.4.model',
-            'flownet.pkl'
-        )
-
-        self.current_models = {}
-
-        self.progress = None
-        self.torch = None
-        self.threads = True
-        self.temp_library = None
-        
-        self.torch_device = None
-
-        self.requirements = requirements
-
-        # this enables fallback to CPU on Macs
-        os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
-        '''
 
     def after_show(self):
         self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
@@ -1245,18 +1188,48 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.left_arrow_pressed()
         elif event.key() == QtCore.Qt.Key_Right:
             self.right_arrow_pressed()
+        elif event.key() == QtCore.Qt.Key_F1:
+            self.f1_key_pressed()
+        elif event.key() == QtCore.Qt.Key_F4:
+            self.f4_key_pressed()
         else:
             super().keyPressEvent(event)  # Pass the event to the parent's handler
 
     def left_arrow_pressed(self):
-        if self.rendering_by_render_button:
+        if self.current_state.get('rendering_by_render_button'):
             return
         self.set_current_frame(self.current_frame - 1 if self.current_frame > self.min_frame else self.min_frame)
 
     def right_arrow_pressed(self):
-        if self.rendering_by_render_button:
+        if self.current_state.get('rendering_by_render_button'):
             return
         self.set_current_frame(self.current_frame + 1 if self.current_frame < self.max_frame else self.max_frame)
+
+    def f1_key_pressed(self):
+        self.current_state['view_mode'] = 'F1'
+        
+        if self.current_state.get('rendering_by_render_button'):
+            return
+        
+        if self.current_state.get('src_image_data') is not None:
+            self.update_interface_image_torch(
+                    self.current_state.get('src_image_data')[:, :, :3],
+                    self.ui.image_res_label,
+                    text = 'Frame: ' + str(self.current_frame)
+                )
+
+    def f4_key_pressed(self):
+        self.current_state['view_mode'] = 'F4'
+
+        if self.current_state.get('rendering_by_render_button'):
+            return
+
+        if self.current_state.get('res_image_data') is not None:
+            self.update_interface_image_torch(
+                    self.current_state.get('res_image_data')[:, :, :3],
+                    self.ui.image_res_label,
+                    text = 'Frame: ' + str(self.current_frame)
+                )
 
     def on_allEventsProcessed(self):
         self.allEventsFlag = True
@@ -1995,7 +1968,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def render_button(self):
         if self.ui.render_button.text() == 'Render':
             self.stop_frame_rendering_thread()
-            self.rendering_by_render_button = True
+            self.current_state['rendering_by_render_button'] = True
             self.message_queue.put(
                     {'type': 'setText',
                     'widget': 'render_button',
@@ -2005,7 +1978,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         else:
             self.stop_render_loop_thread()
             self.stop_frame_rendering_thread()
-            self.rendering_by_render_button = False
+            self.current_state['rendering_by_render_button'] = False
             self.message_queue.put(
                     {'type': 'setText',
                     'widget': 'render_button',
@@ -2066,6 +2039,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.current_frame - 1
             )
         
+        self.current_state['src_image_data'] = src_image_data
+        
         if self.current_model is None:
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
@@ -2083,7 +2058,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
         
 
-        if not self.rendering_by_render_button:
+        if not self.current_state.get('rendering_by_render_button'):
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
@@ -2129,6 +2104,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     self.ui.image_res_label,
                     text = 'Frame: ' + str(self.current_frame)
                 )
+
+        self.current_state['res_image_data'] = res_image_data
         
         '''
         del res_image_data
