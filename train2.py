@@ -286,11 +286,14 @@ while epoch < num_epochs + 1:
         # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
 
+        rgb_output_restored = restore(rgb_output)
+        rgb_after_restored = restore(rgb_after)
+
         rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.04, max=0.96))
-        rgb_after_restored_clmp = restore(torch.clamp(rgb_output, min=0.04, max=0.96))
+        rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0.04, max=0.96))
 
         loss = 0.5 * criterion_mse(rgb_output, rgb_after) + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
-        loss_l1 = criterion_l1(rgb_output, rgb_after)
+        loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
         epoch_loss.append(float(loss_l1))
