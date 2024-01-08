@@ -2138,14 +2138,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.current_state['res_image_data'] = res_image_data
 
-        if self.current_state.get('rendering_by_render_button'):
-            save_image_data = res_image_data.cpu().detach().numpy()
-            self.save_result_frame(
-                save_image_data,
-                self.current_frame - 1
-            )
-            del save_image_data
-
         '''
         del res_image_data
         print (f'after inference')
