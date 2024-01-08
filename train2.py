@@ -60,7 +60,8 @@ def restore(image_array):
         inv_negative = -torch.pow( -x, 4 )
         return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
 
-    epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
+    # epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
+    epsilon = 4e-6
     # clamp image befor arctanh
     image_array = torch.clamp((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
     # restore values from tanh  s-curve
@@ -286,8 +287,8 @@ while epoch < num_epochs + 1:
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
         rgb_output_restored = restore(rgb_output)
         rgb_after_restored = restore(rgb_after)
-        loss = 0.5 * criterion_mse(rgb_output, rgb_after) + 0.5 * criterion_mse(rgb_output_restored, rgb_after_restored)
-        loss_l1 = 0.5 * criterion_l1(rgb_output, rgb_after) + 0.5 * criterion_l1(rgb_output_restored, rgb_after_restored)
+        loss = criterion_mse(rgb_output_restored, rgb_after_restored)
+        loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
         epoch_loss.append(float(loss_l1))
