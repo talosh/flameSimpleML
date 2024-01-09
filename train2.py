@@ -18,7 +18,7 @@ import queue
 from model.accnet_w import ACC_UNet_W
 from model.accnet import ACC_UNet
 from model.accnet_lite import ACC_UNet_Lite
-from model.multires_v001 import MultiResUnet
+from model.multires_v001 import Model
 from model.threeplusnet import UNet_3Plus
 
 from dataset import myDataset
@@ -190,7 +190,7 @@ def get_learning_rate(step):
 # model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
-model = MultiResUnet(3, 3).to(device)
+model = Model().get_training_model()(3, 3).to(device)
 # model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
 
 criterion_mse = nn.MSELoss()
@@ -305,10 +305,10 @@ while epoch < num_epochs + 1:
         rgb_output_restored = restore(rgb_output)
         rgb_after_restored = restore(rgb_after)
 
-        rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.04, max=0.96))
-        rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0.04, max=0.96))
+        rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.11, max=0.89))
+        rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0.11, max=0.89))
 
-        loss = 0.8 * criterion_mse(rgb_output, rgb_after) + 0.2 * criterion_l1(rgb_output_restored_clmp, rgb_after_restored_clmp) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
+        loss = 0.8 * criterion_l1(rgb_output_restored_clmp, rgb_after_restored_clmp) + 0.2 * criterion_l1(rgb_output_restored, rgb_after_restored) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
         loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 

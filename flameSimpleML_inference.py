@@ -770,23 +770,23 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.selection = kwargs.get('selection')
 
         self.settings = kwargs.get('settings', dict())
-        self.framework = flameAppFramework(settings = self.settings)
-        self.app_name = self.framework.app_name
-        self.log = self.framework.log
-        self.debug = self.framework.debug
-        self.log_debug = self.framework.log_debug
+        self.fw = flameAppFramework(settings = self.settings)
+        self.app_name = self.fw.app_name
+        self.log = self.fw.log
+        self.debug = self.fw.debug
+        self.log_debug = self.fw.log_debug
         self.version = self.settings.get('version', 'UnknownVersion')
-        self.temp_folder = self.framework.temp_folder
+        self.temp_folder = self.fw.temp_folder
         self.temp_library = None
 
-        self.prefs = self.framework.prefs_dict(self.framework.prefs, self.name)
-        self.prefs_user = self.framework.prefs_dict(self.framework.prefs_user, self.name)
-        self.prefs_global = self.framework.prefs_dict(self.framework.prefs_global, self.name)
+        self.prefs = self.fw.prefs_dict(self.fw.prefs, self.name)
+        self.prefs_user = self.fw.prefs_dict(self.fw.prefs_user, self.name)
+        self.prefs_global = self.fw.prefs_dict(self.fw.prefs_global, self.name)
 
         self.prefs['version'] = self.version
         self.prefs_user['version'] = self.version
         self.prefs_global['version'] = self.version
-        self.framework.save_prefs()
+        self.fw.save_prefs()
 
         self.model_state_dict_path = None
         current_model_index = self.prefs.get('current_model_index')
@@ -802,6 +802,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         )
         self.models = {}
         self.current_model = None
+        self.torch = None
         self.torch_device = 'cpu'
         
         self.message_queue = queue.Queue()
@@ -946,7 +947,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def after_show(self):
         self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
         self.processEvents()
-        missing_requirements = self.check_requirements(self.framework.requirements)
+        missing_requirements = self.check_requirements(self.fw.requirements)
 
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
@@ -1097,27 +1098,27 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             missing_requirements = []
 
             for package_name in packages_by_name.keys():
-                try:
-                    self.message_queue.put(
-                        {'type': 'info', 'message': f'Checking requirements... importing {package_name}'}
-                    )
-                except:
-                    pass
+                # try:
+                #    self.message_queue.put(
+                #        {'type': 'info', 'message': f'Checking requirements... importing {package_name}'}
+                #    )
+                # except:
+                #    pass
                 try:                        
                     __import__(package_name)
-                    try:
-                        self.message_queue.put(
-                            {'type': 'info', 'message': f'Checking requirements... successfully imported {package_name}'}
-                        )
-                    except:
-                        pass
+                    # try:
+                    #    self.message_queue.put(
+                    #        {'type': 'info', 'message': f'Checking requirements... successfully imported {package_name}'}
+                    #    )
+                    # except:
+                    #    pass
                 except:
                     missing_requirements.append(packages_by_name.get(package_name))
             return missing_requirements
 
         if import_required_packages(requirements):
-            if not self.framework.site_packages_folder in sys.path:
-                sys.path.append(self.framework.site_packages_folder)
+            if not self.site_packages_folder in sys.path:
+                sys.path.append(self.site_packages_folder)
             return import_required_packages(requirements)
         else:
             return []
@@ -1535,7 +1536,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             import flame
 
             clip = selection[0]
-            temp_library_name = self.app_name + '_' + self.framework.sanitized(clip.name.get_value()) + '_' + self.framework.create_timestamp_uid()
+            temp_library_name = self.app_name + '_' + self.fw.sanitized(clip.name.get_value()) + '_' + self.fw.create_timestamp_uid()
             self.temp_library_name = temp_library_name
             self.temp_library = flame.projects.current_project.create_shared_library(temp_library_name)
             flame.execute_shortcut('Save Project')
@@ -1674,11 +1675,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if not isinstance(model_menu_items, dict):
             model_menu_items = {'99': 'Load Model ... '}
             self.prefs['recent_models'] = model_menu_items
-            self.framework.save_prefs()
+            self.fw.save_prefs()
         if '99' not in model_menu_items.keys():
             model_menu_items['99'] = 'Load Model ... '
             self.prefs['recent_models'] = model_menu_items
-            self.framework.save_prefs()
+            self.fw.save_prefs()
 
         model_menu = QtWidgets.QMenu(self)
         for model_number in sorted(model_menu_items.keys(), reverse=False):
@@ -1743,7 +1744,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if not self.load_model(self.model_state_dict):
                 return False
             self.prefs['current_model_index'] = model_number
-            self.framework.save_prefs()
+            self.fw.save_prefs()
             current_model_filename = os.path.basename(selected_model_dict_path)
             current_model_name, _ = os.path.splitext(current_model_filename)
             self.message_queue.put(
@@ -1783,7 +1784,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         new_model_menu_items['1'] = selected_model_dict_path
         self.prefs['recent_models'] = new_model_menu_items
         self.prefs['current_model_index'] = '1'
-        self.framework.save_prefs()
+        self.fw.save_prefs()
         self.fill_model_menu()
 
     def load_model(self, model_state_dict):
@@ -2166,49 +2167,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # print(torch.cuda.memory_summary(device=None, abbreviated=False))
         '''
 
-    def normalize_values(self, image_array, torch = None):
-        if torch is None:
-            import torch
-
-        def custom_bend(x):
-            linear_part = x
-            exp_positive = torch.pow( x, 1 / 4 )
-            exp_negative = -torch.pow( -x, 1 / 4 )
-            return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
-
-        # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
-        image_array = (image_array * 2) - 1
-        # bend values below -1.0 and above 1.0 exponentially so they are not larger then (-4.0 - 4.0)
-        image_array = custom_bend(image_array)
-        # bend everything to fit -1.0 - 1.0 with hyperbolic tanhent
-        image_array = torch.tanh(image_array)
-        # move it to 0.0 - 1.0 range
-        image_array = (image_array + 1) / 2
-
-        return image_array
-    
-    def restore_normalized_values(self, image_array, torch = None):
-        if torch is None:
-            import torch
-
-        def custom_de_bend(x):
-            linear_part = x
-            inv_positive = torch.pow( x, 4 )
-            inv_negative = -torch.pow( -x, 4 )
-            return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
-
-        epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
-        # clamp image befor arctanh
-        image_array = torch.clamp((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
-        # restore values from tanh  s-curve
-        image_array = torch.arctanh(image_array)
-        # restore custom bended values
-        image_array = custom_de_bend(image_array)
-        # move it to 0.0 - 1.0 range
-        image_array = ( image_array + 1.0) / 2.0
-
-        return image_array
-
     def apply_model(self, src_image_data):
         import torch
         from torch.nn import functional as F
@@ -2225,7 +2183,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         src_image_data = src_image_data.permute (2, 0, 1)
         src_image_data = F.pad(src_image_data, padding)
         src_image_data = src_image_data.unsqueeze(0)
-        src_image_data = self.normalize_values(src_image_data)
+        src_image_data = self.fw.normalize_values(src_image_data, torch = self.torch)
         src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)        
 
         time_stamp = time.time()
@@ -2240,7 +2198,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.empty_torch_cache()
 
         rgb_output = (output[0] + 1) / 2
-        rgb_output = self.restore_normalized_values(rgb_output)
+        rgb_output = self.fw.restore_normalized_values(rgb_output, torch = self.torch)
         rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
 
         result_image = rgb_output.to(dtype=torch.float32)
