@@ -53,6 +53,22 @@ def normalize(image_array):
 
     return image_array
 
+def bend_highlights(image_array, bending_ratio):
+    def custom_bend(x, bending_ratio):
+        linear_part = x
+        exp_positive = torch.pow( x, 1 / bending_ratio )
+        exp_negative = -torch.pow( -x, 1 / bending_ratio )
+        return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
+
+    # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
+    image_array = (image_array * 2) - 1
+    # bend values below -1.0 and above 1.0 exponentially so they are not larger then (-4.0 - 4.0)
+    image_array = custom_bend(image_array, bending_ratio)
+    # move it to 0.0 - 1.0 range
+    image_array = (image_array + 1) / 2
+
+    return image_array
+
 def restore(image_array):
     def custom_de_bend(x):
         linear_part = x
@@ -292,7 +308,7 @@ while epoch < num_epochs + 1:
         rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.1, max=0.9))
         rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0.1, max=0.9))
 
-        loss = criterion_mse(rgb_output, rgb_after) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
+        loss = criterion_mse(bend_highlights(rgb_output, 8), bend_highlights(rgb_after, 8)) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
         loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
