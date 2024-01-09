@@ -3,11 +3,15 @@ import sys
 import time
 import queue
 import threading
+import importlib
+
 import traceback
 import atexit
 import hashlib
 import pickle
 
+import flameSimpleML_framework
+importlib.reload(flameSimpleML_framework)
 from flameSimpleML_framework import flameAppFramework
 
 try:
@@ -948,6 +952,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
         self.processEvents()
         missing_requirements = self.fw.check_requirements(self.fw.requirements)
+
+        self.close_application()
 
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
