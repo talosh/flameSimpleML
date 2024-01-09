@@ -2166,8 +2166,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # print(torch.cuda.memory_summary(device=None, abbreviated=False))
         '''
 
-    def normalize_values(self, image_array):
-        import torch
+    def normalize_values(self, image_array, torch = None):
+        if torch is None:
+            import torch
 
         def custom_bend(x):
             linear_part = x
@@ -2186,8 +2187,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         return image_array
     
-    def restore_normalized_values(self, image_array):
-        import torch
+    def restore_normalized_values(self, image_array, torch = None):
+        if torch is None:
+            import torch
 
         def custom_de_bend(x):
             linear_part = x
