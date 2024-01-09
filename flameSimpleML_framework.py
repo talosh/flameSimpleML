@@ -483,3 +483,41 @@ class flameAppFramework(object):
         image_array = ( image_array + 1.0) / 2.0
 
         return image_array
+
+    def check_requirements(self, requirements):
+        sys.path_importer_cache.clear()
+
+        def import_required_packages(requirements):
+            import re
+
+            packages_by_name = {re.split(r'[!<>=]', req)[0]: req for req in requirements}
+            missing_requirements = []
+
+            for package_name in packages_by_name.keys():
+                # try:
+                #    self.message_queue.put(
+                #        {'type': 'info', 'message': f'Checking requirements... importing {package_name}'}
+                #    )
+                # except:
+                #    pass
+                try:                        
+                    __import__(package_name)
+                    # try:
+                    #    self.message_queue.put(
+                    #        {'type': 'info', 'message': f'Checking requirements... successfully imported {package_name}'}
+                    #    )
+                    # except:
+                    #    pass
+                except:
+                    missing_requirements.append(packages_by_name.get(package_name))
+            return missing_requirements
+
+        if import_required_packages(requirements):
+            if not self.site_packages_folder in sys.path:
+                sys.path.append(self.site_packages_folder)
+            missing_requirements = import_required_packages(requirements)
+            if self.site_packages_folder in sys.path:
+                sys.path.remove(self.site_packages_folder)
+            return missing_requirements
+        else:
+            return []
