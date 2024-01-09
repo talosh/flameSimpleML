@@ -1,6 +1,6 @@
 
 class Model:
-	def __init__(self, status, torch = None):
+	def __init__(self, status = dict(), torch = None):
 		if torch is None:
 			import torch
 		Module = torch.nn.Module
