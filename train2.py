@@ -57,7 +57,7 @@ def bend_highlights(image_array, bending_ratio):
     def custom_bend(x, bending_ratio):
         linear_part = x
         exp_positive = torch.pow( x, 1 / bending_ratio )
-        exp_negative = -torch.pow( -x, 1 / bending_ratio )
+        exp_negative = - torch.pow( -x, 1 / bending_ratio )
         return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
 
     # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
@@ -305,8 +305,8 @@ while epoch < num_epochs + 1:
         rgb_output_restored = restore(rgb_output)
         rgb_after_restored = restore(rgb_after)
 
-        rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0, max=1))
-        rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0, max=1))
+        rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.04, max=0.96))
+        rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0.04, max=0.96))
 
         loss = 0.8 * criterion_mse(rgb_output, rgb_after) + 0.2 * criterion_mse(bend_highlights(rgb_output_restored_clmp, 4), bend_highlights(rgb_after_restored_clmp, 4)) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
         loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
