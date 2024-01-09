@@ -308,7 +308,7 @@ while epoch < num_epochs + 1:
         rgb_output_restored_clmp = restore(torch.clamp(rgb_output, min=0.1, max=0.9))
         rgb_after_restored_clmp = restore(torch.clamp(rgb_after, min=0.1, max=0.9))
 
-        loss = criterion_mse(bend_highlights(rgb_output, 8), bend_highlights(rgb_after, 8)) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
+        loss = criterion_mse(bend_highlights(rgb_output, 32), bend_highlights(rgb_after, 32)) # + 0.5 * criterion_mse(rgb_output_restored_clmp, rgb_after_restored_clmp)
         loss_l1 = criterion_l1(rgb_output_restored, rgb_after_restored)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
