@@ -487,7 +487,7 @@ class flameAppFramework(object):
     def check_requirements(self, requirements):
         sys.path_importer_cache.clear()
 
-        def import_required_packages(requirements):
+        def import_required_packages(requirements, cleanup = False):
             import re
 
             packages_by_name = {re.split(r'[!<>=]', req)[0]: req for req in requirements}
@@ -500,8 +500,15 @@ class flameAppFramework(object):
                 #    )
                 # except:
                 #    pass
-                try:                        
+                try:
+                    sys.path_importer_cache.clear()                   
                     __import__(package_name)
+                    
+                    if cleanup:
+                        if package_name in sys.modules:
+                            del sys.modules[package_name]
+                            sys.path_importer_cache.clear()                   
+
                     # try:
                     #    self.message_queue.put(
                     #        {'type': 'info', 'message': f'Checking requirements... successfully imported {package_name}'}
@@ -511,13 +518,20 @@ class flameAppFramework(object):
                 except:
                     missing_requirements.append(packages_by_name.get(package_name))
             return missing_requirements
+        
+        missing_requirements = import_required_packages(requirements)
 
-        if import_required_packages(requirements):
+        if missing_requirements:
+            # try to add bundled packafe folder into sys.path and check if it is possible to import
             if not self.site_packages_folder in sys.path:
                 sys.path.append(self.site_packages_folder)
-            missing_requirements = import_required_packages(requirements)
+            missing_requirements = import_required_packages(requirements, cleanup = True)
+            
+            # cleanup sys path and import cache afterwards
             if self.site_packages_folder in sys.path:
                 sys.path.remove(self.site_packages_folder)
+            sys.path_importer_cache.clear()
+
             return missing_requirements
         else:
             return []
