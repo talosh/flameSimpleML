@@ -186,7 +186,7 @@ optimizer = optim.Yogi(model.parameters(), lr=lr)
 # scheduler = ReduceLROnPlateau(optimizer, 'min')
 
 def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
-    mul_exp = 1 / (10 ** (float(number_warmup_steps - current_step)))
+    # mul_exp = 1 / (10 ** (float(number_warmup_steps - current_step)))
     mul_lin = current_step / number_warmup_steps
     return lr * mul_lin
 
