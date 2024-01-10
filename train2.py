@@ -48,7 +48,7 @@ def normalize(img) :
     img = (img + 1) / 2
     return img
 
-def restore_normalized_values(self, image_array, torch = None):
+def restore_normalized_values(image_array, torch = None):
     if torch is None:
         import torch
 
