@@ -152,7 +152,7 @@ read_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
-number_warmup_epochs = 9
+warmup_epochs = 9
 lr = 4e-3
 lr_dive = 10
 batch_size = 1
@@ -185,12 +185,12 @@ criterion_l1 = nn.L1Loss()
 optimizer = optim.Yogi(model.parameters(), lr=lr)
 # scheduler = ReduceLROnPlateau(optimizer, 'min')
 
-def warmup(current_step, number_warmup_epochs = 9):
+def warmup(current_step, number_warmup_epochs = 999):
     return 1 / (10 ** (float(number_warmup_epochs - current_step)))
 
-train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min= lr - (( lr / 100 ) * lr_dive) )
+train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=999, eta_min= lr - (( lr / 100 ) * lr_dive) )
 warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warmup)
-scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [number_warmup_epochs])
+scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
 
 before = None
 after = None
