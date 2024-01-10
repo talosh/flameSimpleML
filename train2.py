@@ -48,6 +48,29 @@ def normalize(img) :
     img = (img + 1) / 2
     return img
 
+def restore_normalized_values(self, image_array, torch = None):
+    if torch is None:
+        import torch
+
+    def custom_de_bend(x):
+        linear_part = x
+        inv_positive = torch.pow( x, 4 )
+        inv_negative = -torch.pow( -x, 4 )
+        return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
+
+    epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
+    # clamp image befor arctanh
+    image_array = torch.clamp((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
+    # restore values from tanh  s-curve
+    image_array = torch.arctanh(image_array)
+    # restore custom bended values
+    image_array = custom_de_bend(image_array)
+    # move it to 0.0 - 1.0 range
+    image_array = ( image_array + 1.0) / 2.0
+
+    return image_array
+
+
 def rgb_to_hsl(rgb):
     # Ensure RGB values are in [0, 1]
     rgb = rgb.clamp(0, 1)
@@ -239,11 +262,8 @@ while epoch < num_epochs + 1:
             param_group['lr'] = current_lr
 
         optimizer.zero_grad(set_to_none=True)
-        rgb_output = (model((before*2 -1)) + 1) / 2
+        output = model(before * 2 - 1)
         # rgb_output = (model(before) + 1) / 2
-
-        rgb_before = before[:, :3, :, :]
-        rgb_after = after[:, :3, :, :]
 
         # rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
         # rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
@@ -260,8 +280,8 @@ while epoch < num_epochs + 1:
         # hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
         # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
         # rgb_loss = criterion_mse(rgb_output, rgb_after)
-        loss = criterion_mse(rgb_output, rgb_after)
-        loss_l1 = criterion_l1(rgb_output, rgb_after)
+        loss = criterion_mse(output, after)
+        loss_l1 = criterion_l1(output, after)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
 
         epoch_loss.append(float(loss_l1))
@@ -274,6 +294,9 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
 
         if step % 40 == 1:
+            rgb_before = restore_normalized_values((before[:, :3, :, :] + 1) / 2)
+            rgb_after = restore_normalized_values((after[:, :3, :, :] + 1) / 2)
+
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
             sample_after = rgb_after[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
