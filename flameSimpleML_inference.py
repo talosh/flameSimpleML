@@ -822,7 +822,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'frames_map': {},
             'src_image_data': None,
             'res_image_data': None,
-            'destination_node_id': ''
+            'destination_node_id': '',
+            'destination_node_name': '',
         }
 
         self.deps = {}
@@ -1044,7 +1045,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
         self.create_temp_library(self.selection)
         self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
-        self.destination_node_id = self.create_destination_node(
+        self.app_state['destination_node_id'] = self.create_destination_node(
             self.selection[0],
             duration
             )
@@ -1167,7 +1168,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.update_interface_image_torch(
                     self.app_state.get('src_image_data')[:, :, :3],
                     self.ui.image_res_label,
-                    text = 'Frame: ' + str(self.current_frame)
+                    text = 'Frame: ' + str(self.app_state.get('current_frame'))
                 )
 
     def f4_key_pressed(self):
@@ -1181,7 +1182,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.update_interface_image_torch(
                     self.app_state.get('res_image_data')[:, :, :3],
                     self.ui.image_res_label,
-                    text = 'Frame: ' + str(self.current_frame)
+                    text = 'Frame: ' + str(self.app_state.get('current_frame'))
                 )
 
     def on_allEventsProcessed(self):
@@ -1462,13 +1463,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.info_label.setPalette(palette)
 
     def set_current_frame(self, new_current_frame, render = True):
-        self.current_frame = new_current_frame
+        self.app_state['current_frame'] = new_current_frame
         self.message_queue.put(
             {'type': 'setText',
             'widget': 'cur_frame_label',
-            'text': str(self.current_frame)}
+            'text': str(new_current_frame)}
         )
-        self.info('Frame ' + str(self.current_frame))
+        self.info('Frame ' + str(new_current_frame))
         self.updateFramePositioner.emit()
         
         if render:
@@ -1528,7 +1529,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             import numpy as np
 
             model_name = self.model_state_dict.get('model_name', 'UnknownModel')
-            self.destination_node_name = clip.name.get_value() + f'_{model_name}_ML'
+            destination_node_name = clip.name.get_value() + f'_{model_name}_ML'
+            self.app_state['destination_node_name'] = destination_node_name
             destination_node_id = ''
             server_handle = WireTapServerHandle('localhost')
             clip_node_id = clip.get_wiretap_node_id()
@@ -1547,7 +1549,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             destination_node_handle = WireTapNodeHandle()
 
             if not parent_node_handle.createClipNode(
-                self.destination_node_name,  # display name
+                destination_node_name,  # display name
                 fmt,  # clip format
                 "CLIP",  # extended (server-specific) type
                 destination_node_handle,  # created node returned here
@@ -1759,11 +1761,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
             self.current_model.half()
             self.current_model.eval()
-            self.input_channels = input_channles
-            self.output_channels = output_channels
-            self.delete_destination_node(self.destination_node_id)
+            self.app_state['input_channels'] = input_channles
+            self.app_state['output_channels'] = output_channels
+            destination_node_id = self.app_state.get('destination_node_id')
+            self.delete_destination_node(destination_node_id)
             self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
-            self.destination_node_id = self.create_destination_node(
+            self.app_state['destination_node_id'] = self.create_destination_node(
                 self.selection[0],
                 self.selection[0].duration.frame
                 )
@@ -2009,27 +2012,28 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def stop_frame_rendering_thread(self):
         if isinstance(self.frame_thread, threading.Thread):
             if self.frame_thread.is_alive():
-                self.info(f'Frame {self.current_frame}: Stopping...')
+                self.info(f'Frame {self.app_state.get("current_frame")}: Stopping...')
                 self.frame_thread.join()
 
     def stop_render_loop_thread(self):
         if isinstance(self.render_loop_thread, threading.Thread):
             if self.render_loop_thread.is_alive():
-                self.info(f'Frame {self.current_frame}: Stopping render loop thread ...')
+                self.info(f'Frame {self.app_state.get("current_frame")}: Stopping render loop thread ...')
                 self.app_state['render_loop'] = False
                 self.render_loop_thread.join()
 
     def _process_current_frame(self, single_frame=False):
         timestamp = time.time()
+        current_frame = self.app_state.get('current_frame')
 
         self.message_queue.put(
             {'type': 'info', 
-            'message': f'Frame {self.current_frame}: reading source image(s) data ...'}
+            'message': f'Frame {current_frame}: reading source image(s) data ...'}
             )
         
         src_image_data = self.read_selection_data(
             self.selection, 
-            self.current_frame - 1
+            current_frame - 1
             )
         
         self.app_state['src_image_data'] = src_image_data
@@ -2038,7 +2042,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
-                text = 'Frame: ' + str(self.current_frame)
+                text = 'Frame: ' + str(current_frame)
             )
             return
         
@@ -2047,7 +2051,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.update_interface_image_torch(
                     src_image_data[:, :, :3],
                     self.ui.image_res_label,
-                    text = 'Frame: ' + str(self.current_frame)
+                    text = 'Frame: ' + str(current_frame)
                 )
                 return
         
@@ -2056,7 +2060,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
-                text = 'Frame: ' + str(self.current_frame)
+                text = 'Frame: ' + str(current_frame)
             )
 
         '''
@@ -2083,7 +2087,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             res_image_data = None
             self.message_queue.put(
                 {'type': 'info', 
-                'message': f'Frame {self.current_frame}'}
+                'message': f'Frame {current_frame}'}
                 )
             message_string = f'Error processing frame:\n{e}'
             self.message_queue.put(
@@ -2098,7 +2102,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.update_interface_image_torch(
                     res_image_data[:, :, :3],
                     self.ui.image_res_label,
-                    text = 'Frame: ' + str(self.current_frame)
+                    text = 'Frame: ' + str(current_frame)
                 )
 
         self.app_state['res_image_data'] = res_image_data
@@ -2124,9 +2128,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import torch
         from torch.nn import functional as F
      
+        current_frame = self.app_state.get('current_frame')
+
         self.message_queue.put(
             {'type': 'info', 
-            'message': f'Frame {self.current_frame}: Processing...'}
+            'message': f'Frame {current_frame}: Processing...'}
             )
 
         h, w, _ = src_image_data.shape
@@ -2158,7 +2164,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.message_queue.put(
             {'type': 'info', 
-            'message': f'Frame {self.current_frame}'}
+            'message': f'Frame {current_frame}'}
             )
         
         return result_image
@@ -2386,7 +2392,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             framestore_write_start = time.time()
 
             server_handle = WireTapServerHandle('localhost')
-            destination_node_handle = WireTapNodeHandle(server_handle, self.destination_node_id)
+            destination_node_id = self.app_state.get('destination_node_id')
+            destination_node_handle = WireTapNodeHandle(server_handle, destination_node_id)
             dest_fmt = WireTapClipFormat()
             if not destination_node_handle.getClipFormat(dest_fmt):
                 raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
@@ -2764,9 +2771,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             flame.execute_shortcut('Save Project')
             flame.execute_shortcut('Refresh Thumbnails')
             self.temp_library.commit()
-            if self.destination_node_id:
+            destination_node_id = self.app_state.get('destination_node_id')
+            if destination_node_id:
                 try:
-                    result_clip = flame.find_by_wiretap_node_id(self.destination_node_id)
+                    result_clip = flame.find_by_wiretap_node_id(destination_node_id)
                 except:
                     result_clip = None
             else:
@@ -2779,16 +2787,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.temp_library.commit()
                 ch = self.temp_library.children
                 for c in ch:
-                    if c.name.get_value() == self.destination_node_name:
+                    if c.name.get_value() == self.app_state.get('destination_node_name'):
                         result_clip = c
             
             if not result_clip:
                 flame.execute_shortcut('Save Project')
                 flame.execute_shortcut('Refresh Thumbnails')
                 self.temp_library.commit()
-                if self.destination_node_id:
+                if destination_node_id:
                     try:
-                        result_clip = flame.find_by_wiretap_node_id(self.destination_node_id)
+                        result_clip = flame.find_by_wiretap_node_id(destination_node_id)
                     except:
                         result_clip = None
                 else:
@@ -2801,7 +2809,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.temp_library.commit()
                 ch = self.temp_library.children
                 for c in ch:
-                    if c.name.get_value() == self.destination_node_name:
+                    if c.name.get_value() == self.app_state.get('destination_node_name'):
                         result_clip = c
             
             if result_clip:
