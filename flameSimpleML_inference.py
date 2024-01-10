@@ -1015,7 +1015,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return
 
         self.app_state['min_frame'] = relative_start_frame
-        self.max_frame = relative_start_frame + duration - 1
+        self.app_state['max_frame'] = relative_start_frame + duration - 1
         self.message_queue.put(
             {'type': 'setText',
             'widget': 'cur_frame_label',
@@ -1024,7 +1024,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put(
             {'type': 'setText',
             'widget': 'end_frame_label',
-            'text': str(self.max_frame)}
+            'text': str(self.app_state.get('max_frame', 99))}
         )
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
@@ -1079,12 +1079,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             super().mousePressEvent(event)
             return
         elif child == self.ui.cur_frame_label:
-            self.set_current_frame(self.min_frame, render = False)
+            self.set_current_frame(self.app_state.get('min_frame', 1), render = False)
             self.mousePressPos = None
             super().mousePressEvent(event)
             return
         elif child == self.ui.end_frame_label:
-            self.set_current_frame(self.max_frame, render = False)
+            self.set_current_frame(self.app_state.get('max_frame', 99), render = False)
             self.mousePressPos = None
             super().mousePressEvent(event)
             return
@@ -1098,7 +1098,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if child == self.ui.info_label:
             relative_pos = self.ui.info_label.mapFromParent(event.pos())
             label_width = self.ui.info_label.width()
-            new_frame = int(self.min_frame + (relative_pos.x() - 0) * (self.max_frame - self.min_frame) / (label_width - 0))
+            min_frame = self.app_state.get('min_frame', 1)
+            max_frame = self.app_state.get('max_frame', 99)
+            new_frame = int(min_frame + (relative_pos.x() - 0) * (max_frame - min_frame) / (label_width - 0))
             self.set_current_frame(new_frame, render = False)
             super().mouseReleaseEvent(event)
             return
@@ -1118,10 +1120,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if child == self.ui.info_label:
             relative_pos = self.ui.info_label.mapFromParent(event.pos())
             label_width = self.ui.info_label.width()
-            new_frame = int(self.min_frame + (relative_pos.x() - 0) * (self.max_frame - self.min_frame) / (label_width - 0))
+            min_frame = self.app_state.get('min_frame', 1)
+            max_frame = self.app_state.get('max_frame', 99)
+            new_frame = int(min_frame + (relative_pos.x() - 0) * (max_frame - min_frame) / (label_width - 0))
             # print(f"Clicked on label at position: {relative_pos.x()}, {relative_pos.y()}")
             # print (f'frame: {new_frame}')
-            self.set_current_frame(new_frame)
+            self.set_current_frame(new_frame, render = True)
 
         super().mouseReleaseEvent(event)
 
@@ -1147,7 +1151,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def right_arrow_pressed(self):
         if self.app_state.get('render_loop'):
             return
-        self.set_current_frame(self.current_frame + 1 if self.current_frame < self.max_frame else self.max_frame)
+        min_frame = self.app_state.get('min_frame', 1)
+        max_frame = self.app_state.get('max_frame', 99)
+        current_frame = self.app_state.get('current_frame', 1)
+
+        self.set_current_frame(current_frame + 1 if current_frame < max_frame else max_frame)
 
     def f1_key_pressed(self):
         self.app_state['view_mode'] = 'F1'
@@ -1962,13 +1970,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def _render_loop(self):
         render_loop_start = time.time()
-        print (f'min frame: {self.min_frame}, max frame: {self.max_frame}')
-        for frame in range(self.min_frame, self.max_frame + 1):
+        min_frame = self.app_state.get('min_frame', 1)
+        max_frame = self.app_state.get('max_frame', 99)
+        for frame in range(min_frame, max_frame + 1):
             print (f'Frame = {frame}')
             if not self.threads:
                 return
             if not self.app_state.get('render_loop'):
                 return
+            
             # if self.frames_map[frame].get('saved'):
             #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
             #    continue

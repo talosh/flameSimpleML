@@ -266,7 +266,7 @@ while epoch < num_epochs + 1:
 
         # print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
 
-        before = normalize(before).unsqueeze(0) * 2 - 1
+        before = normalize(before).unsqueeze(0) 
         after = normalize(after).unsqueeze(0) * 2 - 1
 
         data_time = time.time() - time_stamp
@@ -277,7 +277,8 @@ while epoch < num_epochs + 1:
         #    param_group['lr'] = current_lr
 
         optimizer.zero_grad(set_to_none=True)
-        output = model(before)
+        output = model(before * 2 - 1)
+        output = ( output + 1 ) / 2
 
         loss = criterion_mse(output, after)
         loss_l1 = criterion_l1(output, after)
@@ -294,9 +295,9 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
 
         if step % 40 == 1:
-            rgb_before = restore_normalized_values((before[:, :3, :, :] + 1) / 2)
-            rgb_after = restore_normalized_values((after[:, :3, :, :] + 1) / 2)
-            rgb_output = restore_normalized_values((output[:, :3, :, :] + 1) / 2)
+            rgb_before = restore_normalized_values(before[:, :3, :, :])
+            rgb_after = restore_normalized_values(after[:, :3, :, :])
+            rgb_output = restore_normalized_values(output[:, :3, :, :])
 
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
