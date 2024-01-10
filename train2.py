@@ -249,13 +249,13 @@ while epoch < num_epochs + 1:
 
         # before, after = dataset[batch_idx]
 
-        before = before.to(device, non_blocking = True).unsqueeze(0)
-        after = after.to(device, non_blocking = True).unsqueeze(0)
+        before = before.to(device, non_blocking = True)
+        after = after.to(device, non_blocking = True)
 
         # print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
 
-        # before = normalize(before).unsqueeze(0)
-        # after = normalize(after).unsqueeze(0)
+        before = normalize(before).unsqueeze(0)
+        after = normalize(after).unsqueeze(0)
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
@@ -281,8 +281,8 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
 
         if step % 40 == 1:
-            rgb_before = restore_normalized_values((before[:, :3, :, :] + 1) / 2)
-            rgb_after = restore_normalized_values((after[:, :3, :, :] + 1) / 2)
+            rgb_before = restore_normalized_values(before[:, :3, :, :])
+            rgb_after = restore_normalized_values(after[:, :3, :, :])
             rgb_output = restore_normalized_values((output[:, :3, :, :] + 1) / 2)
 
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
