@@ -286,6 +286,7 @@ while epoch < num_epochs + 1:
 
         loss.backward()
         optimizer.step()
+        scheduler.step(loss)
 
         train_time = time.time() - time_stamp
         time_stamp = time.time()
@@ -351,7 +352,6 @@ while epoch < num_epochs + 1:
     hours = int((epoch_time % (24 * 3600)) // 3600)
     minutes = int((epoch_time % 3600) // 60)
     print(f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
-    scheduler.step(smoothed_loss)
     steps_loss = []
     epoch_loss = []
     epoch = epoch + 1
