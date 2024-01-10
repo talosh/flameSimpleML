@@ -296,6 +296,7 @@ while epoch < num_epochs + 1:
         if step % 40 == 1:
             rgb_before = restore_normalized_values((before[:, :3, :, :] + 1) / 2)
             rgb_after = restore_normalized_values((after[:, :3, :, :] + 1) / 2)
+            rgb_output = restore_normalized_values((output[:, :3, :, :] + 1) / 2)
 
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
             cv2.imwrite('test2/01_before.exr', sample_before[:, :, :3], [cv2.IMWRITE_EXR_TYPE, cv2.IMWRITE_EXR_TYPE_HALF])
