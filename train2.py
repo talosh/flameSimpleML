@@ -249,13 +249,13 @@ while epoch < num_epochs + 1:
 
         # before, after = dataset[batch_idx]
 
-        before = before.to(device, non_blocking = True)
-        after = after.to(device, non_blocking = True)
+        before = before.to(device, non_blocking = True).unsqueeze(0)
+        after = after.to(device, non_blocking = True).unsqueeze(0)
 
-        print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
+        # print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
 
-        before = normalize(before).unsqueeze(0)
-        after = normalize(after).unsqueeze(0)
+        # before = normalize(before).unsqueeze(0)
+        # after = normalize(after).unsqueeze(0)
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
