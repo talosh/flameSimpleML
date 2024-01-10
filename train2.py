@@ -267,7 +267,7 @@ while epoch < num_epochs + 1:
         # print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
 
         before = normalize(before).unsqueeze(0) 
-        after = normalize(after).unsqueeze(0) * 2 - 1
+        after = normalize(after).unsqueeze(0)
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
