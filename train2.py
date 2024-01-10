@@ -185,10 +185,10 @@ criterion_l1 = nn.L1Loss()
 optimizer = optim.Yogi(model.parameters(), lr=lr)
 # scheduler = ReduceLROnPlateau(optimizer, 'min')
 
-def warmup(current_step, number_warmup_epochs = 999):
+def warmup(current_step, number_warmup_epochs = 9):
     return 1 / (10 ** (float(number_warmup_epochs - current_step)))
 
-train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=999, eta_min= lr - (( lr / 100 ) * lr_dive) )
+train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min= lr - (( lr / 100 ) * lr_dive) )
 warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warmup)
 scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
 
