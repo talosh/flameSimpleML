@@ -252,7 +252,7 @@ while epoch < num_epochs + 1:
         before = before.to(device, non_blocking = True)
         after = after.to(device, non_blocking = True)
 
-        print (f'before min: {torch.min(before)}, max: {torch.max(before)}')
+        print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
 
         before = normalize(before).unsqueeze(0)
         after = normalize(after).unsqueeze(0)
