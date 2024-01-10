@@ -152,13 +152,16 @@ read_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
+number_warmup_epochs = 9
 lr = 4e-3
+lr_dive = 10
 batch_size = 1
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 
 steps_per_epoch = data_loader.__len__()
 print (f'steps per epoch: {steps_per_epoch}')
 
+'''
 def get_learning_rate(step):
     if step < steps_per_epoch * 9:
         mul = step / (steps_per_epoch * 9)
@@ -167,7 +170,7 @@ def get_learning_rate(step):
         return lr
         # mul = np.cos((step - 2000) / (num_epochs * steps_per_epoch - 2000. ) * math.pi) * 0.5 + 0.5
         # return (lr - 4e-7) * mul + 4e-7
-
+'''
     
 # model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
@@ -180,7 +183,14 @@ criterion_l1 = nn.L1Loss()
 # optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0)
 # optimizer = optim.SGD(model.parameters(), lr=lr)
 optimizer = optim.Yogi(model.parameters(), lr=lr)
-scheduler = ReduceLROnPlateau(optimizer, 'min')
+# scheduler = ReduceLROnPlateau(optimizer, 'min')
+
+def warmup(current_step, number_warmup_epochs = 9):
+    return 1 / (10 ** (float(number_warmup_epochs - current_step)))
+
+train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min= lr - (( lr / 100 ) * lr_dive) )
+warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warmup)
+scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [number_warmup_epochs])
 
 before = None
 after = None
@@ -260,9 +270,9 @@ while epoch < num_epochs + 1:
         data_time = time.time() - time_stamp
         time_stamp = time.time()
 
-        current_lr = get_learning_rate(step)
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = current_lr
+        # current_lr = get_learning_rate(step)
+        # for param_group in optimizer.param_groups:
+        #    param_group['lr'] = current_lr
 
         optimizer.zero_grad(set_to_none=True)
         output = model(before)
