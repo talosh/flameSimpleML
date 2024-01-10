@@ -18,7 +18,7 @@ import queue
 from model.accnet_w import ACC_UNet_W
 from model.accnet import ACC_UNet
 from model.accnet_lite import ACC_UNet_Lite
-from model.multires_v001 import MultiResUnet
+from model.multires_v001 import Model
 from model.threeplusnet import UNet_3Plus
 
 from dataset import myDataset
@@ -149,7 +149,7 @@ def get_learning_rate(step):
 # model = ACC_UNet_W(3, 3).to(device)
 # model = ACC_UNet(3, 3).to(device)
 # model = ACC_UNet_Lite(3, 3).to(device)
-model = MultiResUnet(3, 3).to(device)
+model = Model().get_training_model()(3, 3).to(device)
 # model = UNet_3Plus(3, 3, is_batchnorm=False).to(device)
 
 criterion_mse = nn.MSELoss()
