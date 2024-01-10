@@ -286,7 +286,7 @@ while epoch < num_epochs + 1:
 
         loss.backward()
         optimizer.step()
-        scheduler.step(loss)
+        scheduler.step()
 
         train_time = time.time() - time_stamp
         time_stamp = time.time()
