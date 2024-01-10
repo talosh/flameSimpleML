@@ -254,8 +254,8 @@ while epoch < num_epochs + 1:
 
         # print (f'\nbefore min: {torch.min(before)}, max: {torch.max(before)}')
 
-        before = normalize(before).unsqueeze(0)
-        after = normalize(after).unsqueeze(0)
+        before = normalize(before).unsqueeze(0) * 2 - 1
+        after = normalize(after).unsqueeze(0) * 2 - 1
 
         data_time = time.time() - time_stamp
         time_stamp = time.time()
@@ -265,7 +265,7 @@ while epoch < num_epochs + 1:
             param_group['lr'] = current_lr
 
         optimizer.zero_grad(set_to_none=True)
-        output = model(before * 2 - 1)
+        output = model(before)
 
         loss = criterion_mse(output, after)
         loss_l1 = criterion_l1(output, after)
@@ -281,8 +281,8 @@ while epoch < num_epochs + 1:
         time_stamp = time.time()
 
         if step % 40 == 1:
-            rgb_before = restore_normalized_values(before[:, :3, :, :])
-            rgb_after = restore_normalized_values(after[:, :3, :, :])
+            rgb_before = restore_normalized_values((before[:, :3, :, :] + 1) / 2)
+            rgb_after = restore_normalized_values((after[:, :3, :, :] + 1) / 2)
             rgb_output = restore_normalized_values((output[:, :3, :, :] + 1) / 2)
 
             sample_before = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
