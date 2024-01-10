@@ -973,7 +973,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'message': "Hello",
             'action': self.close_application}
         )
-        return
+        # return
 
 
         if missing_requirements:
@@ -1014,12 +1014,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
                 return
 
-        self.min_frame = relative_start_frame
+        self.app_state['min_frame'] = relative_start_frame
         self.max_frame = relative_start_frame + duration - 1
         self.message_queue.put(
             {'type': 'setText',
             'widget': 'cur_frame_label',
-            'text': str(self.min_frame)}
+            'text': str(self.app_state.get('min_frame'))}
         )
         self.message_queue.put(
             {'type': 'setText',
@@ -1059,61 +1059,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.load_model(self.model_state_dict)
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
-        self.set_current_frame(self.min_frame)
+        self.set_current_frame(self.app_state.get('min_frame', 1))
 
         # self.frames_map = self.compose_frames_map(self.selection)
-
-        '''
-        self.parent_app.torch_device = self.set_torch_device()
-
-        self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
-        self.processEvents()
-        self.parent_app.create_temp_library(self.selection)
-        if not self.parent_app.temp_library:
-            return
-
-        self.processEvents()
-        self.message_queue.put({'type': 'info', 'message': 'Building frames map...'})
-        self.processEvents()
-        self.frames_map = self.parent_app.compose_frames_map(self.selection, self.mode)
-
-        # print (f'frames map: {pformat(self.frames_map)}')
-
-        self.min_frame = min(self.frames_map.keys())
-        self.max_frame = max(self.frames_map.keys())
-        self.message_queue.put(
-            {'type': 'setText',
-            'widget': 'cur_frame_label',
-            'text': str(self.min_frame)}
-        )
-        self.message_queue.put(
-            {'type': 'setText',
-            'widget': 'end_frame_label',
-            'text': str(self.max_frame)}
-        )
-
-        
-
-        self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
-        self.processEvents()
-        self.destination_node_id = self.parent_app.create_destination_node(
-            self.selection,
-            len(self.frames_map.keys())
-            )
-        if not self.destination_node_id:
-            return
-
-        self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
-        self.processEvents()
-        
-        self.set_current_frame(self.min_frame)
-        '''
-
-        '''
-        self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
-        self.frame_thread.daemon = True
-        self.frame_thread.start()
-        '''
 
     def processEvents(self):
         try:
@@ -1190,19 +1138,21 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             super().keyPressEvent(event)  # Pass the event to the parent's handler
 
     def left_arrow_pressed(self):
-        if self.app_state.get('rendering_by_render_button'):
+        if self.app_state.get('render_loop'):
             return
-        self.set_current_frame(self.current_frame - 1 if self.current_frame > self.min_frame else self.min_frame)
+        min_frame = self.app_state.get('min_frame', 1)
+        current_frame = self.app_state.get('current_frame', 1)
+        self.set_current_frame(current_frame - 1 if current_frame > min_frame else min_frame)
 
     def right_arrow_pressed(self):
-        if self.app_state.get('rendering_by_render_button'):
+        if self.app_state.get('render_loop'):
             return
         self.set_current_frame(self.current_frame + 1 if self.current_frame < self.max_frame else self.max_frame)
 
     def f1_key_pressed(self):
         self.app_state['view_mode'] = 'F1'
         print (self.app_state['view_mode'])
-        if self.app_state.get('rendering_by_render_button'):
+        if self.app_state.get('render_loop'):
             return
         
         if self.app_state.get('src_image_data') is not None:
@@ -1216,7 +1166,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.app_state['view_mode'] = 'F4'
         print (self.app_state['view_mode'])
 
-        if self.app_state.get('rendering_by_render_button'):
+        if self.app_state.get('render_loop'):
             return
 
         if self.app_state.get('res_image_data') is not None:
@@ -1485,7 +1435,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         margin = 4
 
         # map x1 from [x,y] to [m, n]: m1 = m + (x1 - x) * (n - m) / (y - x)
-        marker_pos = 4 + (self.current_frame - self.min_frame) * (label_width - 8) / (self.max_frame - self.min_frame)
+        min_frame = self.app_state.get('min_frame', 1)
+        max_frame = self.app_state.get('max_frame', 99)
+        current_frame = self.app_state.get('current_frame', 1)
+        marker_pos = 4 + (current_frame - min_frame) * (label_width - 8) / (max_frame - min_frame)
         if marker_pos < margin:
             marker_pos = margin
         elif marker_pos > label_width - margin:
@@ -1964,7 +1917,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def toggle_render_button(self):
         if self.ui.render_button.text() == 'Render':
             self.stop_frame_rendering_thread()
-            self.app_state['rendering_by_render_button'] = True
+            self.app_state['render_loop'] = True
             self.message_queue.put(
                     {'type': 'setText',
                     'widget': 'render_button',
@@ -1974,7 +1927,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         else:
             self.stop_render_loop_thread()
             self.stop_frame_rendering_thread()
-            self.app_state['rendering_by_render_button'] = False
+            self.app_state['render_loop'] = False
             self.message_queue.put(
                     {'type': 'setText',
                     'widget': 'render_button',
@@ -2014,14 +1967,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             print (f'Frame = {frame}')
             if not self.threads:
                 return
-            if not self.app_state.get('rendering_by_render_button'):
+            if not self.app_state.get('render_loop'):
                 return
             # if self.frames_map[frame].get('saved'):
             #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
             #    continue
             # self.set_current_frame(frame, render = True)
             '''
-            if self.app_state.get('rendering_by_render_button'):
+            if self.app_state.get('render_loop'):
                 save_image_data = self.app_state.get('res_image_data')
                 self.save_result_frame(
                     save_image_data,
@@ -2034,7 +1987,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         time_spent = time.time() - render_loop_start
         self.info(f'Rendering completed in {int(time_spent // 60)} min {int(time_spent % 60)} sec')
-        self.app_state['rendering_by_render_button'] = False
+        self.app_state['render_loop'] = False
         self.message_queue.put(
                 {'type': 'setText',
                 'widget': 'render_button',
@@ -2053,7 +2006,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if isinstance(self.render_loop_thread, threading.Thread):
             if self.render_loop_thread.is_alive():
                 self.info(f'Frame {self.current_frame}: Stopping render loop thread ...')
-                self.app_state['rendering_by_render_button'] = False
+                self.app_state['render_loop'] = False
                 self.render_loop_thread.join()
 
     def _process_current_frame(self, single_frame=False):
@@ -2080,7 +2033,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
         
         if self.app_state.get('view_mode') == 'F1':
-            if not self.app_state.get('rendering_by_render_button'):
+            if not self.app_state.get('render_loop'):
                 self.update_interface_image_torch(
                     src_image_data[:, :, :3],
                     self.ui.image_res_label,
@@ -2089,7 +2042,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 return
         
 
-        if not self.app_state.get('rendering_by_render_button'):
+        if not self.app_state.get('render_loop'):
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
                 self.ui.image_res_label,
