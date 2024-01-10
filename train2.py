@@ -190,7 +190,7 @@ def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
     mul_lin = current_step / number_warmup_steps
     return lr * mul_lin if lr * mul_lin > 1e-111 else 1e-111
 
-train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * warmup_epochs * 10, eta_min= lr - (( lr / 100 ) * lr_dive) )
+train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * warmup_epochs * 9, eta_min= lr - (( lr / 100 ) * lr_dive) )
 # train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=4e-9)
 warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs ) / 10))
 scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
