@@ -263,23 +263,7 @@ while epoch < num_epochs + 1:
 
         optimizer.zero_grad(set_to_none=True)
         output = model(before * 2 - 1)
-        # rgb_output = (model(before) + 1) / 2
 
-        # rgb_output_blurred = F.interpolate(rgb_output, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        # rgb_output_blurred = F. interpolate(rgb_output_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
-        # rgb_output_highpass = (rgb_output - rgb_output_blurred) + 0.5
-
-        # rgb_after_blurred  = F.interpolate(rgb_after, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        # rgb_after_blurred = F.interpolate(rgb_after_blurred, scale_factor = 64, mode= 'bilinear', align_corners=False)
-        # rgb_after_highpass = (rgb_after - rgb_after_blurred) + 0.5
-
-        # rgb_before_blurred = F.interpolate(rgb_before, scale_factor = 1 / 64, mode='bilinear', align_corners=False)
-        # rgb_before_blurred = F.interpolate(rgb_before_blurred, scale_factor = 64, mode='bilinear', align_corners=False)
-
-        # loss = (rgb_output - rgb_after).abs().mean()
-        # hsl_loss = criterion_mse(rgb_to_hsl(rgb_output), rgb_to_hsl(rgb_after))
-        # yuv_loss = criterion_mse(rgb_to_yuv(rgb_output), rgb_to_yuv(rgb_after))
-        # rgb_loss = criterion_mse(rgb_output, rgb_after)
         loss = criterion_mse(output, after)
         loss_l1 = criterion_l1(output, after)
         loss_l1_str = str(f'{loss_l1.item():.4f}')
