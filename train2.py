@@ -187,7 +187,7 @@ optimizer = optim.Yogi(model.parameters(), lr=lr)
 
 def warmup(current_step, lr = 4e-3, number_warmup_steps = 99):
     print (f'\n current_step = {current_step}')
-    return lr * (1 / (10 ** (float(number_warmup_steps - current_step))))
+    return 1 / (10 ** (float(number_warmup_steps - current_step)))
 
 train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min= lr - (( lr / 100 ) * lr_dive) )
 warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=steps_per_epoch * warmup_epochs))
