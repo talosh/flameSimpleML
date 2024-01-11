@@ -974,8 +974,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'message': "Hello",
             'action': self.close_application}
         )
-        # return
-
 
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})

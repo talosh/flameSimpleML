@@ -45,7 +45,11 @@ def get_media_panel_custom_ui_actions():
         flame_version = flame.get_version()
         python_executable_path = f'/opt/Autodesk/python/{flame_version}/bin/python'
         script_folder = os.path.abspath(os.path.dirname(__file__))
-        
+        dialog = flame.messages.show_in_dialog(
+            title ='Train Model GUI is not yet implemented',
+            message = "Which colour coding do you want to apply to your new Reel?",
+            type = "info",
+            buttons = ["Ok"])
 
     def about_dialog():
         pass
