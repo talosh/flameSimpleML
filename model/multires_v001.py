@@ -18,7 +18,7 @@ class Model:
 					bias=False
 					)
 				# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-				torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
+				# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
 				# torch.nn.init.dirac_(self.conv1.weight)
 
 			def forward(self,x):
@@ -74,7 +74,7 @@ class Model:
 					)
 				self.act = torch.nn.SELU(inplace = True)
 				# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-				torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
+				# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
 				# torch.nn.init.dirac_(self.conv1.weight)
 
 			def forward(self,x):
@@ -140,7 +140,7 @@ class Model:
 					bias=False
 					)
 				# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-				torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
+				# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
 				# torch.nn.init.dirac_(self.conv1.weight)
 
 			def forward(self,x):
@@ -193,7 +193,7 @@ class Model:
 					)
 				self.act = torch.nn.SELU(inplace = True)
 				# torch.nn.init.kaiming_normal_(self.conv1.weight, mode='fan_in', nonlinearity='selu')
-				torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
+				# torch.nn.init.xavier_uniform_(self.conv1.weight, gain=torch.nn.init.calculate_gain('selu'))
 				# torch.nn.init.dirac_(self.conv1.weight)
 
 			def forward(self,x):
