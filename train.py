@@ -8,10 +8,10 @@ def main():
 
     # Optional arguments
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate (default: 0.001)')
-    parser.add_argument('--model_type', type=int, default=1, help='Model type (int) (default: 1)')
-    parser.add_argument('--warmup', type=float, default=1, help='Warmup (float) (default: 1)')
-    parser.add_argument('--pulse', type=float, default=9, help='Pulse (float) (default: 9)')
-    parser.add_argument('--pulse_amplitude', type=float, default=10, help='Pulse amplitude (percentage) (default: 10)')
+    parser.add_argument('--model_type', type=int, default=1, help='Model type (int) 1 - MultiresNet, 2 - Unet3++ (default: 1)')
+    parser.add_argument('--warmup', type=float, default=1, help='Warmup epochs (float) (default: 1)')
+    parser.add_argument('--pulse', type=float, default=9, help='Period in number of epochs to pulse learning rate (float) (default: 9)')
+    parser.add_argument('--pulse_amplitude', type=float, default=10, help='Learning rate pulse amplitude (percentage) (default: 10)')
 
     args = parser.parse_args()
 

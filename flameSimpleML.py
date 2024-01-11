@@ -41,7 +41,11 @@ def get_media_panel_custom_ui_actions():
             ) 
 
     def train_model(selection):
-        pprint (selection)
+        import flame
+        flame_version = flame.get_version()
+        python_executable_path = f'/opt/Autodesk/python/{flame_version}/bin/python'
+        script_folder = os.path.abspath(os.path.dirname(__file__))
+        
 
     def about_dialog():
         pass
