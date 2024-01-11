@@ -330,15 +330,15 @@ while epoch < num_epochs + 1:
         data_time += time.time() - time_stamp
         data_time_str = str(f'{data_time:.2f}')
         train_time_str = str(f'{train_time:.2f}')
-        current_lr_str = optimizer.param_groups[0]["lr"]
-        current_lr_str = str(f'{scheduler.get_last_lr()}')
+        # current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
+        current_lr_str = str(f'{scheduler.get_last_lr():.4e}')
 
         epoch_time = time.time() - start_timestamp
         days = int(epoch_time // (24 * 3600))
         hours = int((epoch_time % (24 * 3600)) // 3600)
         minutes = int((epoch_time % 3600) // 60)
 
-        print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str:.4e}, Loss L1: {loss_l1_str}', end='')
+        print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str}, Loss L1: {loss_l1_str}', end='')
         step = step + 1
 
     torch.save({
