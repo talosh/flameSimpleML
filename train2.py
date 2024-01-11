@@ -152,7 +152,7 @@ read_thread.start()
 
 log_path = 'train_log'
 num_epochs = 4444
-warmup_epochs = 0.5
+warmup_epochs = 1
 lr = 3e-3
 lr_dive = 90
 batch_size = 1
