@@ -154,7 +154,7 @@ log_path = 'train_log'
 num_epochs = 4444
 warmup_epochs = 0.1
 pulse_dive = 10
-pulse_period = 9
+pulse_period = 0.1
 lr = 2.5e-3
 batch_size = 1
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
