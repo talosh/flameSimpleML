@@ -49,7 +49,7 @@ def get_media_panel_custom_ui_actions():
         version = settings.get('version')
         msg = f'GUI for model training is not yet implemented in {app_name} {version}\n'
         msg += f'Training is currently possible with a command-line script.\n'
-        msg += f'Please run\n{python_executable_path} {script_folder}/train.py --help'
+        msg += f'Please run\n"{python_executable_path} {script_folder}/train.py --help"'
         dialog = flame.messages.show_in_dialog(
             title ='Train Model GUI is not yet implemented',
             message = msg,
