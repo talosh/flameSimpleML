@@ -153,8 +153,9 @@ read_thread.start()
 log_path = 'train_log'
 num_epochs = 4444
 warmup_epochs = 0.1
-lr = 2.4e-3
-lr_dive = 10
+pulse_dive = 10
+pulse_period = 9
+lr = 2.5e-3
 batch_size = 1
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 
@@ -190,7 +191,7 @@ def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
     mul_lin = current_step / number_warmup_steps
     return lr * mul_lin if lr * mul_lin > 1e-111 else 1e-111
 
-train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * 9, eta_min= lr - (( lr / 100 ) * lr_dive) )
+train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
 # train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=4e-9)
 warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs ) / 10))
 scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
@@ -329,13 +330,15 @@ while epoch < num_epochs + 1:
         data_time += time.time() - time_stamp
         data_time_str = str(f'{data_time:.2f}')
         train_time_str = str(f'{train_time:.2f}')
+        current_lr_str = optimizer.param_groups[0]["lr"]
+        current_lr_str = str(f'{scheduler.get_last_lr()}')
 
         epoch_time = time.time() - start_timestamp
         days = int(epoch_time // (24 * 3600))
         hours = int((epoch_time % (24 * 3600)) // 3600)
         minutes = int((epoch_time % 3600) // 60)
 
-        print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {optimizer.param_groups[0]["lr"]:.4e}, Loss L1: {loss_l1_str}', end='')
+        print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str:.4e}, Loss L1: {loss_l1_str}', end='')
         step = step + 1
 
     torch.save({
@@ -355,7 +358,7 @@ while epoch < num_epochs + 1:
     days = int(epoch_time // (24 * 3600))
     hours = int((epoch_time % (24 * 3600)) // 3600)
     minutes = int((epoch_time % 3600) // 60)
-    print(f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Minimum L1 loss: {min(epoch_loss):.4f} Avg L1 loss: {smoothed_loss:.4f}, Maximum L1 loss: {max(epoch_loss):.4f}')
+    print(f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Min: {min(epoch_loss):.4f} Avg: {smoothed_loss:.4f}, Max: {max(epoch_loss):.4f}')
     steps_loss = []
     epoch_loss = []
     epoch = epoch + 1
