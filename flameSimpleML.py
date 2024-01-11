@@ -54,7 +54,8 @@ def get_media_panel_custom_ui_actions():
             title ='Train Model GUI is not yet implemented',
             message = msg,
             type = 'info',
-            buttons = ['Ok'])
+            buttons = ['Copy command to Clipboard', 'Ok'])
+        # if dialog == 'Copy command to Clipboard':
 
     def about_dialog():
         pass

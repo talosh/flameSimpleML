@@ -274,9 +274,9 @@ while epoch < num_epochs + 1:
         data_time = time.time() - time_stamp
         time_stamp = time.time()
 
-        # current_lr = get_learning_rate(step)
-        # for param_group in optimizer.param_groups:
-        #    param_group['lr'] = current_lr
+        current_lr = scheduler.get_last_lr()[0]
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = current_lr
 
         optimizer.zero_grad(set_to_none=True)
         output = model(before * 2 - 1)
