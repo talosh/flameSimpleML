@@ -23,6 +23,9 @@ from model.threeplusnet import UNet_3Plus
 
 from dataset import myDataset
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 # torch.cuda.set_device(1)
 device = torch.device('cuda:0')
 read_image_queue = queue.Queue(maxsize=8)
