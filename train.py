@@ -1,3 +1,5 @@
+import os
+import sys
 import argparse
 import importlib
 
@@ -6,6 +8,18 @@ importlib.reload(flameSimpleML_framework)
 from flameSimpleML_framework import flameAppFramework
 
 fw = flameAppFramework()
+try:
+    import numpy as np
+    import torch
+except:
+    sys.path.append(fw.site_packages_folder)
+    try:
+        import numpy as np
+        import torch
+    except:
+        print ('unable to import numpy and pytorch')
+        sys.exit()
+
 print (f'packages: {fw.site_packages_folder}')
 
 class BufferReader:
