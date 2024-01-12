@@ -256,13 +256,11 @@ class MinExrReader:
         return struct.unpack('<Q', buf.read(8))[0]
 
 class myDataset(torch.utils.data.Dataset):
-    def __init__(self, dataset_name, batch_size=8):
+    def __init__(self, data_root):
         print ('dataset init')
-        self.batch_size = batch_size
-        self.data_root = '/mnt/StorageMedia/dataset/'
-        self.clean_root = os.path.join(self.data_root, 'clean')
-        self.done_root = os.path.join(self.data_root, 'done')
-        self.dataset_name = dataset_name
+        self.data_root = data_root
+        self.source_root = os.path.join(self.data_root, 'source')
+        self.target_root = os.path.join(self.data_root, 'target')
         self.clean_files = sorted(os.listdir(self.clean_root))
         self.done_files = sorted(os.listdir(self.done_root))
         self.indices = list(range(len(self.clean_files)))
