@@ -8,6 +8,7 @@ importlib.reload(flameSimpleML_framework)
 from flameSimpleML_framework import flameAppFramework
 
 fw = flameAppFramework()
+print ('initializing...')
 try:
     import numpy as np
     import torch
