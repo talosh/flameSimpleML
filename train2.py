@@ -274,13 +274,10 @@ while epoch < num_epochs + 1:
         data_time = time.time() - time_stamp
         time_stamp = time.time()
 
-        current_lr = scheduler.get_last_lr()[0]
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = current_lr
-
         optimizer.zero_grad(set_to_none=True)
         output = model(before * 2 - 1)
         output = ( output + 1 ) / 2
+
 
         loss = criterion_mse(output, after)
         loss_l1 = criterion_l1(output, after)
@@ -290,6 +287,11 @@ while epoch < num_epochs + 1:
         steps_loss.append(float(loss_l1))
 
         loss.backward()
+
+        current_lr = scheduler.get_last_lr()[0]
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = current_lr
+
         optimizer.step()
         scheduler.step()
 
