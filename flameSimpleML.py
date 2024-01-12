@@ -55,7 +55,16 @@ def get_media_panel_custom_ui_actions():
             message = msg,
             type = 'info',
             buttons = ['Copy command to Clipboard', 'Ok'])
-        # if dialog == 'Copy command to Clipboard':
+        if dialog == 'Copy command to Clipboard':
+            try:
+                from PySide6.QtWidgets import QApplication
+            except ImportError:
+                from PySide2.QtWidgets import QApplication
+            app = QApplication.instance()
+            if not app:
+                app = QApplication(sys.argv)
+            clipboard = app.clipboard()
+            clipboard.setText(f'{python_executable_path} {script_folder}/train.py --help')
 
     def about_dialog():
         pass
