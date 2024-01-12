@@ -54,8 +54,8 @@ def get_media_panel_custom_ui_actions():
             title ='Train Model GUI is not yet implemented',
             message = msg,
             type = 'info',
-            buttons = ['Copy command to Clipboard', 'Ok'])
-        if dialog == 'Copy command to Clipboard':
+            buttons = ['Copy', 'Ok'])
+        if dialog == 'Copy':
             try:
                 from PySide6.QtWidgets import QApplication
             except ImportError:
