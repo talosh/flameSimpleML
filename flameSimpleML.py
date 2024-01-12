@@ -60,6 +60,7 @@ def get_media_panel_custom_ui_actions():
                 from PySide6.QtWidgets import QApplication
             except ImportError:
                 from PySide2.QtWidgets import QApplication
+
             app = QApplication.instance()
             if not app:
                 app = QApplication(sys.argv)
