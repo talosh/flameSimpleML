@@ -291,6 +291,7 @@ class myDataset(torch.utils.data.Dataset):
     def read_frames_thread(self):
         timeout = 1e-8
         while True:
+            timestamp = time.time()
             for index in range(len(self.source_files)):
                 source_file_path = self.source_files[index]
                 target_file_path = self.target_files[index]
@@ -312,9 +313,10 @@ class myDataset(torch.utils.data.Dataset):
                     time.sleep(timeout)
                     continue
 
-                print (f'source shape {source_image_data.shape}')
-                print (f'target shape {target_image_data.shape}')
+                # print (f'source shape {source_image_data.shape}')
+                # print (f'target shape {target_image_data.shape}')
 
+            print (f'cycle: {(time.time() - timestamp):.2f}')
             time.sleep(timeout)
 
     def __len__(self):
