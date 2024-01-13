@@ -451,6 +451,12 @@ def main():
     # Rest of your training script...
 
     while True:
+        for batch_idx in range(len(dataset)):
+            source, target = read_image_queue.get()
+
+            print (f'source shape: {source.shape}')
+            print (f'target shape: {target.shape}')
+
         time.sleep(1e-8)
 
 if __name__ == "__main__":
