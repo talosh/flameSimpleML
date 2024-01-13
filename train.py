@@ -366,46 +366,35 @@ class myDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         img0, img1 = self.getimg(index)
 
-        '''
         q = random.uniform(0, 1)
         if q < 0.5:
             img0, img1 = self.crop(img0, img1, self.h, self.w)
-            img0 = torch.from_numpy(img0.copy())
-            img1 = torch.from_numpy(img1.copy())
+            img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+            img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
         elif q < 0.75:
             img0, img1 = self.crop(img0, img1, self.h // 2, self.w // 2)
-            img0 = torch.from_numpy(img0.copy())
-            img1 = torch.from_numpy(img1.copy())
+            img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+            img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
             img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=2, mode='bilinear', align_corners=False)[0]
             img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=2, mode='bilinear', align_corners=False)[0]
         else:
             img0, img1 = self.crop(img0, img1, int(self.h * 2), int(self.w * 2))
-            img0 = torch.from_numpy(img0.copy())
-            img1 = torch.from_numpy(img1.copy())
+            img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+            img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
             img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
             img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
-        '''
         
-        '''
         p = random.uniform(0, 1)
         if p < 0.25:
-            img0 = torch.flip(img0.transpose(0, 1), [1])
-            img1 = torch.flip(img1.transpose(0, 1), [1])
+            img0 = torch.flip(img0.transpose(1, 2), [2])
+            img1 = torch.flip(img1.transpose(1, 2), [2])
         elif p < 0.5:
-            img0 = torch.flip(img0, [0, 1])
-            img1 = torch.flip(img1, [0, 1])
+            img0 = torch.flip(img0, [1, 2])
+            img1 = torch.flip(img1, [1, 2])
         elif p < 0.75:
-            img0 = torch.flip(img0.transpose(0, 1), [0])
-            img1 = torch.flip(img1.transpose(0, 1), [0])
-        '''
+            img0 = torch.flip(img0.transpose(1, 2), [1])
+            img1 = torch.flip(img1.transpose(1, 2), [1])
 
-        img0, img1 = self.crop(img0, img1, int(self.h * 2), int(self.w * 2))
-        img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
-        img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
-        img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
-        img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
-
-        # return img0.permute(2, 0, 1), img1.permute(2, 0, 1)
         return img0, img1
 
 def main():
