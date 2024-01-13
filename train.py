@@ -265,8 +265,8 @@ class myDataset(torch.utils.data.Dataset):
         self.data_root = data_root
         self.source_root = os.path.join(self.data_root, 'source')
         self.target_root = os.path.join(self.data_root, 'target')
-        self.source_files = sorted(os.listdir(self.source_root))
-        self.target_files = sorted(os.listdir(self.target_root))
+        self.source_files = [os.path.join(self.source_root, file) for file in sorted(os.listdir(self.source_root))]
+        self.target_files = [os.path.join(self.target_root, file) for file in sorted(os.listdir(self.target_root))]
         self.indices = list(range(len(self.source_files)))
 
         try:
