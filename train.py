@@ -270,7 +270,7 @@ class myDataset(torch.utils.data.Dataset):
         self.indices = list(range(len(self.source_files)))
 
         try:
-            with open(self.source_files[0]) as fp:
+            with open(self.source_files[0], 'rb') as fp:
                 reader = MinExrReader(fp)
                 print (f'shape: {reader.shape}')
         except Exception as e:
