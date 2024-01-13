@@ -350,6 +350,9 @@ def main():
 
     args = parser.parse_args()
 
+    dataset = myDataset(args.dataset_path)
+
+    '''
     # Access arguments using args.learning_rate, args.model_type, etc.
     print(f"Dataset Path: {args.dataset_path}")
     print(f"Learning Rate: {args.learning_rate}")
@@ -357,6 +360,7 @@ def main():
     print(f"Warmup: {args.warmup}")
     print(f"Pulse: {args.pulse}")
     print(f"Pulse Amplitude: {args.pulse_amplitude}")
+    '''
 
     # Rest of your training script...
 
