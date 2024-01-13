@@ -301,7 +301,7 @@ class myDataset(torch.utils.data.Dataset):
                         source_reader = MinExrReader(sfp)
                         source_image_data = source_reader.image.copy().astype(np.float32)
                     with open(target_file_path, 'rb') as tfp:
-                        target_reader = MinExrReader(sfp)
+                        target_reader = MinExrReader(tfp)
                         target_image_data = target_reader.image.copy().astype(np.float32)
                 except Exception as e:
                     print (e)
