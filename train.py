@@ -267,7 +267,7 @@ class myDataset(torch.utils.data.Dataset):
         self.target_root = os.path.join(self.data_root, 'target')
         self.source_files = sorted(os.listdir(self.source_root))
         self.target_files = sorted(os.listdir(self.target_root))
-        self.indices = list(range(len(self.clean_files)))
+        self.indices = list(range(len(self.source_files)))
 
         try:
             with open(self.source_files[0]) as fp:
