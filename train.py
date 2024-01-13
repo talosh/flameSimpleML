@@ -299,11 +299,11 @@ class myDataset(torch.utils.data.Dataset):
                 try:
                     with open(source_file_path, 'rb') as sfp:
                         source_reader = MinExrReader(sfp)
-                        source_image_data = source_reader.img.copy().astype(np.float32)
+                        source_image_data = source_reader.image.copy().astype(np.float32)
                         del source_reader
                     with open(target_file_path, 'rb') as tfp:
                         target_reader = MinExrReader(sfp)
-                        target_image_data = source_reader.img.copy().astype(np.float32)
+                        target_image_data = target_reader.image.copy().astype(np.float32)
                         del target_reader
                 except Exception as e:
                     print (e)
