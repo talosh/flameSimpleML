@@ -13,6 +13,10 @@ import flameSimpleML_framework
 importlib.reload(flameSimpleML_framework)
 from flameSimpleML_framework import flameAppFramework
 
+from model.multires_v001 import Model as Model_01
+
+
+
 fw = flameAppFramework()
 try:
     import numpy as np
@@ -278,20 +282,38 @@ class myDataset(torch.utils.data.Dataset):
 
         self.src_h = reader.shape[0]
         self.src_w = reader.shape[2]
+        self.in_channles = reader.shape[1]
+
+        del reader
+
+        try:
+            with open(self.target_files[0], 'rb') as fp:
+                reader = MinExrReader(fp)
+        except Exception as e:
+            print (f'Unable to read {self.source_files[0]}: {e}')
+            sys.exit()
+
+        self.src_h = reader.shape[0]
+        self.src_w = reader.shape[2]
+        self.out_channels = reader.shape[1]
+
         del reader
         self.h = 256
         self.w = 256
         self.frame_multiplier = (self.src_w // self.w) * (self.src_h // self.h) * 4
 
-        self.frames_queue = queue.Queue(maxsize=12)
+        self.frames_queue = queue.Queue(maxsize=4)
         self.frame_read_thread = threading.Thread(target=self.read_frames_thread)
         self.frame_read_thread.daemon = True
         self.frame_read_thread.start()
 
+        self.last_shuffled_index = -1
+        self.last_source_image_data = None
+        self.last_target_image_data = None
+
     def read_frames_thread(self):
         timeout = 1e-8
         while True:
-            timestamp = time.time()
             for index in range(len(self.source_files)):
                 source_file_path = self.source_files[index]
                 target_file_path = self.target_files[index]
@@ -312,11 +334,12 @@ class myDataset(torch.utils.data.Dataset):
                 if source_image_data is None or target_image_data is None:
                     time.sleep(timeout)
                     continue
+                
+                self.frames_queue.put([
+                    np.transpose(source_image_data, (0, 2, 1)),
+                    np.transpose(target_image_data, (0, 2, 1))
+                ])
 
-                # print (f'source shape {source_image_data.shape}')
-                # print (f'target shape {target_image_data.shape}')
-
-            print (f'cycle: {(time.time() - timestamp):.2f}')
             time.sleep(timeout)
 
     def __len__(self):
@@ -333,36 +356,44 @@ class myDataset(torch.utils.data.Dataset):
 
     def getimg(self, index):
         shuffled_index = self.indices[index // self.frame_multiplier]
-        img0 = cv2.imread(os.path.join(self.clean_root, self.clean_files[shuffled_index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
-        img1 = cv2.imread(os.path.join(self.done_root, self.done_files[shuffled_index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
-        return img0, img1
-    
+        
+        if shuffled_index != self.last_shuffled_index:
+            self.last_source_image_data, self.last_target_image_data = self.frames_queue.get()
+            self.last_shuffled_index = shuffled_index
+        
+        return self.last_source_image_data, self.last_target_image_data
+
     def __getitem__(self, index):
         img0, img1 = self.getimg(index)
 
         q = random.uniform(0, 1)
         if q < 0.5:
-            img0 = cv2.resize(img0, (0,0), fx=0.5, fy=0.5)
-            img1 = cv2.resize(img1, (0,0), fx=0.5, fy=0.5)
-        # if q < 0.75:
-        #    img0 = cv2.resize(img0, (0,0), fx=0.25, fy=0.25)
-        #    img1 = cv2.resize(img1, (0,0), fx=0.25, fy=0.25)
-
-        img0, img1 = self.crop(img0, img1, self.h, self.w)
+            img0, img1 = self.crop(img0, img1, self.h, self.w)
+            img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+            img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+        elif q < 0.75:
+            img0, img1 = self.crop(img0, img1, self.h // 2, self.w // 2)
+            img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+            img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+            img0 = torch.nn.functional.interpolate(img0, scale_factor=2, mode='bilinear', align_corners=False)[0]
+            img1 = torch.nn.functional.interpolate(img1, scale_factor=2, mode='bilinear', align_corners=False)[0]
+        else:
+            img0, img1 = self.crop(img0, img1, int(self.h * 2), int(self.w * 2))
+            img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+            img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+            img0 = torch.nn.functional.interpolate(img0, scale_factor=0.5, mode='bilinear', align_corners=False)[0]
+            img1 = torch.nn.functional.interpolate(img1, scale_factor=0.5, mode='bilinear', align_corners=False)[0]
         
         p = random.uniform(0, 1)
         if p < 0.25:
-            img0 = cv2.rotate(img0, cv2.ROTATE_90_CLOCKWISE)
-            img1 = cv2.rotate(img1, cv2.ROTATE_90_CLOCKWISE)
+            img0 = torch.flip(img0.transpose(0, 1), [1])
+            img1 = torch.flip(img1.transpose(0, 1), [1])
         elif p < 0.5:
-            img0 = cv2.rotate(img0, cv2.ROTATE_180)
-            img1 = cv2.rotate(img1, cv2.ROTATE_180)
+            img0 = torch.flip(img0, [0, 1])
+            img1 = torch.flip(img1, [0, 1])
         elif p < 0.75:
-            img0 = cv2.rotate(img0, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            img1 = cv2.rotate(img1, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
-        img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
-        img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+            img0 = torch.flip(img0.transpose(0, 1), [0])
+            img1 = torch.flip(img1.transpose(0, 1), [0])
 
         return img0, img1
 
@@ -373,8 +404,8 @@ def main():
     parser.add_argument('dataset_path', type=str, help='Path to the dataset')
 
     # Optional arguments
-    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate (default: 0.001)')
-    parser.add_argument('--model_type', type=int, default=1, help='Model type (int): 1 - MultiresNet, 2 - Unet3++ (default: 1)')
+    parser.add_argument('--lr', type=float, default=0.001, help='Learning rate (default: 0.001)')
+    parser.add_argument('--type', type=int, default=1, help='Model type (int): 1 - MultiresNet, 2 - Unet3++ (default: 1)')
     parser.add_argument('--warmup', type=float, default=1, help='Warmup epochs (float) (default: 1)')
     parser.add_argument('--pulse', type=float, default=9, help='Period in number of epochs to pulse learning rate (float) (default: 9)')
     parser.add_argument('--pulse_amplitude', type=float, default=10, help='Learning rate pulse amplitude (percentage) (default: 10)')
@@ -383,7 +414,29 @@ def main():
 
     args = parser.parse_args()
 
+    read_image_queue = queue.Queue(maxsize=12)
     dataset = myDataset(args.dataset_path)
+
+    def read_images(read_image_queue, dataset):
+        while True:
+            for batch_idx in range(len(dataset)):
+                before, after = dataset[batch_idx]
+                read_image_queue.put([before, after])
+
+    read_thread = threading.Thread(target=read_images, args=(read_image_queue, dataset))
+    read_thread.daemon = True
+    read_thread.start()
+
+    steps_per_epoch = dataset.__len__()
+
+    device = torch.device(f'cuda:{args.device}')
+
+
+    if args.type == 1:
+        model = Model_01().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
+    else:
+        print (f'Model type {args.type} is not yet implemented')
+        sys.exit()
 
     '''
     # Access arguments using args.learning_rate, args.model_type, etc.
