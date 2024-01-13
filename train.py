@@ -377,7 +377,8 @@ def main():
 
     # Rest of your training script...
 
-
+    while True:
+        time.sleep(1e-8)
 
 if __name__ == "__main__":
     main()
