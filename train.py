@@ -270,6 +270,7 @@ class myDataset(torch.utils.data.Dataset):
             with open(self.source_files[0], 'rb') as fp:
                 reader = MinExrReader(fp)
                 print (f'shape: {reader.shape}')
+                print (f'img shape: {reader.image.shape}')
         except Exception as e:
             print (f'Unable to read {self.source_files[0]}: {e}')
 
