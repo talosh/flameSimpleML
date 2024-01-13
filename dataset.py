@@ -73,4 +73,6 @@ class myDataset(Dataset):
         img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
         img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
 
+        print (f'img0 shape: {img0.shape}')
+
         return img0, img1

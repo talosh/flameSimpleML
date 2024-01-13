@@ -15,11 +15,7 @@ import torch.distributed as dist
 import threading
 import queue
 
-from model.accnet_w import ACC_UNet_W
-from model.accnet import ACC_UNet
-from model.accnet_lite import ACC_UNet_Lite
-from model.multires_v001 import Model
-from model.threeplusnet import UNet_3Plus
+from models.multires_v001 import Model
 
 from dataset import myDataset
 

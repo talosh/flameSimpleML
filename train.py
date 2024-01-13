@@ -359,10 +359,6 @@ class myDataset(torch.utils.data.Dataset):
         
         if shuffled_index != self.last_shuffled_index:
             self.last_source_image_data, self.last_target_image_data = self.frames_queue.get()
-
-            print (f'self.last_source_image_data shape: {self.last_source_image_data.shape}')
-            print (f'self.last_target_image_data shape: {self.last_target_image_data.shape}')
-
             self.last_shuffled_index = shuffled_index
         
         return self.last_source_image_data, self.last_target_image_data
