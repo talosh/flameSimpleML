@@ -5,6 +5,9 @@ import struct
 import ctypes
 import argparse
 import importlib
+import queue
+import threading
+import time
 
 import flameSimpleML_framework
 importlib.reload(flameSimpleML_framework)
@@ -269,19 +272,35 @@ class myDataset(torch.utils.data.Dataset):
         try:
             with open(self.source_files[0], 'rb') as fp:
                 reader = MinExrReader(fp)
-                print (f'shape: {reader.shape}')
-                print (f'img shape: {reader.image.shape}')
         except Exception as e:
             print (f'Unable to read {self.source_files[0]}: {e}')
+            sys.exit()
 
+        self.src_h = reader.shape[0]
+        self.src_w = reader.shape[2]
+        del reader
+        self.h = 256
+        self.w = 256
+        self.frame_multiplier = (self.src_w // self.w) * (self.src_h // self.h) * 4
 
-        # random.shuffle(self.indices)
-#         self.h = 256
-#        self.w = 256
-#        self.load_data()
+        self.frames_queue = queue.Queue(maxsize=12)
+        self.frame_read_thread = threading.Thread(target=self.read_frames_thread)
+        self.frame_read_thread.daemon = True
+        self.frame_read_thread.start()
+
+    def read_frames_thread(self):
+        timeout = 1e-8
+        while True:
+            for index in range(len(self.source_files)):
+                source_file_path = self.source_files[index]
+                target_file_path = self.target_files[index]
+                print (f'{source_file_path}')
+                print (f'{target_file_path}')
+            
+            time.sleep(timeout)
 
     def __len__(self):
-        return len(self.clean_files) * 20
+        return len(self.source_files) * self.frame_multiplier
     
     def crop(self, img0, img1, h, w):
         np.random.seed(None)
@@ -291,13 +310,9 @@ class myDataset(torch.utils.data.Dataset):
         img0 = img0[x:x+h, y:y+w, :]
         img1 = img1[x:x+h, y:y+w, :]
         return img0, img1
-    
-    def load_data(self):
-        print ('load data')
-        self.meta_data = self.clean_files
 
     def getimg(self, index):
-        shuffled_index = self.indices[index // 20]
+        shuffled_index = self.indices[index // self.frame_multiplier]
         img0 = cv2.imread(os.path.join(self.clean_root, self.clean_files[shuffled_index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         img1 = cv2.imread(os.path.join(self.done_root, self.done_files[shuffled_index]), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         return img0, img1
