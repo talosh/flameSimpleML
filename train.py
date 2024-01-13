@@ -13,15 +13,19 @@ try:
     import numpy as np
     import torch
 except:
-    sys.path.append(fw.site_packages_folder)
-    try:
-        import numpy as np
-        import torch
-    except:
+    if fw.site_packages_folder in sys.path:
         print ('unable to import numpy and pytorch')
         sys.exit()
-
-print (f'packages: {fw.site_packages_folder}')
+    else:
+        sys.path.append(fw.site_packages_folder)
+        try:
+            import numpy as np
+            import torch
+        except:
+            print ('unable to import numpy and pytorch')
+            sys.exit()
+        if fw.site_packages_folder in sys.path:
+            sys.path.remove(fw.site_packages_folder)
 
 class BufferReader:
     '''A lightweight io.BytesIO object with convenience functions.
@@ -261,13 +265,22 @@ class myDataset(torch.utils.data.Dataset):
         self.data_root = data_root
         self.source_root = os.path.join(self.data_root, 'source')
         self.target_root = os.path.join(self.data_root, 'target')
-        self.clean_files = sorted(os.listdir(self.clean_root))
-        self.done_files = sorted(os.listdir(self.done_root))
+        self.source_files = sorted(os.listdir(self.source_root))
+        self.target_files = sorted(os.listdir(self.target_root))
         self.indices = list(range(len(self.clean_files)))
-        random.shuffle(self.indices)
-        self.h = 256
-        self.w = 256
-        self.load_data()
+
+        try:
+            with open(self.source_files[0]) as fp:
+                reader = MinExrReader(fp)
+                print (f'shape: {reader.shape}')
+        except Exception as e:
+            print (f'Unable to read {self.source_files[0]}: {e}')
+
+
+        # random.shuffle(self.indices)
+#         self.h = 256
+#        self.w = 256
+#        self.load_data()
 
     def __len__(self):
         return len(self.clean_files) * 20
