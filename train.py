@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import struct
+import ctypes
 import argparse
 import importlib
 
@@ -37,8 +38,6 @@ class BufferReader:
         Bytes for which random access is required.
     
     '''
-
-    import ctypes
 
     def __init__(self, data):
         self.data = data
