@@ -294,9 +294,27 @@ class myDataset(torch.utils.data.Dataset):
             for index in range(len(self.source_files)):
                 source_file_path = self.source_files[index]
                 target_file_path = self.target_files[index]
-                print (f'{source_file_path}')
-                print (f'{target_file_path}')
-            
+                source_image_data = None
+                target_image_data = None
+                try:
+                    with open(source_file_path, 'rb') as sfp:
+                        source_reader = MinExrReader(sfp)
+                        source_image_data = source_reader.img.copy().astype(np.float32)
+                        del source_reader
+                    with open(target_file_path, 'rb') as tfp:
+                        target_reader = MinExrReader(sfp)
+                        target_image = source_reader.img.copy().astype(np.float32)
+                        del target_reader
+                except:
+                    pass
+
+                if source_image_data is None or target_image_data is None:
+                    time.sleep(timeout)
+                    continue
+
+                print (f'source shape {source_image_data.shape}')
+                print (f'target shape {target_image_data.shape}')
+
             time.sleep(timeout)
 
     def __len__(self):
