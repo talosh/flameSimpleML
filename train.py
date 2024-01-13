@@ -399,7 +399,7 @@ class myDataset(torch.utils.data.Dataset):
             img1 = torch.flip(img1.transpose(0, 1), [0])
         '''
 
-        img0, img1 = self.crop(img0, img1, self.h, self.w)
+        img0, img1 = self.crop(img0, img1, int(self.h * 2), int(self.w * 2))
         img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
         img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
         img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
