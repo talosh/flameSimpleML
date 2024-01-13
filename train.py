@@ -305,8 +305,8 @@ class myDataset(torch.utils.data.Dataset):
                         target_reader = MinExrReader(sfp)
                         target_image = source_reader.img.copy().astype(np.float32)
                         del target_reader
-                except:
-                    pass
+                except Exception as e:
+                    print (e)
 
                 if source_image_data is None or target_image_data is None:
                     time.sleep(timeout)
