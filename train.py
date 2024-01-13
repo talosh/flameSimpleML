@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import struct
 import argparse
 import importlib
 
@@ -97,9 +98,6 @@ class MinExrReader:
     attrs: dict
         OpenEXR header attributes.
     '''
-
-    import numpy as np
-    import struct
 
 
     def __init__(self, fp):
