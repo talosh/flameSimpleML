@@ -400,12 +400,13 @@ class myDataset(torch.utils.data.Dataset):
         '''
 
         img0, img1 = self.crop(img0, img1, self.h, self.w)
-        img0 = torch.from_numpy(img0.copy())
-        img1 = torch.from_numpy(img1.copy())
-        img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
-        img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
+        img0 = torch.from_numpy(img0.copy()).unsqueeze(0)
+        img1 = torch.from_numpy(img1.copy()).unsqueeze(0)
+        # img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
+        # img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
 
-        return img0.permute(2, 0, 1), img1.permute(2, 0, 1)
+        # return img0.permute(2, 0, 1), img1.permute(2, 0, 1)
+        return img0, img1
 
 def main():
     parser = argparse.ArgumentParser(description='Training script.')
