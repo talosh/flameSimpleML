@@ -810,6 +810,7 @@ def main():
             time_stamp = time.time()
 
             current_lr = scheduler.get_last_lr()[0]
+            print (f'current lr {current_lr:.4e}')
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
 
