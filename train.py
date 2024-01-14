@@ -278,6 +278,8 @@ def write_exr(image_data, filename, half_float = True, pixelAspectRatio = 1.0):
 
     channels_list = ['B', 'G', 'R'] if not alpha.size else ['A', 'B', 'G', 'R']
 
+    print (channels_list)
+
     MAGIC = 20000630
     VERSION = 2
     UINT = 0
