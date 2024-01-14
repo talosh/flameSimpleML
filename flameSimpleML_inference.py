@@ -1465,13 +1465,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         if render:
             self.stop_frame_rendering_thread()
-            self.message_queue.put(
-                {'type': 'setText',
-                'widget': 'render_button',
-                'text': 'Stop'}
-            )
-
-        if render:
             self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
             self.frame_thread.daemon = True
             self.frame_thread.start()
