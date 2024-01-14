@@ -865,6 +865,7 @@ def main():
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
             if step % 100 == 1:
+                print (trained_model_path)
                 torch.save({
                     'step': step,
                     'steps_loss': steps_loss,
@@ -877,7 +878,6 @@ def main():
                     'optimizer_state_dict': optimizer.state_dict(),
                     'model_name': model_name,
                 }, trained_model_path)
-
 
             data_time += time.time() - time_stamp
             data_time_str = str(f'{data_time:.2f}')
