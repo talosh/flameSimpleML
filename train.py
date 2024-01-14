@@ -862,8 +862,8 @@ def main():
                 
                 source = source.cpu()
                 target = target.cpu()
-                sample_output = output.cpu()
-                
+                output = output.cpu()
+
                 rgb_source = restore_normalized_values(source[:, :3, :, :])
                 rgb_target = restore_normalized_values(target[:, :3, :, :])
                 rgb_output = restore_normalized_values(output[:, :3, :, :])
