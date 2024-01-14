@@ -822,8 +822,12 @@ def main():
             else:
                 current_lr = scheduler.get_last_lr()[0]
 
+            print (f'step: {step}, current_lr {current_lr:.4e}')
+
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
+
+            current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
 
             optimizer.zero_grad(set_to_none=True)
             output = model(source * 2 - 1)
@@ -864,7 +868,7 @@ def main():
             data_time_str = str(f'{data_time:.2f}')
             train_time_str = str(f'{train_time:.2f}')
             # current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
-            current_lr_str = str(f'{scheduler.get_last_lr()[0]:.4e}')
+            # current_lr_str = str(f'{scheduler.get_last_lr()[0]:.4e}')
 
             epoch_time = time.time() - start_timestamp
             days = int(epoch_time // (24 * 3600))
