@@ -547,6 +547,7 @@ def main():
 
     step = 0
     current_epoch = 0
+    preview_index = 0
 
     while True:
         for batch_idx in range(len(dataset)):
@@ -558,8 +559,9 @@ def main():
                 preview_folder = os.path.join(args.dataset_path, 'preview')
                 sample_source = source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
                 sample_target = target[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-                write_exr(sample_source, os.path.join(preview_folder, 'source.exr'))
-                write_exr(sample_target, os.path.join(preview_folder, 'target.exr'))
+                write_exr(sample_source, os.path.join(preview_folder, f'source_{preview_index}.exr'))
+                write_exr(sample_target, os.path.join(preview_folder, f'target_{preview_index}.exr'))
+                preview_index = preview_index + 1 if preview_index < 10 else 0
 
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
