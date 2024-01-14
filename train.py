@@ -8,6 +8,7 @@ import importlib
 import queue
 import threading
 import time
+import platform
 
 import flameSimpleML_framework
 importlib.reload(flameSimpleML_framework)
@@ -717,10 +718,13 @@ def main():
     read_thread.start()
 
     steps_per_epoch = len(dataset)
-
+    
+    device = torch.device("mps") if platform.system() == 'Darwin' else torch.device(f'cuda:{args.device}')
+    '''
     device = torch.device(f'cuda:{args.device}')
-
-
+    device = torch.device("mps")
+    '''
+    
     if args.type == 1:
         model_name = Model_01.get_name()
         model = Model_01().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
