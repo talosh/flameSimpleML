@@ -717,7 +717,7 @@ def main():
     read_thread.daemon = True
     read_thread.start()
 
-    steps_per_epoch = dataset.__len__()
+    steps_per_epoch = len(dataset)
 
     device = torch.device(f'cuda:{args.device}')
 
@@ -740,6 +740,7 @@ def main():
 
     def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
         mul_lin = current_step / number_warmup_steps
+        print (f'\n warmup steps: {number_warmup_steps}, current step: {current_step} mul: {mul_lin}, lr: {(lr * mul_lin):.4e}')
         return lr * mul_lin if lr * mul_lin > 1e-111 else 1e-111
 
     train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
