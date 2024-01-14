@@ -836,12 +836,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.output_channels = 3
 
         self.destination_node_id = ''
-
+        '''
         
         self.current_model = None
         self.torch = None
         self.torch_device = 'cpu'
-        '''
         
         self.message_queue = queue.Queue()
         self.ui_images_queue = queue.Queue(maxsize=9)
@@ -969,12 +968,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
         self.processEvents()
         missing_requirements = self.fw.check_requirements(self.fw.requirements)
-        self.message_queue.put(
-            {'type': 'mbox',
-            'message': "Hello",
-            'action': self.close_application}
-        )
-
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
             python_executable_path = sys.executable
