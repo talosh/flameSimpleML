@@ -811,12 +811,16 @@ def main():
         for batch_idx in range(len(dataset)):
             source, target = read_image_queue.get()
 
+            # test block
+            '''
+            preview_folder = os.path.join(args.dataset_path, 'preview')
             sample_source = source.clone().cpu().detach().numpy().transpose(1, 2, 0)
             sample_target = target.clone().cpu().detach().numpy().transpose(1, 2, 0)
             write_exr(sample_source, os.path.join(preview_folder, f'{batch_idx:08}_source.exr'))
             write_exr(sample_target, os.path.join(preview_folder, f'{batch_idx:08}_target.exr'))
 
             continue
+            '''
 
 
             source = source.to(device, non_blocking = True)
@@ -899,8 +903,6 @@ def main():
 
             print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str}, Loss L1: {loss_l1_str}', end='')
             step = step + 1
-
-        break
 
         torch.save({
             'step': step,
