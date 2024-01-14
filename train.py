@@ -16,7 +16,6 @@ from flameSimpleML_framework import flameAppFramework
 from models.multires_v001 import Model as Model_01
 
 
-
 fw = flameAppFramework()
 try:
     import numpy as np
@@ -743,8 +742,12 @@ def main():
         mul_lin = current_step / number_warmup_steps
         return lr * mul_lin
 
+    # remove annoying message in pytorch 1.12.1 when using CosineAnnealingLR
+    import warnings
+    warnings.filterwarnings('ignore', 'EPOCH_DEPRECATION_WARNING')
+
     train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
-    warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs ) / 10))
+    warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs )))
     scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
 
     # Rest of your training script...
@@ -855,7 +858,8 @@ def main():
             data_time += time.time() - time_stamp
             data_time_str = str(f'{data_time:.2f}')
             train_time_str = str(f'{train_time:.2f}')
-            current_lr_str = str(f'{scheduler.get_last_lr()[0]:.4e}')
+            current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
+            # current_lr_str = str(f'{scheduler.get_last_lr()[0]:.4e}')
 
             epoch_time = time.time() - start_timestamp
             days = int(epoch_time // (24 * 3600))
