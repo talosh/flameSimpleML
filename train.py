@@ -740,8 +740,9 @@ def main():
     optimizer = Yogi(model.parameters(), lr=lr)
 
     def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
-        print (f'\n number_warmup_steps {number_warmup_steps} lr {lr} mul {mul_lin} res {lr * mul_lin}')
         mul_lin = current_step / number_warmup_steps
+        print (f'\n number_warmup_steps {number_warmup_steps} lr {lr} mul {mul_lin} res {lr * mul_lin}')
+
         return lr * mul_lin
 
     # remove annoying message in pytorch 1.12.1 when using CosineAnnealingLR
