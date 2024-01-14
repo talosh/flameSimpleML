@@ -742,7 +742,7 @@ def main():
 
     def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
         mul_lin = current_step / number_warmup_steps
-        print (f'\n number_warmup_steps {number_warmup_steps} lr {lr} mul {mul_lin} res {(lr * mul_lin):.4e}')
+        # print (f'\n number_warmup_steps {number_warmup_steps} lr {lr} mul {mul_lin} res {(lr * mul_lin):.4e}')
         return lr * mul_lin
 
     # remove annoying message in pytorch 1.12.1 when using CosineAnnealingLR
@@ -820,8 +820,6 @@ def main():
                 current_lr = warmup(step, lr=lr, number_warmup_steps=number_warmup_steps)
             else:
                 current_lr = scheduler.get_last_lr()[0]
-
-            print (f'step: {step}, current_lr {current_lr:.4e}')
 
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
