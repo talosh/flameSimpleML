@@ -603,10 +603,6 @@ def main():
         except Exception as e:
             print (f'unable to load saved model: {e}')
         try:
-            start_timestamp = checkpoint.get('start_timestamp')
-        except:
-            start_timestamp = time.time()
-        try:
             step = checkpoint['step']
             print (f'step: {step}')
             current_epoch = checkpoint['epoch']
@@ -632,6 +628,10 @@ def main():
             os.makedirs(trained_model_dir)
         trained_model_path = os.path.join(trained_model_dir, traned_model_name)
 
+    try:
+        start_timestamp = checkpoint.get('start_timestamp')
+    except:
+        start_timestamp = time.time()
 
     time_stamp = time.time()
     epoch = current_epoch
