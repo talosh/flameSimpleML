@@ -825,11 +825,17 @@ def main():
             continue
             '''
 
-            source = normalize(source).unsqueeze(0)
-            target = normalize(target).unsqueeze(0)
+            if platform.system() == 'Darwin':
+                source = normalize(source).unsqueeze(0)
+                target = normalize(target).unsqueeze(0)
+                source = source.to(device, non_blocking = True)
+                target = target.to(device, non_blocking = True)
+            else:
+                source = source.to(device, non_blocking = True)
+                target = target.to(device, non_blocking = True)
+                source = normalize(source).unsqueeze(0)
+                target = normalize(target).unsqueeze(0)
 
-            source = source.to(device, non_blocking = True)
-            target = target.to(device, non_blocking = True)
 
             if step < number_warmup_steps:
                 current_lr = warmup(step, lr=lr, number_warmup_steps=number_warmup_steps)
@@ -859,9 +865,11 @@ def main():
             time_stamp = time.time()
 
             if step % 40 == 1:
-                
-                source = source.cpu().detach()
-                target = target.cpu().detach()
+
+                if platform.system() == 'Darwin':
+                    source = source.cpu().detach()
+                    target = target.cpu().detach()
+                    output = output.cpu().detach()
 
                 rgb_source = restore_normalized_values(source[:, :3, :, :])
                 rgb_target = restore_normalized_values(target[:, :3, :, :])
