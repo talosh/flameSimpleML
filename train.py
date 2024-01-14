@@ -265,7 +265,7 @@ class MinExrReader:
 
 def write_exr(image_data, filename, half_float = True, pixelAspectRatio = 1.0):
 
-    print (filename)
+    print (f'image {image_data.shape}')
 
     height, width, depth = image_data.shape
     red = image_data[:, :, 0]
@@ -556,7 +556,6 @@ def main():
             source, target = read_image_queue.get()
             source = source.unsqueeze(0)
             target = target.unsqueeze(0)
-            source = torch.rand(1, 3, 256, 256)
 
             if step % 40 == 1:
                 preview_folder = os.path.join(args.dataset_path, 'preview')
