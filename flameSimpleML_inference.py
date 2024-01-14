@@ -773,6 +773,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.name = self.__class__.__name__
         self.selection = kwargs.get('selection')
 
+        if self.selection:
+            self.clip_parent = self.selection[0].parent
+        else:
+            self.clip_parent = None
+
         self.settings = kwargs.get('settings', dict())
         self.fw = flameAppFramework(settings = self.settings)
         self.app_name = self.fw.app_name
@@ -2795,8 +2800,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 for c in ch:
                     if c.name.get_value() == self.app_state.get('destination_node_name'):
                         result_clip = c
-
-            print (f'result clip: {result_clip}')
             
             if result_clip:
                 try:
@@ -2813,13 +2816,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     '''
                     flame.execute_shortcut('Save Project')
                     flame.execute_shortcut('Refresh Thumbnails')
-                except:
-                    pass
+                except Exception as e:
+                    print (e)
         except Exception as e:
             self.on_showMessageBox({'message': pformat(e)})
 
         self.threads = False
-        self.deleteLater() # close Progress window after all events are processed
+        self.deleteLater()
 
         '''
         def rescan_hooks():
