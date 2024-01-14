@@ -263,10 +263,7 @@ class MinExrReader:
         assert buf.nleft() > 0 and buf.peek() != 0x00, 'Failed to read offset.'
         return struct.unpack('<Q', buf.read(8))[0]
 
-def write_exr(image_data, filename, half_float = True, pixelAspectRatio = 1.0):
-
-    print (f'image {image_data.shape}')
-
+def write_exr(image_data, filename, half_float = False, pixelAspectRatio = 1.0):
     height, width, depth = image_data.shape
     red = image_data[:, :, 0]
     green = image_data[:, :, 1]
@@ -277,8 +274,6 @@ def write_exr(image_data, filename, half_float = True, pixelAspectRatio = 1.0):
         alpha = np.array([])
 
     channels_list = ['B', 'G', 'R'] if not alpha.size else ['A', 'B', 'G', 'R']
-
-    print (channels_list)
 
     MAGIC = 20000630
     VERSION = 2
