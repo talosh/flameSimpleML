@@ -1759,6 +1759,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.selection[0],
                 self.selection[0].duration.frame
                 )
+            self._process_current_frame()
             return True
         except Exception as e:
             message_string = f'Unable to load model state:\n{e}'
