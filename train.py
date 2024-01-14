@@ -737,7 +737,9 @@ def main():
 
     criterion_mse = torch.nn.MSELoss()
     criterion_l1 = torch.nn.L1Loss()
-    optimizer = Yogi(model.parameters(), lr=lr)
+    # optimizer = Yogi(model.parameters(), lr=lr)
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+
 
     def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
         mul_lin = current_step / number_warmup_steps
@@ -825,7 +827,7 @@ def main():
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
 
-            print (optimizer.param_groups)
+            print (optimizer.param_groups[0])
 
             current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
 
