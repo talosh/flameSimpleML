@@ -628,7 +628,8 @@ def main():
         trained_model_dir = os.path.join(
             os.path.expanduser('~'),
             'flameSimpleML_models')
-        os.makedirs(trained_model_dir)
+        if not os.path.isdir(trained_model_dir):
+            os.makedirs(trained_model_dir)
         trained_model_path = os.path.join(trained_model_dir, traned_model_name)
 
 
