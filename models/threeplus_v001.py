@@ -394,10 +394,8 @@ class Model:
     def get_name():
         return 'UNet_3Plus_v001'
 
-    @staticmethod
-    def get_model():
+    def get_model(self):
         return UNet_3Plus
 
-    @staticmethod
-    def get_train_model():
+    def get_train_model(self):
         return UNet_3Plus
