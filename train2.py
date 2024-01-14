@@ -154,7 +154,7 @@ num_epochs = 4444
 warmup_epochs = 1
 pulse_dive = 80
 pulse_period = 9
-lr =4e-3
+lr=4e-3
 batch_size = 1
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True)
 

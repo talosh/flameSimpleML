@@ -493,8 +493,8 @@ class myDataset(torch.utils.data.Dataset):
                     continue
                 
                 self.frames_queue.put([
-                    np.transpose(source_image_data, (0, 2, 1)),
-                    np.transpose(target_image_data, (0, 2, 1))
+                    np.transpose(source_image_data, (0, 2, 1))[:, :, ::-1],
+                    np.transpose(target_image_data, (0, 2, 1))[:, :, ::-1]
                 ])
 
             time.sleep(timeout)
