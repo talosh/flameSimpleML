@@ -475,11 +475,9 @@ class myDataset(torch.utils.data.Dataset):
                     with open(source_file_path, 'rb') as sfp:
                         source_reader = MinExrReader(sfp)
                         source_image_data = source_reader.image.copy().astype(np.float32)
-                        del source_reader
                     with open(target_file_path, 'rb') as tfp:
                         target_reader = MinExrReader(tfp)
                         target_image_data = target_reader.image.copy().astype(np.float32)
-                        del target_reader
                 except Exception as e:
                     print (e)
 
@@ -518,6 +516,7 @@ class myDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         img0, img1 = self.getimg(index)
 
+        '''
         q = random.uniform(0, 1)
         if q < 0.5:
             img0, img1 = self.crop(img0, img1, self.h, self.w)
@@ -546,6 +545,11 @@ class myDataset(torch.utils.data.Dataset):
         elif p < 0.75:
             img0 = torch.flip(img0.transpose(1, 2), [1])
             img1 = torch.flip(img1.transpose(1, 2), [1])
+        '''
+
+        img0, img1 = self.crop(img0, img1, self.h, self.w)
+        img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+        img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
 
         return img0, img1
 
@@ -806,6 +810,15 @@ def main():
     while True:
         for batch_idx in range(len(dataset)):
             source, target = read_image_queue.get()
+
+            sample_source = source.clone().cpu().detach().numpy().transpose(1, 2, 0)
+            sample_target = target.clone().cpu().detach().numpy().transpose(1, 2, 0)
+            write_exr(sample_source, os.path.join(preview_folder, f'{batch_idx:08}_source.exr'))
+            write_exr(sample_target, os.path.join(preview_folder, f'{batch_idx:08}_target.exr'))
+
+            continue
+
+
             source = source.to(device, non_blocking = True)
             target = target.to(device, non_blocking = True)
 
@@ -886,6 +899,8 @@ def main():
 
             print (f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str}, Loss L1: {loss_l1_str}', end='')
             step = step + 1
+
+        break
 
         torch.save({
             'step': step,
