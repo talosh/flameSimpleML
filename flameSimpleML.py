@@ -20,7 +20,7 @@ settings = {
         'numpy>=1.16',
         'torch>=1.12.0'
     ],
-    'version': 'v0.0.1.dev.011',
+    'version': 'v0.0.1',
 }
 
 def get_media_panel_custom_ui_actions():
