@@ -441,8 +441,6 @@ class myDataset(torch.utils.data.Dataset):
         self.src_w = reader.shape[2]
         self.in_channles = reader.shape[1]
 
-        del reader
-
         try:
             with open(self.target_files[0], 'rb') as fp:
                 reader = MinExrReader(fp)
@@ -450,11 +448,8 @@ class myDataset(torch.utils.data.Dataset):
             print (f'Unable to read {self.source_files[0]}: {e}')
             sys.exit()
 
-        self.src_h = reader.shape[0]
-        self.src_w = reader.shape[2]
         self.out_channels = reader.shape[1]
 
-        del reader
         self.h = 256
         self.w = 256
         self.frame_multiplier = (self.src_w // self.w) * (self.src_h // self.h) * 4
