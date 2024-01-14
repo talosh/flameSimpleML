@@ -556,6 +556,7 @@ def main():
             source, target = read_image_queue.get()
             source = source.unsqueeze(0)
             target = target.unsqueeze(0)
+            source = torch.rand(1, 3, 256, 256)
 
             if step % 40 == 1:
                 preview_folder = os.path.join(args.dataset_path, 'preview')
