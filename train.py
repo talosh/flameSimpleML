@@ -565,7 +565,7 @@ def main():
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
 
-        step = step + 1
+            step = step + 1
         # time.sleep(1e-8)
 
 if __name__ == "__main__":
