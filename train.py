@@ -546,18 +546,25 @@ def main():
 
     # Rest of your training script...
 
+    step = 0
+    current_epoch = 0
+
     while True:
         for batch_idx in range(len(dataset)):
             source, target = read_image_queue.get()
 
             if step % 40 == 1:
-                sample_source = rgb_before[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-                sample_target = rgb_after[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-                sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
+                preview_folder = os.path.join(args.dataset_path, 'preview')
+                sample_source = source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
+                sample_target = target[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
+                write_exr(sample_source, os.path.join(preview_folder, 'source.exr'))
+                write_exr(sample_target, os.path.join(preview_folder, 'target.exr'))
+
+                # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
 
-
-        time.sleep(1e-8)
+        step = step + 1
+        # time.sleep(1e-8)
 
 if __name__ == "__main__":
     main()
