@@ -816,15 +816,16 @@ def main():
             data_time = time.time() - time_stamp
             time_stamp = time.time()
 
+            '''
             if step < number_warmup_steps:
                 current_lr = warmup(step, lr=lr, number_warmup_steps=number_warmup_steps)
             else:
-                current_lr = scheduler.get_last_lr()[0]
-
+            '''
+            current_lr = scheduler.get_last_lr()[0]
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
 
-            # current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
+            current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
 
             optimizer.zero_grad(set_to_none=True)
             output = model(source * 2 - 1)
@@ -864,7 +865,7 @@ def main():
             data_time += time.time() - time_stamp
             data_time_str = str(f'{data_time:.2f}')
             train_time_str = str(f'{train_time:.2f}')
-            current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
+            # current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
             # current_lr_str = str(f'{scheduler.get_last_lr()[0]:.4e}')
 
             epoch_time = time.time() - start_timestamp
