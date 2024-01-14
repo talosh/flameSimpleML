@@ -567,16 +567,6 @@ def main():
         print (f'Model type {args.type} is not yet implemented')
         sys.exit()
 
-    if args.model_path:
-        trained_model_path = args.model_path
-    else:
-        traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid()
-        trained_model_dir = os.path.join(
-            os.path.expanduser('~'),
-            'flameSimpleML_models')
-        os.makedirs(trained_model_dir)
-        trained_model_path = os.path.join(trained_model_dir, traned_model_name)
-
     warmup_epochs = args.warmup
     pulse_dive = args.pulse_amplitude
     pulse_period = args.pulse
@@ -587,21 +577,46 @@ def main():
     criterion_l1 = torch.nn.L1Loss()
     optimizer =torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0)
 
-    '''
-    # Access arguments using args.learning_rate, args.model_type, etc.
-    print(f"Dataset Path: {args.dataset_path}")
-    print(f"Learning Rate: {args.learning_rate}")
-    print(f"Model Type: {args.model_type}")
-    print(f"Warmup: {args.warmup}")
-    print(f"Pulse: {args.pulse}")
-    print(f"Pulse Amplitude: {args.pulse_amplitude}")
-    '''
+    def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
+        mul_lin = current_step / number_warmup_steps
+        return lr * mul_lin if lr * mul_lin > 1e-111 else 1e-111
+
+    train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
+    warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs ) / 10))
+    scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
 
     # Rest of your training script...
 
     step = 0
     current_epoch = 0
     preview_index = 0
+
+    steps_loss = []
+    epoch_loss = []
+
+    if args.model_path:
+        trained_model_path = args.model_path
+        try:
+            checkpoint = torch.load(trained_model_path)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            print('loaded previously saved model')
+        except Exception as e:
+            print (f'unable to load saved model: {e}')
+
+        try:
+            start_timestamp = checkpoint.get('start_timestamp')
+        except:
+            start_timestamp = time.time()
+    else:
+        traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid()
+        trained_model_dir = os.path.join(
+            os.path.expanduser('~'),
+            'flameSimpleML_models')
+        os.makedirs(trained_model_dir)
+        trained_model_path = os.path.join(trained_model_dir, traned_model_name)
+
+
+
 
     while True:
         for batch_idx in range(len(dataset)):
