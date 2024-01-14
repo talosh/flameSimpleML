@@ -722,6 +722,7 @@ def main():
 
 
     if args.type == 1:
+        model_name = Model_01.get_name()
         model = Model_01().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
     else:
         print (f'Model type {args.type} is not yet implemented')
@@ -879,6 +880,7 @@ def main():
             'lr': optimizer.param_groups[0]['lr'],
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
+            'model_name': model_name,
         }, trained_model_path)
         
         smoothed_loss = np.mean(moving_average(epoch_loss, 9))
