@@ -265,6 +265,8 @@ class MinExrReader:
 
 def write_exr(image_data, filename, half_float = True, pixelAspectRatio = 1.0):
 
+    print (filename)
+
     height, width, depth = image_data.shape
     red = image_data[:, :, 0]
     green = image_data[:, :, 1]
