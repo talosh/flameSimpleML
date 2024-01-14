@@ -351,7 +351,6 @@ def write_exr(image_data, filename, half_float = False, pixelAspectRatio = 1.0):
 
 class myDataset(torch.utils.data.Dataset):
     def __init__(self, data_root):
-        print ('dataset init')
         self.data_root = data_root
         self.source_root = os.path.join(self.data_root, 'source')
         self.target_root = os.path.join(self.data_root, 'target')
@@ -532,6 +531,10 @@ def main():
     else:
         print (f'Model type {args.type} is not yet implemented')
         sys.exit()
+
+    criterion_mse = torch.nn.MSELoss()
+    criterion_l1 = torch.nn.L1Loss()
+    optimizer =torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0)
 
     '''
     # Access arguments using args.learning_rate, args.model_type, etc.
