@@ -809,6 +809,9 @@ def main():
 
     while True:
         for batch_idx in range(len(dataset)):
+            data_time = time.time() - time_stamp
+            time_stamp = time.time()
+
             source, target = read_image_queue.get()
 
             # test block
@@ -827,9 +830,6 @@ def main():
 
             source = source.to(device, non_blocking = True)
             target = target.to(device, non_blocking = True)
-
-            data_time = time.time() - time_stamp
-            time_stamp = time.time()
 
             if step < number_warmup_steps:
                 current_lr = warmup(step, lr=lr, number_warmup_steps=number_warmup_steps)
