@@ -825,6 +825,8 @@ def main():
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
 
+            print (optimizer.param_groups)
+
             current_lr_str = str(f'{optimizer.param_groups[0]["lr"]:.4e}')
 
             optimizer.zero_grad(set_to_none=True)
