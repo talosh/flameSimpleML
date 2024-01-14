@@ -864,6 +864,21 @@ def main():
 
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
+            if step % 100 == 1:
+                torch.save({
+                    'step': step,
+                    'steps_loss': steps_loss,
+                    'epoch': epoch,
+                    'epoch_loss': epoch_loss,
+                    'start_timestamp': start_timestamp,
+                    # 'batch_idx': batch_idx,
+                    'lr': optimizer.param_groups[0]['lr'],
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'model_name': model_name,
+                }, trained_model_path)
+
+
             data_time += time.time() - time_stamp
             data_time_str = str(f'{data_time:.2f}')
             train_time_str = str(f'{train_time:.2f}')
