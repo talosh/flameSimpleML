@@ -525,12 +525,13 @@ class flameAppFramework(object):
             # try to add bundled packafe folder into sys.path and check if it is possible to import
             if not self.site_packages_folder in sys.path:
                 sys.path.append(self.site_packages_folder)
-            missing_requirements = import_required_packages(requirements, cleanup = True)
+            missing_requirements = import_required_packages(requirements, cleanup = False)
             
+            # missing_requirements = import_required_packages(requirements, cleanup = True)
             # cleanup sys path and import cache afterwards
-            if self.site_packages_folder in sys.path:
-                sys.path.remove(self.site_packages_folder)
-            sys.path_importer_cache.clear()
+            # if self.site_packages_folder in sys.path:
+            #    sys.path.remove(self.site_packages_folder)
+            # sys.path_importer_cache.clear()
 
             return missing_requirements
         else:

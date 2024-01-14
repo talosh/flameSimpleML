@@ -1617,7 +1617,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 if ModelClass:
                     try:
                         model_name = ModelClass.get_name()  # Assuming get_name() is the static method                            
-                        model_dict[model_name] = ModelClass.get_model()
+                        model_dict[model_name] = ModelClass().get_model()
                     except Exception as e:
                         self.log(f'Error loading model from {file_path}: {e}')
         return model_dict
