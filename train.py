@@ -554,6 +554,8 @@ def main():
     while True:
         for batch_idx in range(len(dataset)):
             source, target = read_image_queue.get()
+            source = source.unsqueeze(0)
+            target = target.unsqueeze(0)
 
             if step % 40 == 1:
                 preview_folder = os.path.join(args.dataset_path, 'preview')
