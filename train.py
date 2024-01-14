@@ -516,7 +516,6 @@ class myDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         img0, img1 = self.getimg(index)
 
-        '''
         q = random.uniform(0, 1)
         if q < 0.5:
             img0, img1 = self.crop(img0, img1, self.h, self.w)
@@ -545,11 +544,10 @@ class myDataset(torch.utils.data.Dataset):
         elif p < 0.75:
             img0 = torch.flip(img0.transpose(1, 2), [1])
             img1 = torch.flip(img1.transpose(1, 2), [1])
-        '''
 
-        img0, img1 = self.crop(img0, img1, self.h, self.w)
-        img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
-        img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+        # img0, img1 = self.crop(img0, img1, self.h, self.w)
+        # img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+        # img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
 
         return img0, img1
 
