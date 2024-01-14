@@ -860,9 +860,8 @@ def main():
 
             if step % 40 == 1:
                 
-                source = source.cpu()
-                target = target.cpu()
-                output = output.cpu()
+                source = source.cpu().detach()
+                target = target.cpu().detach()
 
                 rgb_source = restore_normalized_values(source[:, :3, :, :])
                 rgb_target = restore_normalized_values(target[:, :3, :, :])
