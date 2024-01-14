@@ -1969,7 +1969,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             # if self.frames_map[frame].get('saved'):
             #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
             #    continue
-            # self.set_current_frame(frame, render = True)
+            
+            self.set_current_frame(frame, render = True)
             
             if self.app_state.get('render_loop'):
                 save_image_data = self.app_state.get('res_image_data')
