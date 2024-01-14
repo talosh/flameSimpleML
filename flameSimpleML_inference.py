@@ -2089,7 +2089,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     text = 'Frame: ' + str(current_frame)
                 )
 
-        self.app_state['res_image_data'] = res_image_data
+        self.app_state['res_image_data'] = res_image_data.cpu().detach().numpy()
 
         '''
         del res_image_data
