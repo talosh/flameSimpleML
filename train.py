@@ -792,7 +792,7 @@ def main():
         except Exception as e:
             print (f'unable to load step and epoch loss statistics: {e}')
     else:
-        traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid() + 'pth'
+        traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid() + '.pth'
         trained_model_dir = os.path.join(
             os.path.expanduser('~'),
             'flameSimpleML_models')
@@ -864,8 +864,7 @@ def main():
 
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
-            if step % 100 == 1:
-                print (trained_model_path)
+            if step % 1000 == 1:
                 torch.save({
                     'step': step,
                     'steps_loss': steps_loss,
