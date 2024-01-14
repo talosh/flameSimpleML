@@ -2732,7 +2732,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except Exception as e:
             print (f'close_application exception {e}')
         '''
-
+        
         del self.current_model
         del self.model_state_dict
         gc.collect()
@@ -2795,6 +2795,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 for c in ch:
                     if c.name.get_value() == self.app_state.get('destination_node_name'):
                         result_clip = c
+
+            print (f'result clip: {result_clip}')
             
             if result_clip:
                 try:
