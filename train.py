@@ -822,12 +822,11 @@ def main():
             continue
             '''
 
+            source = normalize(source).unsqueeze(0)
+            target = normalize(target).unsqueeze(0)
 
             source = source.to(device, non_blocking = True)
             target = target.to(device, non_blocking = True)
-
-            source = normalize(source).unsqueeze(0) 
-            target = normalize(target).unsqueeze(0)
 
             data_time = time.time() - time_stamp
             time_stamp = time.time()
