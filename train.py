@@ -561,7 +561,7 @@ def main():
                 sample_target = target[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
                 write_exr(sample_source, os.path.join(preview_folder, f'{preview_index:02}_source.exr'))
                 write_exr(sample_target, os.path.join(preview_folder, f'{preview_index:02}_target.exr'))
-                preview_index = preview_index + 1 if preview_index < 10 else 0
+                preview_index = preview_index + 1 if preview_index < 9 else 0
 
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
