@@ -737,9 +737,8 @@ def main():
 
     criterion_mse = torch.nn.MSELoss()
     criterion_l1 = torch.nn.L1Loss()
+    optimizer_sgd = torch.optim.SGD(model.parameters(), lr=lr)
     optimizer = Yogi(model.parameters(), lr=lr)
-    # optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-
 
     def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
         mul_lin = current_step / number_warmup_steps
