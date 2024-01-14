@@ -672,11 +672,18 @@ def main():
             time_stamp = time.time()
 
             if step % 40 == 1:
+
+                rgb_source = restore_normalized_values(source[:, :3, :, :])
+                rgb_target = restore_normalized_values(target[:, :3, :, :])
+                rgb_output = restore_normalized_values(output[:, :3, :, :])
+
                 preview_folder = os.path.join(args.dataset_path, 'preview')
-                sample_source = source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
-                sample_target = target[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
+                sample_source = rgb_source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
+                sample_target = rgb_target[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
+                sample_output = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
                 write_exr(sample_source, os.path.join(preview_folder, f'{preview_index:02}_source.exr'))
                 write_exr(sample_target, os.path.join(preview_folder, f'{preview_index:02}_target.exr'))
+                write_exr(sample_output, os.path.join(preview_folder, f'{preview_index:02}_output.exr'))
                 preview_index = preview_index + 1 if preview_index < 9 else 0
 
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
