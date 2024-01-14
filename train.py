@@ -743,7 +743,7 @@ def main():
         return lr * mul_lin
 
     train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
-    warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs )))
+    warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs ) / 10))
     scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, [warmup_scheduler, train_scheduler], [steps_per_epoch * warmup_epochs])
 
     # Rest of your training script...
