@@ -751,7 +751,7 @@ def main():
 
     # remove annoying message in pytorch 1.12.1 when using CosineAnnealingLR
     import warnings
-    warnings.filterwarnings('ignore', 'EPOCH_DEPRECATION_WARNING')
+    warnings.filterwarnings('ignore', category=UserWarning)
 
     train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
     warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: warmup(step, lr=lr, number_warmup_steps=( steps_per_epoch * warmup_epochs )))
