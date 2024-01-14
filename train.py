@@ -820,7 +820,7 @@ def main():
             else:
                 current_lr = scheduler.get_last_lr()[0]
 
-            print (f'step: {step}, current_lr {current_lr:.4f}')
+            print (f'step: {step}, current_lr {current_lr:.4e}')
 
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
