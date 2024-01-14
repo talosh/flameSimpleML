@@ -816,12 +816,10 @@ def main():
             data_time = time.time() - time_stamp
             time_stamp = time.time()
 
-            '''
             if step < number_warmup_steps:
                 current_lr = warmup(step, lr=lr, number_warmup_steps=number_warmup_steps)
             else:
-            '''
-            current_lr = scheduler.get_last_lr()[0]
+                current_lr = scheduler.get_last_lr()[0]
             for param_group in optimizer.param_groups:
                 param_group['lr'] = current_lr
 
