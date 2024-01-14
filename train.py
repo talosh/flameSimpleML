@@ -740,7 +740,6 @@ def main():
 
     def warmup(current_step, lr = 4e-3, number_warmup_steps = 999):
         mul_lin = current_step / number_warmup_steps
-        print (f'\n warmup steps: {number_warmup_steps}, current step: {current_step} mul: {mul_lin}, lr: {(lr * mul_lin):.4e}')
         return lr * mul_lin if lr * mul_lin > 1e-111 else 1e-111
 
     train_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps_per_epoch * pulse_period, eta_min = lr - (( lr / 100 ) * pulse_dive) )
@@ -810,6 +809,10 @@ def main():
             data_time = time.time() - time_stamp
             time_stamp = time.time()
 
+            current_lr = scheduler.get_last_lr()[0]
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = current_lr
+
             optimizer.zero_grad(set_to_none=True)
             output = model(source * 2 - 1)
             output = ( output + 1 ) / 2
@@ -822,11 +825,6 @@ def main():
             steps_loss.append(float(loss_l1))
 
             loss.backward()
-
-            current_lr = scheduler.get_last_lr()[0]
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = current_lr
-
             optimizer.step()
             scheduler.step()
 
