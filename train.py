@@ -602,11 +602,27 @@ def main():
             print('loaded previously saved model')
         except Exception as e:
             print (f'unable to load saved model: {e}')
-
         try:
             start_timestamp = checkpoint.get('start_timestamp')
         except:
             start_timestamp = time.time()
+        try:
+            step = checkpoint['step']
+            print (f'step: {step}')
+            current_epoch = checkpoint['epoch']
+            print (f'epoch: {current_epoch + 1}')
+            # saved_batch_idx = checkpoint['batch_idx']
+            # print (f'saved batch index: {saved_batch_idx}')
+        except Exception as e:
+            print (f'unable to set step and epoch: {e}')
+
+        try:
+            steps_loss = checkpoint['steps_loss']
+            print (f'loaded loss statistics for step: {step}')
+            epoch_loss = checkpoint['epoch_loss']
+            print (f'loaded loss statistics for epoch: {current_epoch + 1}')
+        except Exception as e:
+            print (f'unable to load step and epoch loss statistics: {e}')
     else:
         traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid()
         trained_model_dir = os.path.join(
@@ -616,13 +632,43 @@ def main():
         trained_model_path = os.path.join(trained_model_dir, traned_model_name)
 
 
-
+    time_stamp = time.time()
+    epoch = current_epoch
 
     while True:
         for batch_idx in range(len(dataset)):
             source, target = read_image_queue.get()
-            source = source.unsqueeze(0)
-            target = target.unsqueeze(0)
+            source = source.to(device, non_blocking = True)
+            target = target.to(device, non_blocking = True)
+
+            source = normalize(source).unsqueeze(0) 
+            target = normalize(target).unsqueeze(0)
+
+            data_time = time.time() - time_stamp
+            time_stamp = time.time()
+
+            optimizer.zero_grad(set_to_none=True)
+            output = model(source * 2 - 1)
+            output = ( output + 1 ) / 2
+
+            loss = criterion_mse(output, after)
+            loss_l1 = criterion_l1(output, after)
+            loss_l1_str = str(f'{loss_l1.item():.4f}')
+
+            epoch_loss.append(float(loss_l1))
+            steps_loss.append(float(loss_l1))
+
+            loss.backward()
+
+            current_lr = scheduler.get_last_lr()[0]
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = current_lr
+
+            optimizer.step()
+            scheduler.step()
+
+            train_time = time.time() - time_stamp
+            time_stamp = time.time()
 
             if step % 40 == 1:
                 preview_folder = os.path.join(args.dataset_path, 'preview')
@@ -634,9 +680,18 @@ def main():
 
                 # sample_current = rgb_output[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
 
+            data_time += time.time() - time_stamp
+            data_time_str = str(f'{data_time:.2f}')
+            train_time_str = str(f'{train_time:.2f}')
+            current_lr_str = str(f'{scheduler.get_last_lr()[0]:.4e}')
 
+            epoch_time = time.time() - start_timestamp
+            days = int(epoch_time // (24 * 3600))
+            hours = int((epoch_time % (24 * 3600)) // 3600)
+            minutes = int((epoch_time % 3600) // 60)
+
+            print (f'\033[K\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str}, Loss L1: {loss_l1_str}', end='')
             step = step + 1
-        # time.sleep(1e-8)
 
 if __name__ == "__main__":
     main()
