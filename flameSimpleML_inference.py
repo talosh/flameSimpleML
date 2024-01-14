@@ -1983,6 +1983,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             
             if self.app_state.get('render_loop'):
                 save_image_data = self.app_state.get('res_image_data')
+                save_image_data = save_image_data.cpu().detach().numpy()
                 self.save_result_frame(
                     save_image_data,
                     self.app_state.get('current_frame') - 1
@@ -2098,7 +2099,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     text = 'Frame: ' + str(current_frame)
                 )
 
-        self.app_state['res_image_data'] = res_image_data.cpu().detach().numpy()
+        self.app_state['res_image_data'] = res_image_data
 
         '''
         del res_image_data
