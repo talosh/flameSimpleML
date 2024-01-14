@@ -517,6 +517,9 @@ def restore_normalized_values(image_array, torch = None):
 
     return image_array
 
+def moving_average(data, window_size):
+    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+
 def main():
     parser = argparse.ArgumentParser(description='Training script.')
 
@@ -698,8 +701,31 @@ def main():
             hours = int((epoch_time % (24 * 3600)) // 3600)
             minutes = int((epoch_time % 3600) // 60)
 
-            print (f'\033[K\rEpoch [{epoch + 1} - {days:02} d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str}, Loss L1: {loss_l1_str}', end='')
+            print (f'\033[K\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Time:{data_time_str} + {train_time_str}, Batch [{batch_idx + 1} / {len(dataset)}], Lr: {current_lr_str}, Loss L1: {loss_l1_str}', end='')
             step = step + 1
+
+        torch.save({
+            'step': step,
+            'steps_loss': steps_loss,
+            'epoch': epoch,
+            'epoch_loss': epoch_loss,
+            'start_timestamp': start_timestamp,
+            # 'batch_idx': batch_idx,
+            'lr': optimizer.param_groups[0]['lr'],
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+        }, trained_model_path)
+        
+        smoothed_loss = np.mean(moving_average(epoch_loss, 9))
+        epoch_time = time.time() - start_timestamp
+        days = int(epoch_time // (24 * 3600))
+        hours = int((epoch_time % (24 * 3600)) // 3600)
+        minutes = int((epoch_time % 3600) // 60)
+        print(f'\rEpoch [{epoch + 1} - {days:02}d {hours:02}:{minutes:02}], Min: {min(epoch_loss):.4f} Avg: {smoothed_loss:.4f}, Max: {max(epoch_loss):.4f}')
+        steps_loss = []
+        epoch_loss = []
+        epoch = epoch + 1
+
 
 if __name__ == "__main__":
     main()
