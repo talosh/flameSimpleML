@@ -36,6 +36,20 @@ except:
         if fw.site_packages_folder in sys.path:
             sys.path.remove(fw.site_packages_folder)
 
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
+
+from torch import Tensor
+
+Params = Union[Iterable[Tensor], Iterable[Dict[str, Any]]]
+
+LossClosure = Callable[[], float]
+OptLossClosure = Optional[LossClosure]
+Betas2 = Tuple[float, float]
+State = Dict[str, Any]
+OptFloat = Optional[float]
+Nus2 = Tuple[float, float]
+
+
 class BufferReader:
     '''A lightweight io.BytesIO object with convenience functions.
     
@@ -623,7 +637,7 @@ def main():
         except Exception as e:
             print (f'unable to load step and epoch loss statistics: {e}')
     else:
-        traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid()
+        traned_model_name = 'flameSimpleML_model_' + fw.create_timestamp_uid() + 'pth'
         trained_model_dir = os.path.join(
             os.path.expanduser('~'),
             'flameSimpleML_models')
