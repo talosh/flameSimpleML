@@ -652,8 +652,8 @@ def main():
             output = model(source * 2 - 1)
             output = ( output + 1 ) / 2
 
-            loss = criterion_mse(output, after)
-            loss_l1 = criterion_l1(output, after)
+            loss = criterion_mse(output, target)
+            loss_l1 = criterion_l1(output, target)
             loss_l1_str = str(f'{loss_l1.item():.4f}')
 
             epoch_loss.append(float(loss_l1))
