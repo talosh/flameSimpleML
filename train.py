@@ -15,7 +15,7 @@ importlib.reload(flameSimpleML_framework)
 from flameSimpleML_framework import flameAppFramework
 
 from models.multires_v001 import Model as Model_01
-
+from models.multires4_v001 import Model as Model_02
 
 fw = flameAppFramework()
 try:
@@ -192,7 +192,6 @@ class Yogi(Optimizer):
                 p.data.addcdiv_(exp_avg, denom, value=-step_size)
 
         return loss
-
 
 class BufferReader:
     '''A lightweight io.BytesIO object with convenience functions.
@@ -723,8 +722,8 @@ def main():
     '''
     
     if args.type == 1:
-        model_name = Model_01.get_name()
-        model = Model_01().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
+        model_name = Model_02.get_name()
+        model = Model_02().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
     else:
         print (f'Model type {args.type} is not yet implemented')
         sys.exit()
