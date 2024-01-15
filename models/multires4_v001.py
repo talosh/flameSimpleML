@@ -1,4 +1,3 @@
-
 class Model:
 	def __init__(self, status = dict(), torch = None):
 		if torch is None:
