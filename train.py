@@ -517,7 +517,6 @@ class myDataset(torch.utils.data.Dataset):
 
         device = torch.device("mps") if platform.system() == 'Darwin' else torch.device(f'cuda')
 
-        '''
         q = random.uniform(0, 1)
         if q < 0.5:
             img0, img1 = self.crop(img0, img1, self.h, self.w)
@@ -541,11 +540,6 @@ class myDataset(torch.utils.data.Dataset):
             img1 = img1.to(device)
             img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
             img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
-        '''
-
-        img0, img1 = self.crop(img0, img1, self.h, self.w)
-        img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
-        img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
 
         p = random.uniform(0, 1)
         if p < 0.25:
@@ -841,8 +835,11 @@ def main():
 
             source = source.to(device, non_blocking = True)
             target = target.to(device, non_blocking = True)
-            source = normalize(source).unsqueeze(0)
-            target = normalize(target).unsqueeze(0)
+            source = source.unsqueeze(0)
+            target = target.unsqueeze(0)
+
+            # source = normalize(source).unsqueeze(0)
+            # target = normalize(target).unsqueeze(0)
 
 
             if step < number_warmup_steps:
@@ -873,9 +870,14 @@ def main():
             time_stamp = time.time()
 
             if step % 40 == 1:
-                rgb_source = restore_normalized_values(source[:, :3, :, :])
-                rgb_target = restore_normalized_values(target[:, :3, :, :])
-                rgb_output = restore_normalized_values(output[:, :3, :, :])
+                # rgb_source = restore_normalized_values(source[:, :3, :, :])
+                # rgb_target = restore_normalized_values(target[:, :3, :, :])
+                # rgb_output = restore_normalized_values(output[:, :3, :, :])
+
+                rgb_source = source[:, :3, :, :]
+                rgb_target = target[:, :3, :, :]
+                rgb_output = output[:, :3, :, :]
+
 
                 preview_folder = os.path.join(args.dataset_path, 'preview')
                 sample_source = rgb_source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
