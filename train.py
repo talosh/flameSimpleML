@@ -730,6 +730,9 @@ def main():
     '''
     
     if args.type == 1:
+        model_name = Model_01.get_name()
+        model = Model_01().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
+    elif args.type == 2:
         model_name = Model_02.get_name()
         model = Model_02().get_training_model()(dataset.in_channles, dataset.out_channels).to(device)
     else:
