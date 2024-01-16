@@ -517,6 +517,7 @@ class myDataset(torch.utils.data.Dataset):
 
         device = torch.device("mps") if platform.system() == 'Darwin' else torch.device(f'cuda')
 
+        '''
         q = random.uniform(0, 1)
         if q < 0.5:
             img0, img1 = self.crop(img0, img1, self.h, self.w)
@@ -540,7 +541,12 @@ class myDataset(torch.utils.data.Dataset):
             img1 = img1.to(device)
             img0 = torch.nn.functional.interpolate(img0.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
             img1 = torch.nn.functional.interpolate(img1.unsqueeze(0), scale_factor=0.5, mode='bilinear', align_corners=False)[0]
-        
+        '''
+
+        img0, img1 = self.crop(img0, img1, self.h, self.w)
+        img0 = torch.from_numpy(img0.copy()).permute(2, 0, 1)
+        img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
+
         p = random.uniform(0, 1)
         if p < 0.25:
             img0 = torch.flip(img0.transpose(1, 2), [2])
