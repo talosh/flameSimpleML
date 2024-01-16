@@ -644,18 +644,23 @@ def write_exr(image_data, filename, half_float = False, pixelAspectRatio = 1.0):
                 f.write(channel_data[channel][y].tobytes())
         f.close
 
-def normalize(img) :
-    def custom_bend(x) :
+def normalize(image_array) :
+    def custom_bend(x):
         linear_part = x
         exp_positive = torch.pow( x, 1 / 4 )
-        exp_negative = - torch.pow( -x, 1 / 4 )
+        exp_negative = -torch.pow( -x, 1 / 4 )
         return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
-    
-    img = (img * 2) - 1
-    img = custom_bend(img)
-    img = torch.tanh(img)
-    img = (img + 1) / 2
-    return img
+
+    # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
+    image_array = (image_array * 2) - 1
+    # bend values below -1.0 and above 1.0 exponentially so they are not larger then (-4.0 - 4.0)
+    image_array = custom_bend(image_array)
+    # bend everything to fit -1.0 - 1.0 with hyperbolic tanhent
+    image_array = torch.tanh(image_array)
+    # move it to 0.0 - 1.0 range
+    image_array = (image_array + 1) / 2
+
+    return image_array
 
 def restore_normalized_values(image_array, torch = None):
     if torch is None:
