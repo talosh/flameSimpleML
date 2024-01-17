@@ -977,7 +977,6 @@ def main():
         epoch_loss = []
         epoch = epoch + 1
 
-
 if __name__ == "__main__":
     main()
 
