@@ -710,8 +710,8 @@ def restore_normalized_values_numpy(image_array_torch):
 
     def custom_de_bend(x):
         linear_part = x
-        inv_positive = np.power(x, 4)
-        inv_negative = -np.power(-x, 4)
+        inv_positive = np.sign(x) * np.power(np.abs(x), 4)
+        inv_negative = np.sign(x) * np.power(np.abs(x), 4)
         return np.where(x > 1, inv_positive, np.where(x < -1, inv_negative, linear_part))
 
     epsilon = 4e-8
