@@ -2290,8 +2290,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 raise Exception('Unknown image format')
             
         except Exception as e:
-            self.message('Error: %s' % e)
-
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': e,
+                'action': None}
+            )
         finally:
             server_handle = None
             clip_node_handle = None
