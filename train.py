@@ -669,7 +669,9 @@ def normalize_numpy(image_array_torch):
 
     def custom_bend(x):
         linear_part = x
-        return np.where(x > 1, np.power(x, 1 / 4), np.where(x < -1,  -np.power(-x, 1 / 4), linear_part))
+        exp_positive = np.sign(x) * np.power(np.abs(x), 1 / 4)
+        exp_negative = np.sign(x) * np.power(np.abs(x), 1 / 4)
+        return np.where(x > 1, exp_positive, np.where(x < -1, exp_negative, linear_part))
 
     # Transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
     image_array = (image_array * 2) - 1
@@ -708,7 +710,9 @@ def restore_normalized_values_numpy(image_array_torch):
 
     def custom_de_bend(x):
         linear_part = x
-        return np.where(x > 1, np.power(x, 4), np.where(x < -1, -np.power(-x, 4), linear_part))
+        inv_positive = np.power(x, 4)
+        inv_negative = -np.power(-x, 4)
+        return np.where(x > 1, inv_positive, np.where(x < -1, inv_negative, linear_part))
 
     epsilon = 4e-8
     # Clamp image before arctanh
