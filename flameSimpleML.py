@@ -10,7 +10,7 @@ from flameSimpleML_inference import flameSimpleMLInference
 
 settings = {
     'menu_group_name': 'Simple ML',
-    'debug': True,
+    'debug': False,
     'app_name': 'flameSimpleML',
     'prefs_folder': os.getenv('FLAMESMPLMsL_PREFS'),
     'bundle_folder': os.getenv('FLAMESMPLML_BUNDLE'),
@@ -20,7 +20,7 @@ settings = {
         'numpy>=1.16',
         'torch>=1.12.0'
     ],
-    'version': 'v0.0.1',
+    'version': 'v0.0.2',
 }
 
 def get_media_panel_custom_ui_actions():
