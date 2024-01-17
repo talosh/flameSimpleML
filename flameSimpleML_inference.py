@@ -1156,7 +1156,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def f1_key_pressed(self):
         self.app_state['view_mode'] = 'F1'
-        print (self.app_state['view_mode'])
         if self.app_state.get('render_loop'):
             return
         
@@ -1169,8 +1168,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def f4_key_pressed(self):
         self.app_state['view_mode'] = 'F4'
-        print (self.app_state['view_mode'])
-
         if self.app_state.get('render_loop'):
             return
 
@@ -2146,7 +2143,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         frame_time = time.time() - time_stamp
         frame_time_str = str(f'{frame_time:.2f}')
-        print (f'time: {frame_time_str}')
+        self.log_debug(f'time: {frame_time_str}')
 
         self.empty_torch_cache()
 
