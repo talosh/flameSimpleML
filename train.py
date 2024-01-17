@@ -647,9 +647,8 @@ def write_exr(image_data, filename, half_float = False, pixelAspectRatio = 1.0):
 def normalize(image_array) :
     def custom_bend(x):
         linear_part = x
-        exp_positive = torch.pow( x, 1 / 4 )
-        exp_negative = -torch.pow( -x, 1 / 4 )
-        return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
+        exp_bend = torch.sign(x) * torch.pow(torch.abs(x), 1 / 4 )
+        return torch.where(x > 1, exp_bend, torch.where(x < -1, exp_bend, linear_part))
 
     # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
     image_array = (image_array * 2) - 1
@@ -686,9 +685,8 @@ def normalize_numpy(image_array_torch):
 def restore_normalized_values(image_array):
     def custom_de_bend(x):
         linear_part = x
-        inv_positive = torch.pow( x, 4 )
-        inv_negative = -torch.pow( -x, 4 )
-        return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
+        exp_deband = torch.sign(x) * torch.pow(torch.abs(x), 4 )
+        return torch.where(x > 1, exp_deband, torch.where(x < -1, exp_deband, linear_part))
 
     epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
     # clamp image befor arctanh
