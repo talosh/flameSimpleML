@@ -2250,7 +2250,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 image_array = np.frombuffer(bytes(buff, 'latin-1'), dtype=dt)[:-1 * buff_tail]
                 image_array = torch.from_numpy(image_array.astype(np.float32))
                 image_array = image_array.to(
-                    device = self.parent_app.torch_device,
+                    device = self.torch_device,
                     dtype = torch.float32,
                     non_blocking=True
                     )
