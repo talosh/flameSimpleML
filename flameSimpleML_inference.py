@@ -2468,7 +2468,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         except Exception as e:
             pprint (e)
-            self.message('Error: %s' % e)
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': e,
+                'action': None}
+            )
         finally:
             gateway_server_handle = None
             clip_node_handle = None
