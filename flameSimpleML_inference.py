@@ -2292,9 +2292,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except Exception as e:
             self.message_queue.put(
                 {'type': 'mbox',
-                'message': e,
+                'message': f'Unable to read source image: {e}',
                 'action': None}
             )
+
         finally:
             server_handle = None
             clip_node_handle = None
