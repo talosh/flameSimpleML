@@ -662,10 +662,29 @@ def normalize(image_array) :
 
     return image_array
 
-def restore_normalized_values(image_array, torch = None):
-    if torch is None:
-        import torch
+def normalize_numpy(image_array_torch):
+    import numpy as np
 
+    image_array = image_array_torch.clone().cpu().detach().numpy()
+
+    def custom_bend(x):
+        linear_part = x
+        exp_positive = np.power(x, 1 / 4)
+        exp_negative = -np.power(-x, 1 / 4)
+        return np.where(x > 1, exp_positive, np.where(x < -1, exp_negative, linear_part))
+
+    # Transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
+    image_array = (image_array * 2) - 1
+    # Bend values below -1.0 and above 1.0 exponentially so they are not larger than (-4.0 - 4.0)
+    image_array = custom_bend(image_array)
+    # Bend everything to fit -1.0 - 1.0 with hyperbolic tangent
+    image_array = np.tanh(image_array)
+    # Move it to 0.0 - 1.0 range
+    image_array = (image_array + 1) / 2
+
+    return torch.from_numpy(image_array.copy())
+
+def restore_normalized_values(image_array):
     def custom_de_bend(x):
         linear_part = x
         inv_positive = torch.pow( x, 4 )
@@ -683,6 +702,29 @@ def restore_normalized_values(image_array, torch = None):
     image_array = ( image_array + 1.0) / 2.0
 
     return image_array
+
+def restore_normalized_values_numpy(image_array_torch):
+    import numpy as np
+
+    image_array = image_array_torch.clone().cpu().detach().numpy()
+
+    def custom_de_bend(x):
+        linear_part = x
+        inv_positive = np.power(x, 4)
+        inv_negative = -np.power(-x, 4)
+        return np.where(x > 1, inv_positive, np.where(x < -1, inv_negative, linear_part))
+
+    epsilon = 4e-8
+    # Clamp image before arctanh
+    image_array = np.clip((image_array * 2) - 1, -1.0 + epsilon, 1.0 - epsilon)
+    # Restore values from tanh s-curve
+    image_array = np.arctanh(image_array)
+    # Restore custom bended values
+    image_array = custom_de_bend(image_array)
+    # Move it to 0.0 - 1.0 range
+    image_array = (image_array + 1.0) / 2.0
+
+    return torch.from_numpy(image_array.copy())
 
 def moving_average(data, window_size):
     return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
@@ -827,24 +869,16 @@ def main():
 
             source, target = read_image_queue.get()
 
-            # test block
-            '''
-            preview_folder = os.path.join(args.dataset_path, 'preview')
-            sample_source = source.clone().cpu().detach().numpy().transpose(1, 2, 0)
-            sample_target = target.clone().cpu().detach().numpy().transpose(1, 2, 0)
-            write_exr(sample_source, os.path.join(preview_folder, f'{batch_idx:08}_source.exr'))
-            write_exr(sample_target, os.path.join(preview_folder, f'{batch_idx:08}_target.exr'))
-
-            continue
-            '''
-
-            source = source.to(device, non_blocking = True)
-            target = target.to(device, non_blocking = True)
-            source = source.unsqueeze(0)
-            target = target.unsqueeze(0)
-
-            # source = normalize(source).unsqueeze(0)
-            # target = normalize(target).unsqueeze(0)
+            if platform.system() == 'Darwin':
+                source = normalize_numpy(source).unsqueeze(0)
+                target = normalize_numpy(target).unsqueeze(0)
+                source = source.to(device, non_blocking = True)
+                target = target.to(device, non_blocking = True)
+            else:
+                source = source.to(device, non_blocking = True)
+                target = target.to(device, non_blocking = True)
+                source = normalize(source).unsqueeze(0)
+                target = normalize(target).unsqueeze(0)
 
 
             if step < number_warmup_steps:
@@ -875,14 +909,14 @@ def main():
             time_stamp = time.time()
 
             if step % 40 == 1:
-                # rgb_source = restore_normalized_values(source[:, :3, :, :])
-                # rgb_target = restore_normalized_values(target[:, :3, :, :])
-                # rgb_output = restore_normalized_values(output[:, :3, :, :])
-
-                rgb_source = source[:, :3, :, :]
-                rgb_target = target[:, :3, :, :]
-                rgb_output = output[:, :3, :, :]
-
+                if platform.system() == 'Darwin':
+                    rgb_source = restore_normalized_values_numpy(source[:, :3, :, :])
+                    rgb_target = restore_normalized_values_numpy(target[:, :3, :, :])
+                    rgb_output = restore_normalized_values_numpy(output[:, :3, :, :])
+                else:
+                    rgb_source = restore_normalized_values(source[:, :3, :, :])
+                    rgb_target = restore_normalized_values(target[:, :3, :, :])
+                    rgb_output = restore_normalized_values(output[:, :3, :, :])
 
                 preview_folder = os.path.join(args.dataset_path, 'preview')
                 sample_source = rgb_source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
