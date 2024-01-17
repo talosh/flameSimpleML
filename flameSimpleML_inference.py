@@ -2336,7 +2336,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             if file_path.endswith('exr'):
                 if self.bits_per_channel == 32:
-                    self.parent_app.write_exr(
+                    self.write_exr(
                         file_path,
                         width,
                         height,
