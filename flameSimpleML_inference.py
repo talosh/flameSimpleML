@@ -909,7 +909,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.setWindowFlags(
             # QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint
             # QtCore.Qt.Window | QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint
-            QtCore.Qt.Window | QtCore.Qt.Tool
+            # QtCore.Qt.Window | QtCore.Qt.Tool
+            QtCore.Qt.Window
         )
 
         # calculate window dimentions
