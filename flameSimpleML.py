@@ -3,6 +3,13 @@ import sys
 import importlib
 from pprint import pprint
 
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    using_pyside6 = True
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    using_pyside6 = False
+
 import flameSimpleML_inference
 importlib.reload(flameSimpleML_inference)
 
@@ -23,6 +30,49 @@ settings = {
     'version': 'v0.0.2',
 }
 
+class ApplyModelDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Line Edit for path
+        self.pathLineEdit = QtWidgets.QLineEdit(self)
+
+        # Choose button
+        self.chooseButton = QtWidgets.QPushButton("Choose", self)
+        self.chooseButton.clicked.connect(self.chooseFile)
+
+        # Create and Cancel buttons
+        self.createButton = QtWidgets.QPushButton("Create", self)
+        self.cancelButton = QtWidgets.QPushButton("Cancel", self)
+
+        # Setting up layouts
+        self.layout = QtWidgets.QVBoxLayout(self)
+        self.buttonLayout = QtWidgets.QHBoxLayout()
+        self.pathLayout = QtWidgets.QHBoxLayout()
+
+        # Adding widgets to the path layout
+        self.pathLayout.addWidget(self.pathLineEdit)
+        self.pathLayout.addWidget(self.chooseButton)
+
+        # Adding widgets to the button layout
+        self.buttonLayout.addWidget(self.createButton)
+        self.buttonLayout.addWidget(self.cancelButton)
+
+        # Adding layouts to the main layout
+        self.layout.addLayout(self.pathLayout)
+        self.layout.addLayout(self.buttonLayout)
+
+        # Connect the create and cancel buttons
+        self.createButton.clicked.connect(self.accept)
+        self.cancelButton.clicked.connect(self.reject)
+
+    def chooseFile(self):
+        # Open file dialog and update path line edit
+        file_name, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose File")
+        if file_name:
+            self.pathLineEdit.setText(file_name)
+
+
 def get_media_panel_custom_ui_actions():
     def scope_clip(selection):
         try:
@@ -35,10 +85,19 @@ def get_media_panel_custom_ui_actions():
         return False
     
     def apply_model(selection):
+        apply_dialog = ApplyModelDialog()
+        if apply_dialog.exec():
+            print ('hello')
+        else:
+            print ('cancel')
+
+        return
+        '''
         return flameSimpleMLInference(
             selection=selection,
             settings=settings
-            ) 
+            )
+        '''
 
     def train_model(selection):
         import flame
