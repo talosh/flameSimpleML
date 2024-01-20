@@ -545,7 +545,7 @@ class flameAppFramework(object):
         else:
             return []
 
-    def create_temp_library(self, selection):        
+    def wt_create_temp_library(self, selection):        
         try:
             import flame
 
@@ -566,3 +566,80 @@ class flameAppFramework(object):
             )
             return None
 
+    def wt_create_destination_node(self, clip, num_frames):
+        try:
+            import flame
+            import numpy as np
+
+            model_name = self.model_state_dict.get('model_name', 'UnknownModel')
+            destination_node_name = clip.name.get_value() + f'_{model_name}_ML'
+            self.app_state['destination_node_name'] = destination_node_name
+            destination_node_id = ''
+            server_handle = WireTapServerHandle('localhost')
+            clip_node_id = clip.get_wiretap_node_id()
+            clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
+            fmt = WireTapClipFormat()
+            if not clip_node_handle.getClipFormat(fmt):
+                raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
+            bits_per_channel = fmt.bitsPerPixel() // fmt.numChannels()
+            self.bits_per_channel = bits_per_channel
+            self.format_tag = fmt.formatTag()
+            self.fmt = fmt
+
+            self.temp_library.release_exclusive_access()
+            node_id = self.temp_library.get_wiretap_node_id()
+            parent_node_handle = WireTapNodeHandle(server_handle, node_id)
+            destination_node_handle = WireTapNodeHandle()
+
+            if not parent_node_handle.createClipNode(
+                destination_node_name,  # display name
+                fmt,  # clip format
+                "CLIP",  # extended (server-specific) type
+                destination_node_handle,  # created node returned here
+            ):
+                raise Exception(
+                    "Unable to create clip node: %s." % parent_node_handle.lastError()
+                )
+
+            if not destination_node_handle.setNumFrames(int(num_frames)):
+                raise Exception(
+                    "Unable to set the number of frames: %s." % clip_node_handle.lastError()
+                )
+            
+            dest_fmt = WireTapClipFormat()
+            if not destination_node_handle.getClipFormat(dest_fmt):
+                raise Exception(
+                    "Unable to obtain clip format: %s." % clip_node_handle.lastError()
+                )
+            
+            # '''
+            metadata = dest_fmt.metaData()
+            metadata_tag = dest_fmt.metaDataTag()
+            metadata = metadata.replace('<ProxyFormat>default</ProxyFormat>', '<ProxyFormat>none</ProxyFormat>')
+            destination_node_handle.setMetaData(metadata_tag, metadata)
+            # '''
+
+            destination_node_id = destination_node_handle.getNodeId().id()
+
+        except Exception as e:
+            message_string = f'Error creating destination wiretap node:\n {e}'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+            return None
+        finally:
+            server_handle = None
+            clip_node_handle = None
+            parent_node_handle = None
+            destination_node_handle = None
+
+        return destination_node_id
+    
+    def wt_delete_destination_node(self, destination_node_id):
+        server_handle = WireTapServerHandle('localhost')
+        clip_node_handle = WireTapNodeHandle(server_handle, destination_node_id)
+        clip_node_handle.destroyNode()
+        server_handle = None
+        clip_node_handle = None

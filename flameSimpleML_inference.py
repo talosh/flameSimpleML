@@ -768,6 +768,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
+        # to check for cleanup:
+        # self.temp_library = None
+
         self.using_pyside6 = using_pyside6
 
         self.name = self.__class__.__name__
@@ -784,7 +787,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.log_debug = self.fw.log_debug
         self.version = self.settings.get('version', 'UnknownVersion')
         self.temp_folder = self.fw.temp_folder
-        self.temp_library = None
 
         self.prefs = self.fw.prefs_dict(self.fw.prefs, self.name)
         self.prefs_user = self.fw.prefs_dict(self.fw.prefs_user, self.name)
@@ -852,9 +854,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # mouse position on a press event
         self.mousePressPos = None
 
-        self.frame_thread = None
-        self.rendering = False
-
         #### THREADS INITIALIZAION ####
 
         self.threads = True
@@ -881,6 +880,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.log_debug('frame save thread started')
 
         self.render_loop_thread = None
+        self.frame_thread = None
 
         #### UI INITIALIZATION ####
 
@@ -970,7 +970,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def after_show(self):
         self.message_queue.put({'type': 'info', 'message': 'Checking requirements...'})
-        self.processEvents()
         missing_requirements = self.fw.check_requirements(self.fw.requirements)
         if missing_requirements:
             self.message_queue.put({'type': 'info', 'message': 'Requirements check failed'})
@@ -1485,84 +1484,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
             num_channels += fmt.numChannels()
         return num_channels
-    
-    def create_destination_node(self, clip, num_frames):
-        try:
-            import flame
-            import numpy as np
-
-            model_name = self.model_state_dict.get('model_name', 'UnknownModel')
-            destination_node_name = clip.name.get_value() + f'_{model_name}_ML'
-            self.app_state['destination_node_name'] = destination_node_name
-            destination_node_id = ''
-            server_handle = WireTapServerHandle('localhost')
-            clip_node_id = clip.get_wiretap_node_id()
-            clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
-            fmt = WireTapClipFormat()
-            if not clip_node_handle.getClipFormat(fmt):
-                raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
-            bits_per_channel = fmt.bitsPerPixel() // fmt.numChannels()
-            self.bits_per_channel = bits_per_channel
-            self.format_tag = fmt.formatTag()
-            self.fmt = fmt
-
-            self.temp_library.release_exclusive_access()
-            node_id = self.temp_library.get_wiretap_node_id()
-            parent_node_handle = WireTapNodeHandle(server_handle, node_id)
-            destination_node_handle = WireTapNodeHandle()
-
-            if not parent_node_handle.createClipNode(
-                destination_node_name,  # display name
-                fmt,  # clip format
-                "CLIP",  # extended (server-specific) type
-                destination_node_handle,  # created node returned here
-            ):
-                raise Exception(
-                    "Unable to create clip node: %s." % parent_node_handle.lastError()
-                )
-
-            if not destination_node_handle.setNumFrames(int(num_frames)):
-                raise Exception(
-                    "Unable to set the number of frames: %s." % clip_node_handle.lastError()
-                )
-            
-            dest_fmt = WireTapClipFormat()
-            if not destination_node_handle.getClipFormat(dest_fmt):
-                raise Exception(
-                    "Unable to obtain clip format: %s." % clip_node_handle.lastError()
-                )
-            
-            # '''
-            metadata = dest_fmt.metaData()
-            metadata_tag = dest_fmt.metaDataTag()
-            metadata = metadata.replace('<ProxyFormat>default</ProxyFormat>', '<ProxyFormat>none</ProxyFormat>')
-            destination_node_handle.setMetaData(metadata_tag, metadata)
-            # '''
-
-            destination_node_id = destination_node_handle.getNodeId().id()
-
-        except Exception as e:
-            message_string = f'Error creating destination wiretap node:\n {e}'
-            self.message_queue.put(
-                {'type': 'mbox',
-                'message': message_string,
-                'action': None}
-            )
-            return None
-        finally:
-            server_handle = None
-            clip_node_handle = None
-            parent_node_handle = None
-            destination_node_handle = None
-
-        return destination_node_id
-
-    def delete_destination_node(self, destination_node_id):
-        server_handle = WireTapServerHandle('localhost')
-        clip_node_handle = WireTapNodeHandle(server_handle, destination_node_id)
-        clip_node_handle.destroyNode()
-        server_handle = None
-        clip_node_handle = None
 
     def scan_models(self, folder_path):
         import importlib.util
@@ -1912,26 +1833,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     'text': 'Render'}
                 )
         return
-
-        self.log_debug(f'render: self.rendering: {self.rendering}')
-        self.rendering = not self.rendering
-        button_text = 'Stop' if self.rendering else 'Render'
-        self.message_queue.put(
-                {'type': 'setText',
-                'widget': 'render_button',
-                'text': button_text}
-            )
-
-        self.processEvents()
-        '''
-        self.ui.render_button.setText(button_text)
-        QtWidgets.QApplication.instance().processEvents()
-        time.sleep(0.001)
-        self.ui.render_button.setText(button_text)
-        QtWidgets.QApplication.instance().processEvents()
-        '''
-        if self.rendering:
-            self.render_loop()
 
     def render_loop(self):
         self.render_loop_thread = threading.Thread(target=self._render_loop)
