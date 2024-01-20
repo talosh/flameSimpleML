@@ -66,12 +66,13 @@ class ApplyModelDialog(QtWidgets.QDialog):
         self.createButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
 
+        self.setStyleSheet('background-color: #313131')
+
     def chooseFile(self):
         # Open file dialog and update path line edit
         file_name, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose File")
         if file_name:
             self.pathLineEdit.setText(file_name)
-
 
 def get_media_panel_custom_ui_actions():
     def scope_clip(selection):
