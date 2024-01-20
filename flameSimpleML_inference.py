@@ -813,6 +813,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         #### APP STATE MEGA DICT ####
 
+        self.source_frames_map = self.create_source_files_map(self.source_folder)
+        pprint (self.source_frames_map)
+
         self.app_state = {
             'view_mode': 'F4',
             'render_loop': False,
@@ -995,20 +998,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.torch_device = self.set_device()
 
         duration = self.selection[0].duration.frame
-        relative_start_frame = self.selection[0].start_time.get_value().relative_frame
 
-        for selected_item in self.selection:
-            if selected_item.duration.frame != duration:
-                message_string = 'Please select input clips of the same length'
-                message_string += ' or use "mark in" and "mark out" to give segments of the same duration'
-                self.message_queue.put(
-                    {'type': 'mbox',
-                    'message': message_string,
-                    'action': self.close_application}
-                )
-                return
-
-        self.app_state['min_frame'] = relative_start_frame
+        self.app_state['min_frame'] = 1
         self.app_state['max_frame'] = relative_start_frame + duration - 1
         self.message_queue.put(
             {'type': 'setText',
@@ -1451,6 +1442,42 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(qt_pixmap))
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
+
+    def create_source_files_map(self, folder_path):
+        print (f'hello from exr files map {folder_path}')
+        exr_dict = {}
+
+        # Ensure the folder exists
+        if not os.path.exists(folder_path):
+            message_string = f'Folder {folder_path} does not exist'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+
+        # List and sort all subfolders
+        subfolders = sorted([f.path for f in os.scandir(folder_path) if f.is_dir()])
+
+        # Check if there are any subfolders
+        if not subfolders:
+            message_string = f'No clip folders found in {folder_path}'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+
+        # Select the first subfolder and list its .exr files
+        first_subfolder = subfolders[0]
+        exr_files = sorted([f for f in os.listdir(first_subfolder) if f.endswith('.exr')])
+
+        # Create the dictionary
+        for i, file in enumerate(exr_files, start=1):
+            exr_dict[i] = [os.path.join(first_subfolder, file)]
+
+        return exr_dict
+
 
     def set_current_frame(self, new_current_frame, render = True):
         self.app_state['current_frame'] = new_current_frame
