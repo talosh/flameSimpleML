@@ -190,30 +190,86 @@ def get_media_panel_custom_ui_actions():
         timestamp = (datetime.now()).strftime('%Y%b%d_%H%M').upper()
         return f'{timestamp}_{uid}'
     
+    def export_clip(clip, export_dir, export_preset = None):
+        import flame
+
+        if not os.path.isdir(export_dir):
+            try:
+                os.makedirs(export_dir)
+            except Exception as e:
+                issue = 'Unable to create folder to export'
+                dialog = flame.messages.show_in_dialog(
+                    title =issue,
+                    message = f'{issue}:\n{export_dir}\n\nError:\n{e}',
+                    type = 'error',
+                    buttons = ['Ok'])
+                return False
+
+        class ExportHooks(object):
+            def preExport(self, info, userData, *args, **kwargs):
+                pass
+            def postExport(self, info, userData, *args, **kwargs):
+                pass
+            def preExportSequence(self, info, userData, *args, **kwargs):
+                pass
+            def postExportSequence(self, info, userData, *args, **kwargs):
+                pass
+            def preExportAsset(self, info, userData, *args, **kwargs):
+                pass
+            def postExportAsset(self, info, userData, *args, **kwargs):
+                del args, kwargs
+                pass
+            def exportOverwriteFile(self, path, *args, **kwargs):
+                del path, args, kwargs
+                return "overwrite"
+
+        exporter = flame.PyExporter()
+        exporter.foreground = True
+
+        if not export_preset:
+            export_preset_folder = flame.PyExporter.get_presets_dir(flame.PyExporter.PresetVisibility.values.get(3),
+                            flame.PyExporter.PresetType.values.get(0))
+            print (export_preset_folder)
+            export_preset = os.path.join(export_preset_folder, 'OpenEXR', 'OpenEXR (16-bit fp Uncompressed).xml')
+
+        exporter.export(clip, export_preset, export_dir, hooks=ExportHooks())
+
+
     def apply_model(selection):
+        import flame
+
         apply_dialog = ApplyModelDialog()
+
         if apply_dialog.exec():
-            import flame
+            first_clip_name = selection[0].name.get_value()
+            result_folder = os.path.abspath(
+                os.path.join(
+                    apply_dialog.working_folder,
+                    f'{sanitized(first_clip_name)}_ML_{create_timestamp_uid()}'
+                    )
+                )
+            source_folder = os.path.abspath(
+                os.path.join(
+                    result_folder,
+                    'src'
+                    )
+                )
+            clip_number = 1
             for item in selection:
                 if isinstance(item, (flame.PyClip)):
                     clip = item
-                    clip_name = clip.name.get_value()
+                    source_clip_folder = os.path.join(source_folder, f'{clip_number:02}')
+                    export_clip(clip, source_clip_folder)
+                    clip_number += 1
 
-                    result_folder = os.path.abspath(
-                        os.path.join(
-                            apply_dialog.working_folder,
-                            f'{sanitized(clip_name)}_ML_{create_timestamp_uid()}'
-                            )
-                        )
-                print (result_folder)
-        
-        return
-        '''
-        return flameSimpleMLInference(
-            selection=selection,
-            settings=settings
-            )
-        '''
+            first_clip_parent = selection[0].parent
+
+            flameSimpleMLInference(
+                source_folder=source_folder,
+                result_folder=result_folder,
+                first_clip_parent = first_clip_parent,
+                settings=settings
+                )
 
     def train_model(selection):
         import flame

@@ -457,9 +457,8 @@ class flameAppFramework(object):
 
         def custom_bend(x):
             linear_part = x
-            exp_positive = torch.pow( x, 1 / 4 )
-            exp_negative = -torch.pow( -x, 1 / 4 )
-            return torch.where(x > 1, exp_positive, torch.where(x < -1, exp_negative, linear_part))
+            exp_bend = torch.sign(x) * torch.pow(torch.abs(x), 1 / 4 )
+            return torch.where(x > 1, exp_bend, torch.where(x < -1, exp_bend, linear_part))
 
         # transfer (0.0 - 1.0) onto (-1.0 - 1.0) for tanh
         image_array = (image_array * 2) - 1
@@ -478,9 +477,8 @@ class flameAppFramework(object):
 
         def custom_de_bend(x):
             linear_part = x
-            inv_positive = torch.pow( x, 4 )
-            inv_negative = -torch.pow( -x, 4 )
-            return torch.where(x > 1, inv_positive, torch.where(x < -1, inv_negative, linear_part))
+            exp_deband = torch.sign(x) * torch.pow(torch.abs(x), 4 )
+            return torch.where(x > 1, exp_deband, torch.where(x < -1, exp_deband, linear_part))
 
         epsilon = torch.tensor(4e-8, dtype=torch.float32).to(image_array.device)
         # clamp image befor arctanh
@@ -546,3 +544,25 @@ class flameAppFramework(object):
             return missing_requirements
         else:
             return []
+
+    def create_temp_library(self, selection):        
+        try:
+            import flame
+
+            clip = selection[0]
+            temp_library_name = self.app_name + '_' + self.fw.sanitized(clip.name.get_value()) + '_' + self.fw.create_timestamp_uid()
+            self.temp_library_name = temp_library_name
+            self.temp_library = flame.projects.current_project.create_shared_library(temp_library_name)
+            flame.execute_shortcut('Save Project')
+            flame.projects.current_project.refresh_shared_libraries()
+            return self.temp_library
+        
+        except Exception as e:
+            message_string = f'Unable to create temp shared library:\n"{e}"'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': self.close_application}
+            )
+            return None
+

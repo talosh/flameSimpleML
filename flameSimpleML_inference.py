@@ -771,14 +771,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.using_pyside6 = using_pyside6
 
         self.name = self.__class__.__name__
-        self.selection = kwargs.get('selection')
 
-        if self.selection:
-            self.clip_parent = self.selection[0].parent
-        else:
-            self.clip_parent = None
-
+        self.source_folder = kwargs.get('source_folder')
+        self.result_folder = kwargs.get('result_folder')
+        self.clips_parent = kwargs.get('first_clip_parent')
         self.settings = kwargs.get('settings', dict())
+
         self.fw = flameAppFramework(settings = self.settings)
         self.app_name = self.fw.app_name
         self.log = self.fw.log
@@ -997,7 +995,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         self.torch_device = self.set_device()
 
-        self.clips_parent = self.selection[0].parent
         duration = self.selection[0].duration.frame
         relative_start_frame = self.selection[0].start_time.get_value().relative_frame
 
@@ -1471,27 +1468,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.frame_thread = threading.Thread(target=self._process_current_frame, kwargs={'single_frame': True})
             self.frame_thread.daemon = True
             self.frame_thread.start()
-
-    def create_temp_library(self, selection):        
-        try:
-            import flame
-
-            clip = selection[0]
-            temp_library_name = self.app_name + '_' + self.fw.sanitized(clip.name.get_value()) + '_' + self.fw.create_timestamp_uid()
-            self.temp_library_name = temp_library_name
-            self.temp_library = flame.projects.current_project.create_shared_library(temp_library_name)
-            flame.execute_shortcut('Save Project')
-            flame.projects.current_project.refresh_shared_libraries()
-            return self.temp_library
-        
-        except Exception as e:
-            message_string = f'Unable to create temp shared library:\n"{e}"'
-            self.message_queue.put(
-                {'type': 'mbox',
-                'message': message_string,
-                'action': self.close_application}
-            )
-            return None
 
     def get_total_channels_number(self, selection):
         num_channels = 0
