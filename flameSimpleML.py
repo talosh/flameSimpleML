@@ -10,9 +10,12 @@ except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
     using_pyside6 = False
 
+import flameSimpleML_framework
+importlib.reload(flameSimpleML_framework)
+from flameSimpleML_framework import flameAppFramework
+
 import flameSimpleML_inference
 importlib.reload(flameSimpleML_inference)
-
 from flameSimpleML_inference import flameSimpleMLInference
 
 settings = {
@@ -34,45 +37,112 @@ class ApplyModelDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # Line Edit for path
-        self.pathLineEdit = QtWidgets.QLineEdit(self)
+        try:
+            self.fw = flameAppFramework()
+        except:
+            self.fw = None
 
-        # Choose button
-        self.chooseButton = QtWidgets.QPushButton("Choose", self)
-        self.chooseButton.clicked.connect(self.chooseFile)
+        self.working_folder = self.fw.prefs.get('working_folder', os.path.expanduser('~'))
+        if os.getenv('FLAMETWML_WORK_FOLDER'):
+            self.working_folder = os.getenv('FLAMETWML_WORK_FOLDER')
+        self.fw.prefs['working_folder'] = self.working_folder
+        self.fw.save_prefs()
 
-        # Create and Cancel buttons
-        self.createButton = QtWidgets.QPushButton("Create", self)
-        self.cancelButton = QtWidgets.QPushButton("Cancel", self)
+        self.setMinimumSize(480, 80)
+        self.setWindowTitle('flameSimpleML: Choose output folder:')
 
         # Setting up layouts
         self.layout = QtWidgets.QVBoxLayout(self)
         self.buttonLayout = QtWidgets.QHBoxLayout()
         self.pathLayout = QtWidgets.QHBoxLayout()
 
-        # Adding widgets to the path layout
-        self.pathLayout.addWidget(self.pathLineEdit)
-        self.pathLayout.addWidget(self.chooseButton)
+        # Spacer
+        lbl_Spacer = QtWidgets.QLabel('', self)
+        lbl_Spacer.setStyleSheet('QFrame {color: #989898; background-color: #313131}')
+        lbl_Spacer.setMinimumHeight(4)
+        lbl_Spacer.setMaximumHeight(4)
+        lbl_Spacer.setAlignment(QtCore.Qt.AlignCenter)
+
+        lbl_WorkFolder = QtWidgets.QLabel('Export folder', self)
+        lbl_WorkFolder.setStyleSheet('QFrame {color: #989898; background-color: #373737}')
+        lbl_WorkFolder.setMinimumHeight(28)
+        lbl_WorkFolder.setMaximumHeight(28)
+        lbl_WorkFolder.setAlignment(QtCore.Qt.AlignCenter)
+        self.pathLayout.addWidget(lbl_WorkFolder)
+
+        def txt_WorkFolder_textChanged():
+            self.working_folder = txt_WorkFolder.text()
+
+        if os.getenv('FLAMETWML_WORK_FOLDER'):
+            lbl_WorkFolderPath = QtWidgets.QLabel(self.working_folder, self)
+            lbl_WorkFolderPath.setStyleSheet('QFrame {color: #989898; background-color: #373737}')
+            lbl_WorkFolderPath.setMinimumHeight(28)
+            lbl_WorkFolderPath.setMaximumHeight(28)
+            lbl_WorkFolderPath.setAlignment(QtCore.Qt.AlignCenter)
+            self.pathLayout.addWidget(lbl_WorkFolderPath)
+
+        else:
+            # Work Folder Text Field
+            hbox_workfolder = QtWidgets.QHBoxLayout()
+            hbox_workfolder.setAlignment(QtCore.Qt.AlignLeft)
+
+            txt_WorkFolder = QtWidgets.QLineEdit('', self)
+            txt_WorkFolder.setFocusPolicy(QtCore.Qt.ClickFocus)
+            txt_WorkFolder.setMinimumSize(280, 28)
+            txt_WorkFolder.setStyleSheet('QLineEdit {color: #9a9a9a; background-color: #373e47; border-top: 1px inset #black; border-bottom: 1px inset #545454}')
+            txt_WorkFolder.setText(self.working_folder)
+            txt_WorkFolder.textChanged.connect(txt_WorkFolder_textChanged)
+            hbox_workfolder.addWidget(txt_WorkFolder)
+
+            btn_changePreset = QtWidgets.QPushButton('Choose', self)
+            btn_changePreset.setFocusPolicy(QtCore.Qt.NoFocus)
+            btn_changePreset.setMinimumSize(88, 28)
+            btn_changePreset.setStyleSheet('QPushButton {color: #9a9a9a; background-color: #424142; border-top: 1px inset #555555; border-bottom: 1px inset black}'
+                                    'QPushButton:pressed {font:italic; color: #d9d9d9}')
+            btn_changePreset.clicked.connect(self.chooseFolder)
+            hbox_workfolder.addWidget(btn_changePreset, alignment = QtCore.Qt.AlignLeft)
+
+            self.pathLineEdit = txt_WorkFolder
+            self.pathLayout.addLayout(hbox_workfolder)
+
+        select_btn = QtWidgets.QPushButton('Export and Apply', self)
+        select_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        select_btn.setMinimumSize(128, 28)
+        select_btn.setStyleSheet('QPushButton {color: #9a9a9a; background-color: #424142; border-top: 1px inset #555555; border-bottom: 1px inset black}'
+                                'QPushButton:pressed {font:italic; color: #d9d9d9}')
+        select_btn.clicked.connect(self.accept)
+        select_btn.setAutoDefault(True)
+        select_btn.setDefault(True)
+
+        cancel_btn = QtWidgets.QPushButton('Cancel', self)
+        cancel_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        cancel_btn.setMinimumSize(128, 28)
+        cancel_btn.setStyleSheet('QPushButton {color: #9a9a9a; background-color: #424142; border-top: 1px inset #555555; border-bottom: 1px inset black}'
+                                'QPushButton:pressed {font:italic; color: #d9d9d9}')
+        cancel_btn.clicked.connect(self.reject)
 
         # Adding widgets to the button layout
-        self.buttonLayout.addWidget(self.createButton)
-        self.buttonLayout.addWidget(self.cancelButton)
+        self.buttonLayout.addWidget(cancel_btn)
+        self.buttonLayout.addWidget(select_btn)
 
         # Adding layouts to the main layout
         self.layout.addLayout(self.pathLayout)
+        self.layout.addWidget(lbl_Spacer)
         self.layout.addLayout(self.buttonLayout)
 
-        # Connect the create and cancel buttons
-        self.createButton.clicked.connect(self.accept)
-        self.cancelButton.clicked.connect(self.reject)
-
         self.setStyleSheet('background-color: #313131')
+        
+        # self.setWindowFlags(QtCore.Qt.Tool)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-    def chooseFile(self):
-        # Open file dialog and update path line edit
-        file_name, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose File")
-        if file_name:
-            self.pathLineEdit.setText(file_name)
+    def chooseFolder(self):
+        result_folder = str(QtWidgets.QFileDialog.getExistingDirectory(self, 'Open Folder', self.working_folder, QtWidgets.QFileDialog.ShowDirsOnly))
+        if result_folder =='':
+            return
+        self.working_folder = result_folder
+        self.fw.prefs['working_folder'] = self.working_folder
+        self.fw.save_prefs()
+        self.pathLineEdit.setText(self.working_folder)
 
 def get_media_panel_custom_ui_actions():
     def scope_clip(selection):
@@ -85,13 +155,58 @@ def get_media_panel_custom_ui_actions():
             print (f'[{settings["app_name"]}]: Exception: {e}')
         return False
     
+    def sanitized(text):
+        import re
+
+        if text is None:
+            return None
+        
+        text = text.strip()
+        exp = re.compile(u'[^\w\.-]', re.UNICODE)
+
+        if isinstance(text, str):
+            result = exp.sub('_', text)
+        else:
+            decoded = text.decode('utf-8')
+            result = exp.sub('_', decoded).encode('utf-8')
+
+        return re.sub('_\_+', '_', result)
+
+    def create_timestamp_uid():
+        import random
+        import uuid
+        from datetime import datetime
+
+        def number_to_letter(number):
+            # Map each digit to a letter
+            mapping = {
+                '0': 'A', '1': 'B', '2': 'C', '3': 'D', '4': 'E',
+                '5': 'F', '6': 'G', '7': 'H', '8': 'I', '9': 'J'
+            }
+            return ''.join(mapping.get(char, char) for char in number)
+
+        uid = ((str(uuid.uuid4()).replace('-', '')).upper())
+        uid = ''.join(random.sample(number_to_letter(uid), 4))
+        timestamp = (datetime.now()).strftime('%Y%b%d_%H%M').upper()
+        return f'{timestamp}_{uid}'
+    
     def apply_model(selection):
         apply_dialog = ApplyModelDialog()
         if apply_dialog.exec():
-            print ('hello')
-        else:
-            print ('cancel')
+            import flame
+            for item in selection:
+                if isinstance(item, (flame.PyClip)):
+                    clip = item
+                    clip_name = clip.name.get_value()
 
+                    result_folder = os.path.abspath(
+                        os.path.join(
+                            apply_dialog.working_folder,
+                            f'{sanitized(clip_name)}_ML_{create_timestamp_uid()}'
+                            )
+                        )
+                print (result_folder)
+        
         return
         '''
         return flameSimpleMLInference(
