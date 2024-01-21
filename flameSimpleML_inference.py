@@ -4,6 +4,7 @@ import time
 import queue
 import threading
 import importlib
+import platform
 
 import traceback
 import atexit
@@ -1628,9 +1629,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         try:
             self.current_model = self.models[model_name](model_input_channles, model_output_channels).to(self.torch_device)
-            self.current_model.half()
+            # if platform.system() != 'Darwin':
+            #    self.current_model.half()
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
-            self.current_model.half()
+            if platform.system() != 'Darwin':
+                self.current_model.half()
             self.current_model.eval()
             self.app_state['model_input_channels'] = model_input_channles
             self.app_state['output_channels'] = model_output_channels
