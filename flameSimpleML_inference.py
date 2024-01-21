@@ -2108,6 +2108,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         for src_path in source_images_file_paths_list:
             src_image_dict = self.fw.read_openexr_file(src_path)
             src_image_data = torch.from_numpy(src_image_dict.get('image_data')).to(device = self.torch_device, dtype = torch.float32)
+            del src_image_dict['image_data']
+            pprint (src_image_dict)
             tensors.append(src_image_data)
         
         try:
