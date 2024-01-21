@@ -2107,8 +2107,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         tensors = []
         for src_path in source_images_file_paths_list:
             src_image_dict = self.fw.read_openexr_file(src_path)
-
-            tensors.append(src_image_dict.get('image_data'))
+            src_image_data = torch.from_numpy(src_image_dict.get('image_data'))
+            tensors.append(src_image_data)
         
         try:
             concatenated_data = torch.cat(tensors, dim=2)
