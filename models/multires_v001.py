@@ -1071,6 +1071,7 @@ class Model:
 	def input_channels(model_state_dict):
 		from pprint import pprint
 		pprint (model_state_dict.keys())
+		return 3
 
 	def get_model(self):
 		return self.model
