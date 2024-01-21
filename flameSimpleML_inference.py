@@ -1018,7 +1018,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
         self.fill_model_menu()
-        
+
         if self.model_state_dict_path:
             self.load_model_state_dict(self.model_state_dict_path)
             if self.model_state_dict:
@@ -1627,15 +1627,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
             self.current_model.half()
             self.current_model.eval()
-            self.app_state['input_channels'] = input_channles
+            # self.app_state['input_channels'] = input_channles
             self.app_state['output_channels'] = output_channels
-            destination_node_id = self.app_state.get('destination_node_id')
-            self.delete_destination_node(destination_node_id)
-            self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
-            self.app_state['destination_node_id'] = self.create_destination_node(
-                self.selection[0],
-                self.selection[0].duration.frame
-                )
             return True
         except Exception as e:
             message_string = f'Unable to load model state:\n{e}'
