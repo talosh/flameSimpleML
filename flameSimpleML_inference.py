@@ -1003,9 +1003,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'text': str(self.app_state.get('max_frame', 99))}
         )
 
-        pprint (self.app_state['frames_map'])
-
-        self.app_state['input_channels'] = self.calculate_input_channels()
+        first_frame_map = frames_map(sorted(frames_map.keys()))
+        self.app_state['input_channels'] = self.get_input_channels_number(first_frame_map.get('source_frames_path'))
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
         try:
@@ -1450,7 +1449,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.frame_thread.daemon = True
             self.frame_thread.start()
 
-    def get_total_channels_number(self, selection):
+    def get_input_channels_number(self, source_frames_paths_list):
+
+        print (source_frames_paths_list)
+
+        '''
         num_channels = 0
         for clip in selection:
             clip_node_id = clip.get_wiretap_node_id()
@@ -1466,6 +1469,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
             num_channels += fmt.numChannels()
         return num_channels
+        '''
 
     def scan_models(self, folder_path):
         import importlib.util
