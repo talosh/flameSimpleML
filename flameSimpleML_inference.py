@@ -1025,7 +1025,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.load_model(self.model_state_dict)
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
-        self.set_current_frame(self.app_state.get('min_frame', 1))
+        # self.set_current_frame(self.app_state.get('min_frame', 1))
 
     def processEvents(self):
         try:
