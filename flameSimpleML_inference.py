@@ -1865,7 +1865,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         result_folder = self.app_state.get('result_folder')
         for key in sorted(source_frames_map.keys()):
             frames_map[key] = {}
-            frames_map[key]['source'] = source_frames_map[key]
+            frames_map[key]['source_frames_path'] = source_frames_map[key]
             frames_map[key]['result_frame_path'] = os.path.join(
                 result_folder,
                 f'{os.path.basename(result_folder)}.{key:08d}.exr'
