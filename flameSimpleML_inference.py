@@ -1006,6 +1006,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         first_frame_map = frames_map[sorted(frames_map.keys())[0]]
         self.app_state['input_channels'] = self.get_input_channels_number(first_frame_map.get('source_frames_path'))
 
+        print (f'input channels: {self.app_state['input_channels']}')
+
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
         try:
             self.models = self.scan_models(self.models_folder)
@@ -1450,11 +1452,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.frame_thread.start()
 
     def get_input_channels_number(self, source_frames_paths_list):
-
+        total_num_channels = 0
         for src_path in source_frames_paths_list:
             file_header = self.fw.read_openexr_file(src_path, header_only=True)
-            print (src_path)
-            pprint (file_header)
+            total_num_channels += file_header['shape'][2]
+        return total_num_channels
 
         '''
         num_channels = 0
