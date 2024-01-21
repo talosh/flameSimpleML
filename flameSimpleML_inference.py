@@ -1003,7 +1003,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'text': str(self.app_state.get('max_frame', 99))}
         )
 
-        first_frame_map = frames_map[sorted(frames_map.keys())]
+        first_frame_map = frames_map[sorted(frames_map.keys())[0]]
         self.app_state['input_channels'] = self.get_input_channels_number(first_frame_map.get('source_frames_path'))
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
