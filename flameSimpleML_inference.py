@@ -1536,10 +1536,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if model_number == '99': # load model code
             selected_model_dict_path = None
             self.hide()
+            fallback_path = os.path.join(
+                os.path.expanduser('~'),
+                'flameSimpleML_models'
+            )
+            if not os.path.isdir(fallback_path):
+                fallback_path = os.path.expanduser('~')
             flame.browser.show(
                 title = 'Select flameSimpleML Model:',
                 extension = 'pth',
-                default_path = self.prefs.get('model_state_dict_path', os.path.expanduser('~')),
+                default_path = self.prefs.get('model_state_dict_path', fallback_path),
                 multi_selection = False)
             if len(flame.browser.selection) > 0:
                 selected_model_dict_path = flame.browser.selection[0]
