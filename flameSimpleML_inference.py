@@ -986,10 +986,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # Check the source files and build the frames map
 
-        self.app_state['frames_map'] = self.compose_frames_map()
-        self.app_state['min_frame'] = sorted(list(self.app_state['frames_map'].keys()))[0]
-        self.app_state['max_frame'] = sorted(list(self.app_state['frames_map'].keys()))[-1]
-        self.app_state['duration'] = len(self.self.app_state['frames_map'].keys())
+        frames_map = self.compose_frames_map()
+        self.app_state['frames_map'] = frames_map
+        self.app_state['min_frame'] = sorted(list(frames_map.keys()))[0]
+        self.app_state['max_frame'] = sorted(list(frames_map.keys()))[-1]
+        self.app_state['duration'] = len(frames_map.keys())
 
         self.message_queue.put(
             {'type': 'setText',
