@@ -227,10 +227,13 @@ def get_media_panel_custom_ui_actions():
         exporter.foreground = True
 
         if not export_preset:
-            export_preset_folder = flame.PyExporter.get_presets_dir(flame.PyExporter.PresetVisibility.values.get(3),
-                            flame.PyExporter.PresetType.values.get(0))
-            export_preset = os.path.join(export_preset_folder, 'OpenEXR', 'OpenEXR (16-bit fp Uncompressed).xml')
-
+            for visibility in range(4):
+                export_preset_folder = flame.PyExporter.get_presets_dir(flame.PyExporter.PresetVisibility.values.get(visibility),
+                                flame.PyExporter.PresetType.values.get(0))
+                export_preset = os.path.join(export_preset_folder, 'OpenEXR', 'OpenEXR (16-bit fp Uncompressed).xml')
+                if os.path.isfile(export_preset):
+                    break
+                
         exporter.export(clip, export_preset, export_dir, hooks=ExportHooks())
 
 
