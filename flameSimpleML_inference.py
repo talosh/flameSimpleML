@@ -1006,8 +1006,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         first_frame_map = frames_map[sorted(frames_map.keys())[0]]
         self.app_state['input_channels'] = self.get_input_channels_number(first_frame_map.get('source_frames_path'))
 
-        print (f'input channels: {self.app_state["input_channels"]}')
-
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
         try:
             self.models = self.scan_models(self.models_folder)
@@ -1019,19 +1017,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
         self.message_queue.put({'type': 'info', 'message': f'Loaded {len(self.models.keys())} models'})
-
-        self.frames_map = self.compose_frames_map(self.selection)
-
-        self.message_queue.put({'type': 'info', 'message': 'Creating destination shared library...'})
-        self.create_temp_library(self.selection)
-        self.message_queue.put({'type': 'info', 'message': 'Creating destination clip node...'})
-        self.app_state['destination_node_id'] = self.create_destination_node(
-            self.selection[0],
-            duration
-            )
-
         self.fill_model_menu()
-
+        
         if self.model_state_dict_path:
             self.load_model_state_dict(self.model_state_dict_path)
             if self.model_state_dict:
