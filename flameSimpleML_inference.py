@@ -774,10 +774,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.using_pyside6 = using_pyside6
 
         self.name = self.__class__.__name__
-
-        self.source_folder = kwargs.get('source_folder')
-        self.result_folder = kwargs.get('result_folder')
-        self.clips_parent = kwargs.get('first_clip_parent')
         self.settings = kwargs.get('settings', dict())
 
         self.fw = flameAppFramework(settings = self.settings)
@@ -825,6 +821,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'max_frame': 99,
             'current_frame': 1,
             'duration': 99,
+            'source_folder': kwargs.get('source_folder'),
+            'result_folder': kwargs.get('result_folder'),
+            'clips_parent': kwargs.get('first_clip_parent'),
             'frames_map': {},
             'src_image_data': None,
             'res_image_data': None,
@@ -987,7 +986,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # Check the source files and build the frames map
 
-        self.source_frames_map = self.create_source_files_map(self.source_folder)
+        self.source_frames_map = self.create_source_files_map(self.app_state.get('source_folder'))
         self.app_state['min_frame'] = sorted(list(self.source_frames_map.keys()))[0]
         self.app_state['max_frame'] = sorted(list(self.source_frames_map.keys()))[-1]
         self.app_state['duration'] = len(self.source_frames_map.keys())
@@ -1003,7 +1002,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'text': str(self.app_state.get('max_frame', 99))}
         )
 
-        pprint (self.app_state)
+        self.app_state['input_channels'] = self.calculate_input_channels()
+
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
         try:
