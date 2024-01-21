@@ -1070,7 +1070,7 @@ class Model:
 	@staticmethod
 	def input_channels(model_state_dict):
 		from pprint import pprint
-		pprint (model_state_dict.keys())
+		pprint (model_state_dict.get('multiresblock1.conv_3x3.conv1.weight'))
 		return 3
 
 	def get_model(self):
