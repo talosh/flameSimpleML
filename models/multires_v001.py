@@ -1066,6 +1066,11 @@ class Model:
 	@staticmethod
 	def get_name():
 		return 'MultiRes_v001'
+	
+	@staticmethod
+	def get_input_channels(model_state_dict):
+		from pprint import pprint
+		pprint (model_state_dict.keys())
 
 	def get_model(self):
 		return self.model
