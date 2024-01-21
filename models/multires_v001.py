@@ -1069,12 +1069,22 @@ class Model:
 	
 	@staticmethod
 	def input_channels(model_state_dict):
-		input_channels = 3
+		channels = 3
 		try:
-			input_channels = model_state_dict.get('multiresblock1.conv_3x3.conv1.weight').shape[1]
+			channels = model_state_dict.get('multiresblock1.conv_3x3.conv1.weight').shape[1]
 		except Exception as e:
-			print (f'unable to get model dict input channels - setting to 3, {e}')
-		return input_channels
+			print (f'Unable to get model dict input channels - setting to 3, {e}')
+		return channels
+
+	@staticmethod
+	def output_channels(model_state_dict):
+		channels = 3
+		print (model_state_dict.get('conv_final.conv1.weight').shape)
+		try:
+			channels = model_state_dict.get('conv_final.conv1.weight').shape[1]
+		except Exception as e:
+			print (f'Unable to get model dict output channels - setting to 3, {e}')
+		return channels
 
 	def get_model(self):
 		return self.model

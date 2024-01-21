@@ -1621,7 +1621,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
             return False
         model_input_channles = self.models[model_name + '_handler'].input_channels(model_state_dict['model_state_dict'])
-        output_channels = 3
+        model_output_channels = self.models[model_name + '_handler'].output_channels(model_state_dict['model_state_dict'])
         try:
             self.current_model = self.models[model_name](3, 3).to(self.torch_device)
             self.current_model.half()
@@ -1629,10 +1629,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.current_model.half()
             self.current_model.eval()
             self.app_state['model_input_channels'] = model_input_channles
-            self.app_state['output_channels'] = output_channels
+            self.app_state['output_channels'] = model_output_channels
             return True
         except Exception as e:
-            message_string = f'Unable to load model state:\n{e}'
+            message_string = f'Unable to load model and its state dict:\n{e}'
             self.message_queue.put(
                 {'type': 'mbox',
                 'message': message_string,
