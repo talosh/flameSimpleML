@@ -1451,7 +1451,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def get_input_channels_number(self, source_frames_paths_list):
 
-        print (source_frames_paths_list)
+        for src_path in source_frames_paths_list:
+            file_header = self.fw.read_openexr_file(src_path, header_only=True)
+            print (src_path)
+            pprint (file_header)
 
         '''
         num_channels = 0
