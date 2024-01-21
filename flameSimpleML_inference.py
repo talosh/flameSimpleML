@@ -1026,7 +1026,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.load_model(self.model_state_dict)
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
-        # self.set_current_frame(self.app_state.get('min_frame', 1))
+        self.set_current_frame(self.app_state.get('min_frame', 1))
 
     def processEvents(self):
         try:
@@ -1963,10 +1963,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'message': f'Frame {current_frame}: reading source image(s) data ...'}
             )
         
-        src_image_data = self.read_selection_data(
-            self.selection, 
-            current_frame - 1
-            )
+        src_image_data = self.read_source_images_data(current_frame)
         
         self.app_state['src_image_data'] = src_image_data
         
@@ -1987,7 +1984,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 )
                 return
         
-
         if not self.app_state.get('render_loop'):
             self.update_interface_image_torch(
                 src_image_data[:, :, :3],
@@ -2101,13 +2097,18 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         return result_image
 
-    def read_selection_data(self, selection, frame_number):
+    def read_source_images_data(self, frame_number):
         import torch
 
+        frames_map = self.app_state.get('frames_map')
+        current_frame_data = frames_map.get(frame_number)
+        source_images_file_paths_list = current_frame_data.get('source_frames_path')
+
         tensors = []
-        for clip in selection:
-            clip_image_data = self.read_image_data_torch(clip, frame_number)
-            tensors.append(clip_image_data)
+        for src_path in source_images_file_paths_list:
+            src_image_dict = self.fw.read_openexr_file(src_path)
+
+            tensors.append(src_image_dict.get('image_data'))
         
         try:
             concatenated_data = torch.cat(tensors, dim=2)

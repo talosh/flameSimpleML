@@ -885,6 +885,29 @@ class flameAppFramework(object):
         clip_node_handle = None
 
     def read_openexr_file(self, file_path, header_only = False):
+        """
+        Reads data from an OpenEXR file specified by the file path.
+
+        This function opens an OpenEXR file and reads its contents, either the header information only or the full data, including image data. It utilizes the MinExrReader to process the file.
+
+        Parameters:
+        - file_path (str): Path to the OpenEXR file to be read.
+        - header_only (bool, optional): If True, only header information is read. Defaults to False.
+
+        Returns:
+        - dict: A dictionary containing the OpenEXR file's metadata and image data (if header_only is False). The dictionary includes the following keys:
+            - 'attrs': Attributes of the OpenEXR file.
+            - 'compr': Compression type used in the OpenEXR file.
+            - 'channel_names': Names of the channels in the OpenEXR file.
+            - 'channel_types': Data types of the channels in the OpenEXR file.
+            - 'shape': The shape of the image data, rearranged as (height, width, channels).
+            - 'image_data': Numpy array of the image data if header_only is False. The data is transposed to match the shape (height, width, channels).
+
+        Note:
+        - The function uses a context manager to ensure the file is properly closed after reading.
+        - It assumes the existence of a class method `MinExrReader` for reading the OpenEXR file.
+        """
+
         import numpy as np
         with open(file_path, 'rb') as sfp:
             source_reader = self.MinExrReader(sfp, header_only)
