@@ -1482,6 +1482,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     try:
                         model_name = ModelClass.get_name()  # Assuming get_name() is the static method                            
                         model_dict[model_name] = ModelClass().get_model()
+                        model_dict[model_name + '_handler'] = ModelClass
                     except Exception as e:
                         self.log(f'Error loading model from {file_path}: {e}')
         return model_dict
@@ -1619,7 +1620,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
             return False
-        model_input_channles = self.models[model_name].input_channels(model_state_dict['model_state_dict'])
+        model_input_channles = self.models[model_name + '_handler'].input_channels(model_state_dict['model_state_dict'])
         output_channels = 3
         try:
             self.current_model = self.models[model_name](3, 3).to(self.torch_device)
