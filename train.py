@@ -430,8 +430,8 @@ class myDataset(torch.utils.data.Dataset):
         self.indices = list(range(len(self.source_files)))
 
         try:
-            with open(self.source_files[0], 'rb') as fp:
-                reader = MinExrReader(fp)
+            with open(self.source_files[0], 'rb') as sfp:
+                reader = MinExrReader(sfp)
         except Exception as e:
             print (f'Unable to read {self.source_files[0]}: {e}')
             sys.exit()
@@ -439,15 +439,17 @@ class myDataset(torch.utils.data.Dataset):
         self.src_h = reader.shape[0]
         self.src_w = reader.shape[2]
         self.in_channles = reader.shape[1]
+        print (f'source channels: {self.in_channles}')
 
         try:
-            with open(self.target_files[0], 'rb') as fp:
-                reader = MinExrReader(fp)
+            with open(self.target_files[0], 'rb') as tfp:
+                reader = MinExrReader(tfp)
         except Exception as e:
             print (f'Unable to read {self.source_files[0]}: {e}')
             sys.exit()
 
         self.out_channels = reader.shape[1]
+        print (f'target channels: {self.in_channles}')
 
         self.h = 256
         self.w = 256
