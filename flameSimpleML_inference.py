@@ -986,10 +986,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # Check the source files and build the frames map
 
-        self.source_frames_map = self.create_source_files_map(self.app_state.get('source_folder'))
-        self.app_state['min_frame'] = sorted(list(self.source_frames_map.keys()))[0]
-        self.app_state['max_frame'] = sorted(list(self.source_frames_map.keys()))[-1]
-        self.app_state['duration'] = len(self.source_frames_map.keys())
+        self.app_state['frames_map'] = self.compose_frames_map()
+        self.app_state['min_frame'] = sorted(list(self.app_state['frames_map'].keys()))[0]
+        self.app_state['max_frame'] = sorted(list(self.app_state['frames_map'].keys()))[-1]
+        self.app_state['duration'] = len(self.self.app_state['frames_map'].keys())
 
         self.message_queue.put(
             {'type': 'setText',
@@ -1003,7 +1003,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         )
 
         self.app_state['input_channels'] = self.calculate_input_channels()
-
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
         try:
@@ -1027,8 +1026,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             duration
             )
 
-        print (f'total channels: {self.get_total_channels_number(self.selection)}')
-
         self.fill_model_menu()
 
         if self.model_state_dict_path:
@@ -1038,8 +1035,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
         self.set_current_frame(self.app_state.get('min_frame', 1))
-
-        # self.frames_map = self.compose_frames_map(self.selection)
 
     def processEvents(self):
         try:
@@ -1436,73 +1431,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.info_label.setAutoFillBackground(True)
         self.ui.info_label.setPalette(palette)
 
-    def create_source_files_map(self, folder_path):
-        '''
-        Creates a dictionary of .exr files from sorted subfolders of a given folder.
-
-        Each key in the dictionary corresponds to an index starting from 1, representing the .exr file's 
-        index in the first subfolder. The value is a list containing paths to .exr files from each subfolder,
-        where the file's index matches the key. If a subfolder has fewer .exr files than the first one, 
-        the last file path in that subfolder is repeated to match the count of the first subfolder.
-
-        Parameters:
-        folder_path (str): The path to the main folder containing subfolders.
-
-        Returns:
-        dict: A dictionary where each key is an integer starting from 1, and the value is a list of file paths.
-            Returns a message string if the folder does not exist or if no subfolders are found.
-
-        Example:
-            {1: ['/preview/render1_ML_2024JAN20_1819_HIDH/src/01/render1.00000000.exr',
-                '/preview/render1_ML_2024JAN20_1819_HIDH/src/02/render2.00000000.exr',
-                '/preview/render1_ML_2024JAN20_1819_HIDH/src/03/004_Subclip_001-RSZ_Result.00100853.exr'],
-            2: ['/preview/render1_ML_2024JAN20_1819_HIDH/src/01/render1.00000001.exr',
-                '/preview/render1_ML_2024JAN20_1819_HIDH/src/02/render2.00000001.exr',
-                '/preview/render1_ML_2024JAN20_1819_HIDH/src/03/004_Subclip_001-RSZ_Result.00100854.exr']}
-        '''
-
-        exr_dict = {}
-
-        # Ensure the folder exists
-        if not os.path.exists(folder_path):
-            message_string = f'Folder {folder_path} does not exist'
-            self.message_queue.put(
-                {'type': 'mbox',
-                'message': message_string,
-                'action': None}
-            )
-
-        # List and sort all subfolders
-        subfolders = sorted([f.path for f in os.scandir(folder_path) if f.is_dir()])
-
-        # Check if there are any subfolders
-        if not subfolders:
-            message_string = f'No clip folders found in {folder_path}'
-            self.message_queue.put(
-                {'type': 'mbox',
-                'message': message_string,
-                'action': None}
-            )
-
-        # Process the first subfolder separately
-        first_subfolder = subfolders[0]
-        first_subfolder_files = sorted([f for f in os.listdir(first_subfolder) if f.endswith('.exr')])
-
-        # Initialize the dictionary with files from the first subfolder
-        for i, file in enumerate(first_subfolder_files, start=1):
-            exr_dict[i] = [os.path.join(first_subfolder, file)]
-
-        # Process the remaining subfolders
-        for subfolder in subfolders[1:]:
-            subfolder_files = sorted([f for f in os.listdir(subfolder) if f.endswith('.exr')])
-            for i, file in enumerate(subfolder_files, start=1):
-                if i <= len(first_subfolder_files):
-                    exr_dict[i].append(os.path.join(subfolder, file))
-                else:
-                    exr_dict[i].append(os.path.join(subfolder, subfolder_files[-1]))
-
-        return exr_dict
-
     def set_current_frame(self, new_current_frame, render = True):
         self.app_state['current_frame'] = new_current_frame
         self.message_queue.put(
@@ -1861,8 +1789,85 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except:
             pass
 
-    def compose_frames_map(self, selection):
-        pass
+    def compose_frames_map(self):
+        def create_source_files_map(folder_path):
+            '''
+            Creates a dictionary of .exr files from sorted subfolders of a given folder.
+
+            Each key in the dictionary corresponds to an index starting from 1, representing the .exr file's 
+            index in the first subfolder. The value is a list containing paths to .exr files from each subfolder,
+            where the file's index matches the key. If a subfolder has fewer .exr files than the first one, 
+            the last file path in that subfolder is repeated to match the count of the first subfolder.
+
+            Parameters:
+            folder_path (str): The path to the main folder containing subfolders.
+
+            Returns:
+            dict: A dictionary where each key is an integer starting from 1, and the value is a list of file paths.
+                Returns a message string if the folder does not exist or if no subfolders are found.
+
+            Example:
+                {1: ['/preview/render1_ML_2024JAN20_1819_HIDH/src/01/render1.00000000.exr',
+                    '/preview/render1_ML_2024JAN20_1819_HIDH/src/02/render2.00000000.exr',
+                    '/preview/render1_ML_2024JAN20_1819_HIDH/src/03/004_Subclip_001-RSZ_Result.00100853.exr'],
+                2: ['/preview/render1_ML_2024JAN20_1819_HIDH/src/01/render1.00000001.exr',
+                    '/preview/render1_ML_2024JAN20_1819_HIDH/src/02/render2.00000001.exr',
+                    '/preview/render1_ML_2024JAN20_1819_HIDH/src/03/004_Subclip_001-RSZ_Result.00100854.exr']}
+            '''
+
+            exr_dict = {}
+
+            # Ensure the folder exists
+            if not os.path.exists(folder_path):
+                message_string = f'Folder {folder_path} does not exist'
+                self.message_queue.put(
+                    {'type': 'mbox',
+                    'message': message_string,
+                    'action': None}
+                )
+
+            # List and sort all subfolders
+            subfolders = sorted([f.path for f in os.scandir(folder_path) if f.is_dir()])
+
+            # Check if there are any subfolders
+            if not subfolders:
+                message_string = f'No clip folders found in {folder_path}'
+                self.message_queue.put(
+                    {'type': 'mbox',
+                    'message': message_string,
+                    'action': None}
+                )
+
+            # Process the first subfolder separately
+            first_subfolder = subfolders[0]
+            first_subfolder_files = sorted([f for f in os.listdir(first_subfolder) if f.endswith('.exr')])
+
+            # Initialize the dictionary with files from the first subfolder
+            for i, file in enumerate(first_subfolder_files, start=1):
+                exr_dict[i] = [os.path.join(first_subfolder, file)]
+
+            # Process the remaining subfolders
+            for subfolder in subfolders[1:]:
+                subfolder_files = sorted([f for f in os.listdir(subfolder) if f.endswith('.exr')])
+                for i, file in enumerate(subfolder_files, start=1):
+                    if i <= len(first_subfolder_files):
+                        exr_dict[i].append(os.path.join(subfolder, file))
+                    else:
+                        exr_dict[i].append(os.path.join(subfolder, subfolder_files[-1]))
+
+            return exr_dict
+
+        frames_map = {}
+        source_frames_map = create_source_files_map(self.app_state.get('source_folder'))
+        result_folder = self.app_state.get('result_folder')
+        for key in sorted(source_frames_map.keys()):
+            frames_map[key] = {}
+            frames_map[key]['source'] = source_frames_map[key]
+            frames_map[key]['result_frame_path'] = os.path.join(
+                result_folder,
+                f'{os.path.basename(result_folder)}.{key:04d}.exr'
+            )
+        pprint (frames_map)
 
     def toggle_render_button(self):
         if self.ui.render_button.text() == 'Render':
