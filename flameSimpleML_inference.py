@@ -1865,9 +1865,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             frames_map[key]['source'] = source_frames_map[key]
             frames_map[key]['result_frame_path'] = os.path.join(
                 result_folder,
-                f'{os.path.basename(result_folder)}.{key:04d}.exr'
+                f'{os.path.basename(result_folder)}.{key:08d}.exr'
             )
-        pprint (frames_map)
+
+        return frames_map
 
     def toggle_render_button(self):
         if self.ui.render_button.text() == 'Render':

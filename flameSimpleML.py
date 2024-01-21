@@ -233,9 +233,8 @@ def get_media_panel_custom_ui_actions():
                 export_preset = os.path.join(export_preset_folder, 'OpenEXR', 'OpenEXR (16-bit fp Uncompressed).xml')
                 if os.path.isfile(export_preset):
                     break
-                
-        exporter.export(clip, export_preset, export_dir, hooks=ExportHooks())
 
+        exporter.export(clip, export_preset, export_dir, hooks=ExportHooks())
 
     def apply_model(selection):
         import flame
