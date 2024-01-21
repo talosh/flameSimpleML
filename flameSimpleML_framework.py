@@ -887,7 +887,7 @@ class flameAppFramework(object):
     def read_openexr_file(self, file_path, header_only = False):
         import numpy as np
         with open(file_path, 'rb') as sfp:
-            source_reader = self.MinExrReader(sfp)
+            source_reader = self.MinExrReader(sfp, header_only)
             result = {
                 'attrs': source_reader.attrs,
                 'compr': source_reader.compr,
