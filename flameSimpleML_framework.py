@@ -170,13 +170,10 @@ class flameAppFramework(object):
             image: HxWxC or HxCxW array
                 Selected image data.
             '''
-
-            image_hcw = self.image.transpose(0, 2, 1)
-
-            H,C,W = image_hcw.shape
+            H,C,W = self.shape
             ids = [self.channel_map[c] for c in channels]                
             if len(ids) == 0:
-                img = np.empty((H,0,W), dtype=image_hcw.dtype)
+                img = np.empty((H,0,W), dtype=self.image.dtype)
             else:
                 diff = np.diff(ids)
                 sH = slice(0, H)
@@ -184,7 +181,7 @@ class flameAppFramework(object):
                 if len(diff) == 0:
                     # single channel select, return view
                     sC = slice(ids[0],ids[0]+1)
-                    img = image_hcw[sH,sC,sW]
+                    img = self.image[sH,sC,sW]
                 elif len(set(diff)) == 1:
                     # mutliple channels, constant offset between, return view
                     # Careful here with negative steps, ie. diff[0] < 0:
@@ -193,13 +190,14 @@ class flameAppFramework(object):
                     end = ids[-1]+diff[0]
                     end = None if end < 0 else end                
                     sC = slice(start,end,step)
-                    img = image_hcw[sH,sC,sW]
+                    img = self.image[sH,sC,sW]
                 else:
                     # multiple channels not slicable -> copy mem
-                    chdata = [image_hcw[sH,i:i+1,sW] for i in ids]
+                    chdata = [self.image[sH,i:i+1,sW] for i in ids]
                     img = np.concatenate(chdata, 1)
             
-            img = img.transpose(0,2,1)
+            if channels_last:
+                img = img.transpose(0,2,1)
             return img
 
         def _read_header(self):
@@ -250,7 +248,6 @@ class flameAppFramework(object):
             self.fp.seek(self.first_offset, 0)
             image = np.frombuffer(self.fp.read(nbytes), dtype=dtype, count=-1, offset=8)
             self.image = np.lib.stride_tricks.as_strided(image, (H,C,W), strides)
-            self.image = self.image.transpose(0,2,1)
 
         def _read_header_attrs(self, buf):
             attrs = {}
@@ -896,9 +893,9 @@ class flameAppFramework(object):
                 'compr': source_reader.compr,
                 'channel_names': source_reader.channel_names,
                 'channel_types': source_reader.channel_types,
-                'shape': source_reader.shape.transpose(0, 2, 1),
+                'shape': (source_reader.shape[0], source_reader.shape[2], source_reader.shape[1]),
             }
             if not header_only:
-                result['image_data'] = source_reader.image.copy()
+                result['image_data'] = source_reader.image.copy().transpose(0, 2, 1)
             del source_reader
         return result
