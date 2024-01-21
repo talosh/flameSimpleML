@@ -1068,7 +1068,7 @@ class Model:
 		return 'MultiRes_v001'
 	
 	@staticmethod
-	def get_input_channels(model_state_dict):
+	def input_channels(model_state_dict):
 		from pprint import pprint
 		pprint (model_state_dict.keys())
 
