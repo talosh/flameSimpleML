@@ -813,9 +813,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         #### APP STATE MEGA DICT ####
 
-        self.source_frames_map = self.create_source_files_map(self.source_folder)
-        pprint (self.source_frames_map)
-
         self.app_state = {
             'view_mode': 'F4',
             'render_loop': False,
@@ -827,6 +824,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'min_frame': 1,
             'max_frame': 99,
             'current_frame': 1,
+            'duration': 99,
             'frames_map': {},
             'src_image_data': None,
             'res_image_data': None,
@@ -835,16 +833,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         }
 
         self.deps = {}
-
-        '''
-        self.min_frame = 1
-        self.max_frame = 99
-        self.current_frame = 1
-        self.input_channels = 3
-        self.output_channels = 3
-
-        self.destination_node_id = ''
-        '''
         
         self.current_model = None
         self.torch = None
@@ -997,10 +985,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         self.torch_device = self.set_device()
 
-        duration = self.selection[0].duration.frame
+        # Check the source files and build the frames map
 
-        self.app_state['min_frame'] = 1
-        self.app_state['max_frame'] = relative_start_frame + duration - 1
+        self.source_frames_map = self.create_source_files_map(self.source_folder)
+        self.app_state['min_frame'] = sorted(list(self.source_frames_map.keys()))[0]
+        self.app_state['max_frame'] = sorted(list(self.source_frames_map.keys()))[-1]
+        self.app_state['duration'] = len(self.source_frames_map.keys())
+
         self.message_queue.put(
             {'type': 'setText',
             'widget': 'cur_frame_label',
@@ -1011,6 +1002,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'widget': 'end_frame_label',
             'text': str(self.app_state.get('max_frame', 99))}
         )
+
+        pprint (self.app_state)
 
         self.message_queue.put({'type': 'info', 'message': 'Scanning for models...'})
         try:
@@ -1444,7 +1437,30 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.ui.info_label.setPalette(palette)
 
     def create_source_files_map(self, folder_path):
-        print (f'hello from exr files map {folder_path}')
+        '''
+        Creates a dictionary of .exr files from sorted subfolders of a given folder.
+
+        Each key in the dictionary corresponds to an index starting from 1, representing the .exr file's 
+        index in the first subfolder. The value is a list containing paths to .exr files from each subfolder,
+        where the file's index matches the key. If a subfolder has fewer .exr files than the first one, 
+        the last file path in that subfolder is repeated to match the count of the first subfolder.
+
+        Parameters:
+        folder_path (str): The path to the main folder containing subfolders.
+
+        Returns:
+        dict: A dictionary where each key is an integer starting from 1, and the value is a list of file paths.
+            Returns a message string if the folder does not exist or if no subfolders are found.
+
+        Example:
+            {1: ['/preview/render1_ML_2024JAN20_1819_HIDH/src/01/render1.00000000.exr',
+                '/preview/render1_ML_2024JAN20_1819_HIDH/src/02/render2.00000000.exr',
+                '/preview/render1_ML_2024JAN20_1819_HIDH/src/03/004_Subclip_001-RSZ_Result.00100853.exr'],
+            2: ['/preview/render1_ML_2024JAN20_1819_HIDH/src/01/render1.00000001.exr',
+                '/preview/render1_ML_2024JAN20_1819_HIDH/src/02/render2.00000001.exr',
+                '/preview/render1_ML_2024JAN20_1819_HIDH/src/03/004_Subclip_001-RSZ_Result.00100854.exr']}
+        '''
+
         exr_dict = {}
 
         # Ensure the folder exists
@@ -1468,16 +1484,24 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
 
-        # Select the first subfolder and list its .exr files
+        # Process the first subfolder separately
         first_subfolder = subfolders[0]
-        exr_files = sorted([f for f in os.listdir(first_subfolder) if f.endswith('.exr')])
+        first_subfolder_files = sorted([f for f in os.listdir(first_subfolder) if f.endswith('.exr')])
 
-        # Create the dictionary
-        for i, file in enumerate(exr_files, start=1):
+        # Initialize the dictionary with files from the first subfolder
+        for i, file in enumerate(first_subfolder_files, start=1):
             exr_dict[i] = [os.path.join(first_subfolder, file)]
 
-        return exr_dict
+        # Process the remaining subfolders
+        for subfolder in subfolders[1:]:
+            subfolder_files = sorted([f for f in os.listdir(subfolder) if f.endswith('.exr')])
+            for i, file in enumerate(subfolder_files, start=1):
+                if i <= len(first_subfolder_files):
+                    exr_dict[i].append(os.path.join(subfolder, file))
+                else:
+                    exr_dict[i].append(os.path.join(subfolder, subfolder_files[-1]))
 
+        return exr_dict
 
     def set_current_frame(self, new_current_frame, render = True):
         self.app_state['current_frame'] = new_current_frame
