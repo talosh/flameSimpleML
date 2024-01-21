@@ -894,8 +894,8 @@ class flameAppFramework(object):
                 'channel_names': source_reader.channel_names,
                 'channel_types': source_reader.channel_types,
                 'shape': source_reader.shape,
-                'image_data': source_reader.image.copy(),
             }
+            if not header_only:
+                result['image_data'] = source_reader.image.copy()
             del source_reader
-
         return result
