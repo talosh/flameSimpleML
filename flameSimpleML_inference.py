@@ -1620,13 +1620,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
             return False
+        
         model_input_channles = self.models[model_name + '_handler'].input_channels(model_state_dict['model_state_dict'])
         model_output_channels = self.models[model_name + '_handler'].output_channels(model_state_dict['model_state_dict'])
 
         print (f'model input channels: {model_input_channles}, model output channels: {model_output_channels}')
 
         try:
-            self.current_model = self.models[model_name](3, 3).to(self.torch_device)
+            self.current_model = self.models[model_name](model_input_channles, model_output_channels).to(self.torch_device)
             self.current_model.half()
             self.current_model.load_state_dict(model_state_dict['model_state_dict'])
             self.current_model.half()
