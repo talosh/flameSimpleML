@@ -681,13 +681,13 @@ def main():
 
             if step % 40 == 1:
                 if platform.system() == 'Darwin':
-                    rgb_source = restore_normalized_values_numpy(source[:, :3, :, :])
-                    rgb_target = restore_normalized_values_numpy(target[:, :3, :, :])
-                    rgb_output = restore_normalized_values_numpy(output[:, :3, :, :])
+                    rgb_source = restore_normalized_values_numpy(source)
+                    rgb_target = restore_normalized_values_numpy(target)
+                    rgb_output = restore_normalized_values_numpy(output)
                 else:
-                    rgb_source = restore_normalized_values(source[:, :3, :, :])
-                    rgb_target = restore_normalized_values(target[:, :3, :, :])
-                    rgb_output = restore_normalized_values(output[:, :3, :, :])
+                    rgb_source = restore_normalized_values(source)
+                    rgb_target = restore_normalized_values(target)
+                    rgb_output = restore_normalized_values(output)
 
                 preview_folder = os.path.join(args.dataset_path, 'preview')
                 sample_source = rgb_source[0].clone().cpu().detach().numpy().transpose(1, 2, 0)
