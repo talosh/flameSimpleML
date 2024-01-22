@@ -388,16 +388,17 @@ def get_media_panel_custom_ui_actions():
     def train_model(selection):
         import flame
 
+        if len (selection) < 2:
+            dialog = flame.messages.show_in_dialog(
+                title ='Dataset creaton error',
+                message = 'Please select at least two clips for source and target',
+                type = 'error',
+                buttons = ['Ok'])
+            return
+
         dataset_dialog = DatasetDialog()
 
         if dataset_dialog.exec():
-            if len (selection) < 2:
-                dialog = flame.messages.show_in_dialog(
-                    title ='Dataset creaton error',
-                    message = 'Please select at least two clips for source and target',
-                    type = 'error',
-                    buttons = ['Ok'])
-                return
 
             flame_version = flame.get_version()
             python_executable_path = f'/opt/Autodesk/python/{flame_version}/bin/python'
