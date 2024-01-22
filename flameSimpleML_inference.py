@@ -2078,6 +2078,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         
         with torch.no_grad():
             output = self.current_model(src_image_data * 2 -1)
+
+        print (f'output shape: {output.shape}')
         
         frame_time = time.time() - time_stamp
         frame_time_str = str(f'{frame_time:.2f}')
@@ -2085,11 +2087,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         self.empty_torch_cache()
 
-        rgb_output = (output[0] + 1) / 2
-        rgb_output = self.fw.restore_normalized_values(rgb_output, torch = self.torch)
-        rgb_output = rgb_output.permute(1, 2, 0)[:h, :w]
+        output = (output[0] + 1) / 2
+        output = self.fw.restore_normalized_values(rgb_output, torch = self.torch)
+        output = output.permute(1, 2, 0)[:h, :w]
 
-        result_image = rgb_output.to(dtype=torch.float32)
+        result_image = output.to(dtype=torch.float32)
 
         self.message_queue.put(
             {'type': 'info', 
