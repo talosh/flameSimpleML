@@ -43,8 +43,8 @@ class ApplyModelDialog(QtWidgets.QDialog):
             self.fw = None
 
         self.working_folder = self.fw.prefs.get('working_folder', os.path.expanduser('~'))
-        if os.getenv('FLAMETWML_WORK_FOLDER'):
-            self.working_folder = os.getenv('FLAMETWML_WORK_FOLDER')
+        if os.getenv('FLAMESMML_WORK_FOLDER'):
+            self.working_folder = os.getenv('FLAMESMML_WORK_FOLDER')
         self.fw.prefs['working_folder'] = self.working_folder
         self.fw.save_prefs()
 
@@ -73,7 +73,7 @@ class ApplyModelDialog(QtWidgets.QDialog):
         def txt_WorkFolder_textChanged():
             self.working_folder = txt_WorkFolder.text()
 
-        if os.getenv('FLAMETWML_WORK_FOLDER'):
+        if os.getenv('FLAMESMML_WORK_FOLDER'):
             lbl_WorkFolderPath = QtWidgets.QLabel(self.working_folder, self)
             lbl_WorkFolderPath.setStyleSheet('QFrame {color: #989898; background-color: #373737}')
             lbl_WorkFolderPath.setMinimumHeight(28)
