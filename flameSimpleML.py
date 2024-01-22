@@ -161,7 +161,7 @@ class DatasetDialog(QtWidgets.QDialog):
         self.fw.save_prefs()
 
         self.setMinimumSize(480, 80)
-        self.setWindowTitle('flameSimpleML: Choose output folder:')
+        self.setWindowTitle('flameSimpleML: Choose folder to create dataset in:')
 
         # Setting up layouts
         self.layout = QtWidgets.QVBoxLayout(self)
