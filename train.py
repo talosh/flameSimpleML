@@ -197,6 +197,7 @@ class Yogi(Optimizer):
 
 class myDataset(torch.utils.data.Dataset):
     def __init__(self, data_root):
+        self.fw = flameAppFramework()
         self.data_root = data_root
         self.source_root = os.path.join(self.data_root, 'source')
         self.target_root = os.path.join(self.data_root, 'target')
@@ -204,7 +205,9 @@ class myDataset(torch.utils.data.Dataset):
         self.target_files = [os.path.join(self.target_root, file) for file in sorted(os.listdir(self.target_root))]
         self.indices = list(range(len(self.source_files)))
 
-        src_header = flameAppFramework.read_openexr_file(self.source_files[0], header_only=True)
+
+
+        src_header = self.fw.read_openexr_file(self.source_files[0], header_only=True)
         pprint (src_header)
         '''
         try:
