@@ -1003,7 +1003,7 @@ class flameAppFramework(object):
             clip_node_handle = None
 
     @staticmethod
-    def read_openexr_file(self, file_path, header_only = False):
+    def read_openexr_file(file_path, header_only = False):
         """
         Reads data from an OpenEXR file specified by the file path.
 
