@@ -223,7 +223,7 @@ class myDataset(torch.utils.data.Dataset):
             print (f'Unable to read {self.source_files[0]}: {e}')
             sys.exit()
 
-        self.out_channels = src_header.shape[2]
+        self.out_channels = target_header.shape[2]
         print (f'target channels: {self.in_channles}')
 
         self.h = 256
