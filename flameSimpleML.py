@@ -417,7 +417,7 @@ def get_media_panel_custom_ui_actions():
             target_folder = os.path.abspath(
                 os.path.join(
                     dataset_folder,
-                    'source'
+                    'target'
                     )
                 )
             
@@ -425,6 +425,11 @@ def get_media_panel_custom_ui_actions():
             target_clip = selected_clips.pop()
             export_clip(target_clip, target_folder)
 
+            clip_number = 1
+            for source_clip in selected_clips:
+                source_clip_folder = os.path.join(source_folder, f'{clip_number:02}')
+                export_clip(source_clip, source_clip_folder)
+                clip_number += 1
 
             flame_version = flame.get_version()
             python_executable_path = f'/opt/Autodesk/python/{flame_version}/bin/python'
