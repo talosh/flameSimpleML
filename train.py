@@ -199,12 +199,35 @@ class myDataset(torch.utils.data.Dataset):
     def __init__(self, data_root):
         self.fw = flameAppFramework()
         self.data_root = data_root
+
+        def exr_files_in_folder(folder_path):
+            """
+            Check if there are any .exr files in the specified folder.
+
+            Parameters:
+            folder_path (str): Path to the folder to be checked.
+
+            Returns:
+            bool: True if there are .exr files in the folder, False otherwise.
+            """
+            for file in os.listdir(folder_path):
+                if file.endswith('.exr'):
+                    return True
+            return False
+
+
         self.source_root = os.path.join(self.data_root, 'source')
         self.target_root = os.path.join(self.data_root, 'target')
-        self.source_files = [os.path.join(self.source_root, file) for file in sorted(os.listdir(self.source_root))]
+
+        if exr_files_in_folder(self.source_root):
+            self.source_files = [[os.path.join(self.source_root, file)] for file in sorted(os.listdir(self.source_root))]
+        else:
+            pass
+
         self.target_files = [os.path.join(self.target_root, file) for file in sorted(os.listdir(self.target_root))]
         self.indices = list(range(len(self.source_files)))
 
+        pprint (self.source_files)
 
         try:
             src_header = self.fw.read_openexr_file(self.source_files[0], header_only=True)
