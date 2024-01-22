@@ -1955,7 +1955,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.render_loop_thread.join()
 
     def _process_current_frame(self, single_frame=False):
-        timestamp = time.time()
         current_frame = self.app_state.get('current_frame')
 
         self.message_queue.put(
@@ -2054,7 +2053,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
     def apply_model(self, src_image_data):
         import torch
-        from torch.nn import functional as F
      
         current_frame = self.app_state.get('current_frame')
 
@@ -2068,7 +2066,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         pw = ((w - 1) // 256 + 1) * 256
         padding = (0, pw - w, 0, ph - h)
         src_image_data = src_image_data.permute (2, 0, 1)
-        src_image_data = F.pad(src_image_data, padding)
+        src_image_data = torch.nn.functional.pad(src_image_data, padding)
         src_image_data = src_image_data.unsqueeze(0)
         src_image_data = self.fw.normalize_values(src_image_data, torch = self.torch)
         if not platform.system == 'Darwin':
@@ -2078,8 +2076,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         time_stamp = time.time()
         
+        print (f'src image data shape: {src_image_data.shape}')
+
         with torch.no_grad():
-            output = self.current_model(src_image_data*2 -1)
+            output = self.current_model(src_image_data * 2 -1)
         
         frame_time = time.time() - time_stamp
         frame_time_str = str(f'{frame_time:.2f}')
