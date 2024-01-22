@@ -391,7 +391,7 @@ def get_media_panel_custom_ui_actions():
         if len (selection) < 2:
             dialog = flame.messages.show_in_dialog(
                 title ='Dataset creaton error',
-                message = 'Please select at least two clips for source and target',
+                message = 'Please select at least two clips. Fist selected clip or several clips would act as input channels, and the last selected will be target',
                 type = 'error',
                 buttons = ['Ok'])
             return
