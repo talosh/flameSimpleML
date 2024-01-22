@@ -2071,7 +2071,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         src_image_data = F.pad(src_image_data, padding)
         src_image_data = src_image_data.unsqueeze(0)
         src_image_data = self.fw.normalize_values(src_image_data, torch = self.torch)
-        src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)        
+        if not platform.system == 'Darwin':
+            src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+        else:
+            src_image_data = src_image_data.to(self.torch_device, dtype=torch.float32)        
 
         time_stamp = time.time()
         
@@ -2109,7 +2112,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             src_image_dict = self.fw.read_openexr_file(src_path)
             src_image_data = torch.from_numpy(src_image_dict.get('image_data')).to(device = self.torch_device, dtype = torch.float32)
             del src_image_dict['image_data']
-            pprint (src_image_dict)
             tensors.append(src_image_data)
         
         try:
@@ -2123,124 +2125,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
     
-    def read_image_data_torch(self, clip, frame_number):
-        import flame
-        import numpy as np
-        import torch
-
-        try:
-            server_handle = WireTapServerHandle('localhost')
-            clip_node_id = clip.get_wiretap_node_id()
-            clip_node_handle = WireTapNodeHandle(server_handle, clip_node_id)
-            fmt = WireTapClipFormat()
-            if not clip_node_handle.getClipFormat(fmt):
-                raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
-            num_frames = WireTapInt()
-            if not clip_node_handle.getNumFrames(num_frames):
-                raise Exception(
-                    "Unable to obtain number of frames: %s." % clip_node_handle.lastError()
-                )
-
-            buff = "0" * fmt.frameBufferSize()
-
-            if not clip_node_handle.readFrame(int(frame_number), buff, fmt.frameBufferSize()):
-                raise Exception(
-                    '[read_image_data] Unable to obtain read frame %i: %s.' % (frame_number, clip_node_handle.lastError())
-                )
-            
-            frame_buffer_size = fmt.frameBufferSize()
-            
-            bits_per_channel = fmt.bitsPerPixel() // fmt.numChannels()
-
-            if bits_per_channel == 8:
-                buff_tail = frame_buffer_size - (fmt.height() * fmt.width() * fmt.numChannels())
-                np_image_array = np.frombuffer(bytes(buff, 'latin-1'), dtype=np.uint8)[:-1 * buff_tail]
-                image_array = torch.from_numpy(np_image_array.copy())
-                del np_image_array
-                image_array = image_array.to(
-                    device = self.torch_device,
-                    dtype = torch.float32,
-                    non_blocking=True
-                    )
-                image_array = image_array.reshape((fmt.height(), fmt.width(),  fmt.numChannels()))
-                image_array = torch.flip(image_array, [0])
-                return image_array / 255
-
-            elif bits_per_channel == 10:
-                dt = np.uint16
-                byte_array = np.frombuffer(bytes(buff, 'latin-1'), dtype='>u4')
-                # byte_array = np.frombuffer(bytes(buff, 'latin-1'), dtype='<u4')
-                values_10bit = np.empty((len(byte_array) * fmt.numChannels(),), dtype=np.uint16)
-                values_10bit[::3] = (byte_array >> 22) & 0x3FF
-                values_10bit[1::3] = (byte_array >> 12) & 0x3FF
-                values_10bit[2::3] = (byte_array >> 2) & 0x3FF
-                image_array = torch.from_numpy(values_10bit.astype(np.float32))
-                image_array = image_array[:fmt.height() * fmt.width() * fmt.numChannels()]
-                image_array = image_array.to(
-                    device = self.torch_device,
-                    dtype = torch.float32,
-                    non_blocking=True
-                    )
-                image_array = image_array.reshape((fmt.height(), fmt.width(),  fmt.numChannels()))
-                image_array = torch.flip(image_array, [0])
-                return image_array / 1024
-
-            elif bits_per_channel == 16 and not('float' in fmt.formatTag()):
-                dt = np.uint16
-                buff_tail = (frame_buffer_size // np.dtype(dt).itemsize) - (fmt.height() * fmt.width() * fmt.numChannels())
-                image_array = np.frombuffer(bytes(buff, 'latin-1'), dtype=dt)[:-1 * buff_tail]
-                image_array = torch.from_numpy(image_array.astype(np.float32))
-                image_array = image_array.to(
-                    device = self.torch_device,
-                    dtype = torch.float32,
-                    non_blocking=True
-                    )
-                image_array = image_array.reshape((fmt.height(), fmt.width(),  fmt.numChannels()))
-                image_array = torch.flip(image_array, [0])
-                return image_array / 65535
-            
-            elif (bits_per_channel == 16) and ('float' in fmt.formatTag()):
-                buff_tail = (frame_buffer_size // np.dtype(np.float16).itemsize) - (fmt.height() * fmt.width() * fmt.numChannels())
-                np_image_array = np.frombuffer(bytes(buff, 'latin-1'), dtype=np.float16)[:-1 * buff_tail]
-                image_array = torch.from_numpy(np_image_array.copy())
-                del np_image_array
-                image_array = image_array.to(
-                    device = self.torch_device,
-                    dtype = torch.float32,
-                    non_blocking=True
-                    )
-                image_array = image_array.reshape((fmt.height(), fmt.width(),  fmt.numChannels()))
-                image_array = torch.flip(image_array, [0])
-                return image_array
-
-            elif bits_per_channel == 32:
-                buff_tail = (frame_buffer_size // np.dtype(np.float32).itemsize) - (fmt.height() * fmt.width() * fmt.numChannels())
-                np_image_array = np.frombuffer(bytes(buff, 'latin-1'), dtype=np.float32)[:-1 * buff_tail]
-                image_array = torch.from_numpy(np_image_array.copy())
-                del np_image_array
-                image_array = image_array.to(
-                    device = self.torch_device,
-                    dtype = torch.float32,
-                    non_blocking=True
-                    )
-                image_array = image_array.reshape((fmt.height(), fmt.width(),  fmt.numChannels()))
-                image_array = torch.flip(image_array, [0])
-                return image_array
-
-            else:
-                raise Exception('Unknown image format')
-            
-        except Exception as e:
-            self.message_queue.put(
-                {'type': 'mbox',
-                'message': f'Unable to read source image: {e}',
-                'action': None}
-            )
-
-        finally:
-            server_handle = None
-            clip_node_handle = None
-
     def save_result_frame(self, image_data, frame_number):
         self.frames_to_save_queue.put(
             {
