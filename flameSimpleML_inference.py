@@ -2076,10 +2076,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         time_stamp = time.time()
         
-        print (f'src image data shape: {src_image_data.shape}')
-
-        pprint (self.app_state)
-
         with torch.no_grad():
             output = self.current_model(src_image_data * 2 -1)
         
