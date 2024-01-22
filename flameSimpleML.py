@@ -185,7 +185,7 @@ class DatasetDialog(QtWidgets.QDialog):
         def txt_WorkFolder_textChanged():
             self.dataset_folder = txt_WorkFolder.text()
 
-        if os.getenv('FLAMETWML_WORK_FOLDER'):
+        if os.getenv('FLAMESMML_DATASET_FOLDER'):
             lbl_WorkFolderPath = QtWidgets.QLabel(self.dataset_folder, self)
             lbl_WorkFolderPath.setStyleSheet('QFrame {color: #989898; background-color: #373737}')
             lbl_WorkFolderPath.setMinimumHeight(28)
