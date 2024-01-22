@@ -248,12 +248,8 @@ class myDataset(torch.utils.data.Dataset):
                 source_image_data = None
                 target_image_data = None
                 try:
-                    with open(source_file_path, 'rb') as sfp:
-                        source_reader = MinExrReader(sfp)
-                        source_image_data = source_reader.image.copy().astype(np.float32)
-                    with open(target_file_path, 'rb') as tfp:
-                        target_reader = MinExrReader(tfp)
-                        target_image_data = target_reader.image.copy().astype(np.float32)
+                    source_image_data = self.fw.read_openexr_file(source_file_path).astype(np.float32)
+                    target_image_data = self.fw.read_openexr_file(target_file_path).astype(np.float32)
                 except Exception as e:
                     print (e)
 
@@ -262,8 +258,8 @@ class myDataset(torch.utils.data.Dataset):
                     continue
                 
                 self.frames_queue.put([
-                    np.transpose(source_image_data, (0, 2, 1))[:, :, ::-1],
-                    np.transpose(target_image_data, (0, 2, 1))[:, :, ::-1]
+                    source_image_data,
+                    target_image_data
                 ])
 
             time.sleep(timeout)
