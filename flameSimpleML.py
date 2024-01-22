@@ -391,7 +391,7 @@ def get_media_panel_custom_ui_actions():
         if len (selection) < 2:
             dialog = flame.messages.show_in_dialog(
                 title ='Dataset creaton error',
-                message = 'Please select at least two clips. The channels of first selected clip, or several clips combined, will act as input channels, and the last selected clip will be the target',
+                message = 'Please select at least two clips. The channels of first selected clip, or several clips channels combined will act as input channels, and the last selected clip will be the target',
                 type = 'error',
                 buttons = ['Ok'])
             return
@@ -399,6 +399,32 @@ def get_media_panel_custom_ui_actions():
         dataset_dialog = DatasetDialog()
 
         if dataset_dialog.exec():
+            first_clip_name = selection[0].name.get_value()
+            dataset_folder = os.path.abspath(
+                os.path.join(
+                    dataset_dialog.dataset_folder,
+                    f'{sanitized(first_clip_name)}_dataset_{create_timestamp_uid()}'
+                    )
+                )
+
+            source_folder = os.path.abspath(
+                os.path.join(
+                    dataset_folder,
+                    'source'
+                    )
+                )
+
+            target_folder = os.path.abspath(
+                os.path.join(
+                    dataset_folder,
+                    'source'
+                    )
+                )
+            
+            selected_clips = list(selection)
+            target_clip = selected_clips.pop()
+            export_clip(target_clip, target_folder)
+
 
             flame_version = flame.get_version()
             python_executable_path = f'/opt/Autodesk/python/{flame_version}/bin/python'
