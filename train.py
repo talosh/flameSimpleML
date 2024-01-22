@@ -227,17 +227,15 @@ class myDataset(torch.utils.data.Dataset):
         self.target_files = [os.path.join(self.target_root, file) for file in sorted(os.listdir(self.target_root))]
         self.indices = list(range(len(self.source_files)))
 
-        pprint (self.source_files)
-
         try:
-            src_header = self.fw.read_openexr_file(self.source_files[0], header_only=True)
+            src_header = self.fw.read_openexr_file(self.source_files[0][0], header_only=True)
         except Exception as e:
             print (f'Unable to read {self.source_files[0]}: {e}')
             sys.exit()
         
         self.src_h = src_header['shape'][0]
         self.src_w = src_header['shape'][1]
-        self.in_channles = src_header['shape'][2]
+        self.in_channles = self.get_input_channels_number(self.source_files[0])
         print (f'source channels: {self.in_channles}')
 
         try:
@@ -248,6 +246,8 @@ class myDataset(torch.utils.data.Dataset):
 
         self.out_channels = target_header['shape'][2]
         print (f'target channels: {self.in_channles}')
+
+        sys.exit()
 
         self.h = 256
         self.w = 256
@@ -355,6 +355,14 @@ class myDataset(torch.utils.data.Dataset):
         # img1 = torch.from_numpy(img1.copy()).permute(2, 0, 1)
 
         return img0, img1
+
+    def get_input_channels_number(self, source_frames_paths_list):
+        total_num_channels = 0
+        for src_path in source_frames_paths_list:
+            file_header = self.fw.read_openexr_file(src_path, header_only=True)
+            total_num_channels += file_header['shape'][2]
+        return total_num_channels
+
 
 def write_exr(image_data, filename, half_float = False, pixelAspectRatio = 1.0):
     height, width, depth = image_data.shape

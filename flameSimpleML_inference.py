@@ -984,6 +984,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
         
         self.torch_device = self.set_device()
+        self.app_name['torch_device'] = self.torch_device
 
         # Check the source files and build the frames map
 
@@ -2092,7 +2093,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         result_image = output.to(dtype=torch.float32)
 
         print (f'output shape: {output.shape}')
-        
+
         self.message_queue.put(
             {'type': 'info', 
             'message': f'Frame {current_frame}'}
