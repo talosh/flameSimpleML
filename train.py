@@ -248,8 +248,10 @@ class myDataset(torch.utils.data.Dataset):
                 source_image_data = None
                 target_image_data = None
                 try:
-                    source_image_data = self.fw.read_openexr_file(source_file_path).astype(np.float32)
-                    target_image_data = self.fw.read_openexr_file(target_file_path).astype(np.float32)
+                    source_image_dict = self.fw.read_openexr_file(source_file_path)
+                    source_image_data = source_image_dict['image_data'].astype(np.float32)
+                    target_image_dict = self.fw.read_openexr_file(target_file_path)
+                    target_image_data = target_image_dict['image_data'].astype(np.float32)
                 except Exception as e:
                     print (e)
 
