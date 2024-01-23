@@ -2170,7 +2170,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import flame
         import numpy as np
 
-        ext = '.exr' if 'float' in self.fmt.formatTag() else '.dpx'
+        ext = '.exr'
             
         file_path = os.path.join(
             self.temp_folder,
