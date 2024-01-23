@@ -984,7 +984,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             return
         
         self.torch_device = self.set_device()
-        self.app_name['torch_device'] = self.torch_device
+        self.app_state['torch_device'] = self.torch_device
 
         # Check the source files and build the frames map
 
