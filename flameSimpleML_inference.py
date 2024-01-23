@@ -1691,6 +1691,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': message_string,
                 'action': None}
             )
+            model_menu_items = self.prefs.get('recent_models')
+            pprint (model_menu_items)
             return False
 
     def process_messages(self):
