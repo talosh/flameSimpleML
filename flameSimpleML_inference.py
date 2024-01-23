@@ -1692,9 +1692,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'action': None}
             )
             model_menu_items = self.prefs.get('recent_models')
+            key_to_delete = None
             for key, value in model_menu_items.items():
                 if value == selected_model_dict_path:
-                    del model_menu_items[key]
+                    key_to_delete = key
+                    break
+            del model_menu_items[key_to_delete]
             self.prefs['recent_models'] = model_menu_items
             self.fw.save_prefs()
             self.fill_model_menu()
