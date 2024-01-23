@@ -1208,7 +1208,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             }
         """)
 
-        mbox.setText(message)
+        mbox.setText(str(message))
         mbox.exec_()
 
         if action and callable(action):
