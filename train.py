@@ -248,7 +248,7 @@ class myDataset(torch.utils.data.Dataset):
             sys.exit()
 
         self.out_channels = target_header['shape'][2]
-        print (f'target channels: {self.in_channles}')
+        print (f'target channels: {self.out_channels}')
 
         pprint (self.source_files)
         sys.exit()
