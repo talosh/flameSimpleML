@@ -2124,8 +2124,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         result_image = output.to(dtype=torch.float32)
 
-        print (f'output shape: {output.shape}')
-
         self.message_queue.put(
             {'type': 'info', 
             'message': f'Frame {current_frame}'}
