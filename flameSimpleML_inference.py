@@ -2581,7 +2581,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         except:
             pass
 
-        del self.app_state['src_image_data'], self.app_state['res_image_data']
+        # del self.app_state['src_image_data'], self.app_state['res_image_data']
 
         del self.current_model
         del self.model_state_dict
