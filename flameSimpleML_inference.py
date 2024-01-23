@@ -1546,10 +1546,17 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if model_number == '99': # load model code
             selected_model_dict_path = None
             self.hide()
-            fallback_path = os.path.join(
-                os.path.expanduser('~'),
-                'flameSimpleML_models'
-            )
+            if platform.system == 'Darwin':
+                fallback_path = os.path.join(
+                    os.path.expanduser('~'),
+                    'Documents',
+                    'flameSimpleML_models'
+                )
+            else:
+                fallback_path = os.path.join(
+                    os.path.expanduser('~'),
+                    'flameSimpleML_models'
+                )
             if not os.path.isdir(fallback_path):
                 fallback_path = os.path.expanduser('~')
             flame.browser.show(
