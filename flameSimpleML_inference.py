@@ -1933,10 +1933,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if not self.app_state.get('render_loop'):
                 return
             
-            # if self.frames_map[frame].get('saved'):
-            #    self.info('Frame ' + str(self.current_frame) + ': Already saved')
-            #    continue
-            
+            print (f'frame: {frame}')
+
+            '''
             self.set_current_frame(frame, render = True)
             
             if self.app_state.get('render_loop'):
@@ -1947,8 +1946,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                     self.app_state.get('current_frame')
                 )
                 del save_image_data
-
-            # self._process_current_frame()
+            '''
 
         time_spent = time.time() - render_loop_start
         self.info(f'Rendering completed in {int(time_spent // 60)} min {int(time_spent % 60)} sec')
