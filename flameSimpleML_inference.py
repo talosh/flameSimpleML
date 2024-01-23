@@ -2601,8 +2601,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         file_names = [f for f in os.listdir(result_folder) if f.endswith('.exr')]
         file_names = sorted(file_names)
         new_clip = flame.import_clips(file_names, destination)
-        new_clip.name.set_value(new_clip_name)
+        # new_clip.name.set_value(new_clip_name)
         flame.execute_shortcut('Refresh Thumbnails')
+
+        pprint (new_clip)
 
         self.log('Cleaning up temporary files used: %s' % pformat(source_folder))
         cmd = 'rm -f "' + os.path.abspath(source_folder) + '/*"'
