@@ -818,6 +818,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             'current_model': None,
             'input_channels': 3,
             'output_channels': 3,
+            'model_input_channels': 3,
             'min_frame': 1,
             'max_frame': 99,
             'current_frame': 1,
@@ -1971,6 +1972,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 self.render_loop_thread.join()
 
     def _process_current_frame(self, single_frame=False):
+        import torch
+
         current_frame = self.app_state.get('current_frame')
 
         self.message_queue.put(
@@ -1979,7 +1982,18 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             )
         
         src_image_data = self.read_source_images_data(current_frame)
-        
+
+        # adjust channels to match model
+        model_input_channels = self.app_state.get('model_input_channels')
+        N, C, H, W = src_image_data.shape
+        if C < model_input_channels:
+            # Add extra channels filled with zeros (black)
+            extra_channels = torch.zeros((N, model_input_channels - C, H, W), dtype=src_image_data.dtype, device=src_image_data.device)
+            src_image_data = torch.cat((src_image_data, extra_channels), dim=1)
+        elif C > model_input_channels:
+            # Truncate extra channels
+            src_image_data = src_image_data[:, :model_input_channels, :, :]
+
         self.app_state['src_image_data'] = src_image_data
         
         if self.current_model is None:
