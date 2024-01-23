@@ -2593,7 +2593,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.info(f'Waiting for {qsize} frames to be saved')
             time.sleep(1e-8)
 
-        flame_friendly_path = None
         destination = self.app_state.get('clips_parent')
         result_folder = self.app_state.get('result_folder')
         source_folder = self.app_state.get('source_folder')
@@ -2601,7 +2600,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         def import_flame_clip():
             import flame
-            new_clips = flame.import_clips(flame_friendly_path, destination)
             
             if len(new_clips) > 0:
                 new_clip = new_clips[0]
@@ -2619,7 +2617,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             first_frame, ext = os.path.splitext(file_names[0])
             last_frame, ext = os.path.splitext(file_names[-1])
             flame_friendly_path = os.path.join(result_folder, '[' + first_frame + '-' + last_frame + ']' + '.exr')
-            flame.schedule_idle_event(import_flame_clip)
+        
+        print (flame_friendly_path)
 
         self.log('Cleaning up temporary files used: %s' % pformat(source_folder))
         cmd = 'rm -f "' + os.path.abspath(source_folder) + '/"*'
