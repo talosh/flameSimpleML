@@ -2607,13 +2607,16 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
 
         self.log('Cleaning up temporary files used: %s' % pformat(source_folder))
-        cmd = 'rm -f "' + os.path.abspath(source_folder) + '/*"'
-        self.log('Executing command: %s' % cmd)
+        cmd = f'rm -f "{os.path.abspath(source_folder)}"'
+        self.log(f'Executing command: {cmd}')
         os.system(cmd)
+        
+        '''
         try:
             os.rmdir(source_folder)
         except Exception as e:
             self.log('Error removing %s: %s' % (source_folder, e))
+        '''
 
         self.threads = False
         self.deleteLater()
