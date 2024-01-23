@@ -2597,19 +2597,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         result_folder = self.app_state.get('result_folder')
         source_folder = self.app_state.get('source_folder')
         new_clip_name = os.path.dirname(result_folder)
-
-        def import_flame_clip():
-            import flame
-            
-            if len(new_clips) > 0:
-                new_clip = new_clips[0]
-                if new_clip:
                     
-            try:
-                
-            except:
-                pass
-
         file_names = [f for f in os.listdir(result_folder) if f.endswith('.exr')]
         file_names = sorted(file_names)
         new_clip = flame.import_clips(file_names, destination)
