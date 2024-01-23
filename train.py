@@ -250,9 +250,6 @@ class myDataset(torch.utils.data.Dataset):
         self.out_channels = target_header['shape'][2]
         print (f'target channels: {self.out_channels}')
 
-        pprint (self.source_files)
-        sys.exit()
-
         self.h = 256
         self.w = 256
         self.frame_multiplier = (self.src_w // self.w) * (self.src_h // self.h) * 4
@@ -274,9 +271,17 @@ class myDataset(torch.utils.data.Dataset):
                 target_file_path = self.target_files[index]
                 source_image_data = None
                 target_image_data = None
+
                 try:
-                    source_image_dict = self.fw.read_openexr_file(source_file_path)
-                    source_image_data = source_image_dict['image_data'].astype(np.float32)
+                    tensors = []
+                    for src_path in source_file_paths_list:
+                        src_image_dict = self.fw.read_openexr_file(src_path)
+                        tensors.append(src_image_dict.get('image_data').astype(np.float32))
+                    source_image_data = np.concatenate(tensors, axis=2)
+                except Exception as e:
+                    print (e)
+
+                try:
                     target_image_dict = self.fw.read_openexr_file(target_file_path)
                     target_image_data = target_image_dict['image_data'].astype(np.float32)
                 except Exception as e:
@@ -433,29 +438,6 @@ class myDataset(torch.utils.data.Dataset):
                     exr_dict[i].append(os.path.join(subfolder, subfolder_files[-1]))
 
         return exr_dict
-
-
-
-    def read_source_images_data(self, frame_number):
-        frames_map = self.app_state.get('frames_map')
-        current_frame_data = frames_map.get(frame_number)
-        source_images_file_paths_list = current_frame_data.get('source_frames_path')
-
-        tensors = []
-        for src_path in source_images_file_paths_list:
-            src_image_dict = self.fw.read_openexr_file(src_path)
-            tensors.append(src_image_dict.get('image_data'))        
-        try:
-            concatenated_data = torch.cat(tensors, dim=2)
-            return concatenated_data
-        except Exception as e:
-            message_string = f'Unable to read source images data:\n"{e}"'
-            self.message_queue.put(
-                {'type': 'mbox',
-                'message': message_string,
-                'action': None}
-            )
-
 
 def write_exr(image_data, filename, half_float = False, pixelAspectRatio = 1.0):
     height, width, depth = image_data.shape
