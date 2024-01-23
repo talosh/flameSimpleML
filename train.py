@@ -250,6 +250,7 @@ class myDataset(torch.utils.data.Dataset):
         self.out_channels = target_header['shape'][2]
         print (f'target channels: {self.in_channles}')
 
+        pprint (self.source_files)
         sys.exit()
 
         self.h = 256
