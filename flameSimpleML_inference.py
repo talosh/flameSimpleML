@@ -1546,7 +1546,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if model_number == '99': # load model code
             selected_model_dict_path = None
             self.hide()
-            if platform.system == 'Darwin':
+            if platform.system() == 'Darwin':
                 fallback_path = os.path.join(
                     os.path.expanduser('~'),
                     'Documents',
@@ -1690,7 +1690,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         try:
             self.message_queue.put({'type': 'info', 'message': f'Loading model state dict {selected_model_dict_path}'})
-            self.model_state_dict = torch.load(selected_model_dict_path)
+            self.model_state_dict = torch.load(selected_model_dict_path, map_location=self.torch_device)
             self.message_queue.put({'type': 'info', 'message': f'Model state dict loaded from {selected_model_dict_path}'})
             return True
         except Exception as e:
