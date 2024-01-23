@@ -2591,7 +2591,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         while not self.frames_to_save_queue.empty():
             qsize = self.frames_to_save_queue.qsize()
             self.info(f'Waiting for {qsize} frames to be saved')
-            time.sleep(0.01)
+            time.sleep(1e-8)
 
         flame_friendly_path = None
         destination = self.app_state.get('clips_parent')
