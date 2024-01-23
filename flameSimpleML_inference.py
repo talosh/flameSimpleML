@@ -1030,6 +1030,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.message_queue.put({'type': 'info', 'message': 'Reading source clip(s)...'})
         self.set_current_frame(self.app_state.get('min_frame', 1))
 
+        self.raise_()
+        self.activateWindow()
+
     def processEvents(self):
         try:
             QtWidgets.QApplication.instance().processEvents()
@@ -2105,7 +2108,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             src_image_data = src_image_data.to(self.torch_device, dtype=torch.float32)
         else:
             src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
-            
+
         time_stamp = time.time()
         
         with torch.no_grad():
