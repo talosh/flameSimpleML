@@ -1983,9 +1983,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import torch
 
         current_frame = self.app_state.get('current_frame')
-
-        print (f'processing frame {current_frame}')
-
+        
         self.message_queue.put(
             {'type': 'info', 
             'message': f'Frame {current_frame}: reading source image(s) data ...'}
