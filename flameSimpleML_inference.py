@@ -2169,13 +2169,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
     def _save_result_frame(self, image_data, frame_number):
         import flame
         import numpy as np
-
-        ext = '.exr'
-            
-        file_path = os.path.join(
-            self.temp_folder,
-            str(frame_number) + ext
-        )
+        
+        frames_map = self.app_state.get('frames_map')
+        file_path = frames_map.get(frame_number)
 
         save_file_start = time.time()
 
@@ -2192,6 +2188,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             else:
                 alpha = np.array([])
 
+            '''
             if file_path.endswith('exr'):
                 if self.bits_per_channel == 32:
                     self.write_exr(
@@ -2205,31 +2202,21 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                         half_float = False
                     )
                 else:
-                    self.write_exr(
-                        file_path,
-                        width,
-                        height,
-                        red.astype(np.float16),
-                        green.astype(np.float16),
-                        blue.astype(np.float16),
-                        alpha = alpha.astype(np.float16)
-                    )
-
-            else:
-                self.write_dpx(
-                    file_path,
-                    width,
-                    height,
-                    red,
-                    green,
-                    blue,
-                    alpha = alpha,
-                    bit_depth = self.bits_per_channel
-                )
+            '''
+            
+            self.write_exr(
+                file_path,
+                width,
+                height,
+                red.astype(np.float16),
+                green.astype(np.float16),
+                blue.astype(np.float16),
+                alpha = alpha.astype(np.float16)
+            )
 
             file_save_time = time.time() - save_file_start
-            read_back_start = time.time()
 
+            '''
             gateway_server_id = WireTapServerId('Gateway', 'localhost')
             gateway_server_handle = WireTapServerHandle(gateway_server_id)
             clip_node_handle = WireTapNodeHandle(gateway_server_handle, file_path + '@CLIP')
@@ -2253,6 +2240,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             dest_fmt = WireTapClipFormat()
             if not destination_node_handle.getClipFormat(dest_fmt):
                 raise Exception('Unable to obtain clip format: %s.' % clip_node_handle.lastError())
+            '''
             
             '''
             frame_id = WireTapStr()
@@ -2274,6 +2262,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             '''
 
+            '''
             num_children = WireTapInt(0)
             if not destination_node_handle.getNumChildren(num_children):
                 raise Exception(
@@ -2327,6 +2316,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             self.log_debug(f'save file: {file_save_time:.2f}, read back: {read_back_time:.2f}, fs save: {framestore_write_time:.2f}')
 
             os.remove(file_path)
+        '''
 
         except Exception as e:
             pprint (e)
@@ -2335,6 +2325,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 'message': e,
                 'action': None}
             )
+        
+        '''
         finally:
             gateway_server_handle = None
             clip_node_handle = None
@@ -2342,6 +2334,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             destination_node_handle = None
 
         # flame.schedule_idle_event(wiretap_test)
+        '''
 
     def write_exr(self, filename, width, height, red, green, blue, alpha, half_float = True, pixelAspectRatio = 1.0):
         import numpy as np
