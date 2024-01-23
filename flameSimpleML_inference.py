@@ -1885,12 +1885,12 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
             # Process the remaining subfolders
             for subfolder in subfolders[1:]:
-                subfolder_files = sorted([f for f in os.listdir(subfolder) if f.endswith('.exr')])
+                subfolder_files = sorted([f for f in os.listdir(subfolder) if f.endswith('.exr')])                        
                 for i, file in enumerate(subfolder_files, start=1):
                     if i <= len(first_subfolder_files):
                         exr_dict[i].append(os.path.join(subfolder, file))
-                    else:
-                        exr_dict[i].append(os.path.join(subfolder, subfolder_files[-1]))
+                    # else:
+                    #    exr_dict[i].append(os.path.join(subfolder, subfolder_files[:-1]))
 
             return exr_dict
 
@@ -1983,7 +1983,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import torch
 
         current_frame = self.app_state.get('current_frame')
-        
+
         self.message_queue.put(
             {'type': 'info', 
             'message': f'Frame {current_frame}: reading source image(s) data ...'}
