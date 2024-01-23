@@ -2105,10 +2105,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             src_image_data = src_image_data.to(self.torch_device, dtype=torch.float32)
         else:
             src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
-
-        pprint (platform.system())
-        print (f'dtype: {src_image_data.dtype}')
-
+            
         time_stamp = time.time()
         
         with torch.no_grad():
