@@ -1217,7 +1217,6 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.raise_()
         self.activateWindow()
 
-
     def update_interface_image(self, array, image_label, text = None):
         if self.ui_images_queue.qsize() > 8:
             return
