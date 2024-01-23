@@ -1632,7 +1632,22 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         model_input_channles = self.models[model_name + '_handler'].input_channels(model_state_dict['model_state_dict'])
         model_output_channels = self.models[model_name + '_handler'].output_channels(model_state_dict['model_state_dict'])
 
-        print (f'model input channels: {model_input_channles}, model output channels: {model_output_channels}')
+        input_channels = self.app_state.get('input_channels')
+
+        if model_input_channles > input_channels:
+            message_string = f'Model has been trained with {model_input_channles} but got {input_channels} as input. Missing channels will be filled with black.'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
+        elif model_input_channles < self.app_state.get('input_channels'):
+            message_string = f'Model has been trained with {model_input_channles} but got {input_channels} as input. Extra channels will be turncated.'
+            self.message_queue.put(
+                {'type': 'mbox',
+                'message': message_string,
+                'action': None}
+            )
 
         try:
             self.current_model = self.models[model_name](model_input_channles, model_output_channels).to(self.torch_device)
