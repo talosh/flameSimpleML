@@ -1985,14 +1985,14 @@ class flameSimpleMLInference(QtWidgets.QWidget):
 
         # adjust channels to match model
         model_input_channels = self.app_state.get('model_input_channels')
-        N, C, H, W = src_image_data.shape
+        H, W, C = src_image_data.shape
         if C < model_input_channels:
             # Add extra channels filled with zeros (black)
-            extra_channels = torch.zeros((N, model_input_channels - C, H, W), dtype=src_image_data.dtype, device=src_image_data.device)
-            src_image_data = torch.cat((src_image_data, extra_channels), dim=1)
+            extra_channels = torch.zeros((H, W, model_input_channels - C), dtype=src_image_data.dtype, device=src_image_data.device)
+            src_image_data = torch.cat((src_image_data, extra_channels), dim=2)
         elif C > model_input_channels:
             # Truncate extra channels
-            src_image_data = src_image_data[:, :model_input_channels, :, :]
+            src_image_data = src_image_data[:, :, :model_input_channels]
 
         self.app_state['src_image_data'] = src_image_data
         
