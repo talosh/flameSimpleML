@@ -1993,7 +1993,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         elif C > model_input_channels:
             # Truncate extra channels
             src_image_data = src_image_data[:, :, :model_input_channels]
-
+            
         self.app_state['src_image_data'] = src_image_data
         
         if self.current_model is None:
