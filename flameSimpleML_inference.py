@@ -2576,31 +2576,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import gc
         import flame
 
-        self.stop_frame_rendering_thread()
+        try:
+            self.stop_frame_rendering_thread()
+        except:
+            pass
+
         del self.app_state['src_image_data'], self.app_state['res_image_data']
 
-        '''
-        def print_all_tensors():
-            print ('printing all tensors')
-            for obj in gc.get_objects():
-                try:
-                    if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
-                        print(type(obj), obj.size())
-                except:
-                    pass
-
-        print_all_tensors()
-        '''
-
-        '''
-        try:
-            for key in self.parent_app.current_models.keys():
-                del self.self.parent_app.current_models[key]
-            self.parent_app.current_models = {}
-        except Exception as e:
-            print (f'close_application exception {e}')
-        '''
-        
         del self.current_model
         del self.model_state_dict
         gc.collect()
@@ -2610,7 +2592,50 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             qsize = self.frames_to_save_queue.qsize()
             self.info(f'Waiting for {qsize} frames to be saved')
             time.sleep(0.01)
-        
+
+        flame_friendly_path = None
+        destination = self.app_state.get('clips_parent')
+        result_folder = self.app_state.get('result_folder')
+        source_folder = self.app_state.get('source_folder')
+        new_clip_name = os.path.dirname(result_folder)
+
+        def import_flame_clip():
+            import flame
+            new_clips = flame.import_clips(flame_friendly_path, destination)
+            
+            if len(new_clips) > 0:
+                new_clip = new_clips[0]
+                if new_clip:
+                    new_clip.name.set_value(new_clip_name)
+            try:
+                flame.execute_shortcut('Refresh Thumbnails')
+            except:
+                pass
+
+
+        file_names = [f for f in os.listdir(result_folder) if f.endswith('.exr')]
+        if file_names:
+            file_names.sort()
+            first_frame, ext = os.path.splitext(file_names[0])
+            last_frame, ext = os.path.splitext(file_names[-1])
+            flame_friendly_path = os.path.join(result_folder, '[' + first_frame + '-' + last_frame + ']' + '.exr')
+
+            import flame
+            flame.schedule_idle_event(import_flame_clip)
+
+        self.log('Cleaning up temporary files used: %s' % pformat(source_folder))
+        cmd = 'rm -f "' + os.path.abspath(source_folder) + '/"*'
+        self.log('Executing command: %s' % cmd)
+        os.system(cmd)
+        try:
+            os.rmdir(source_folder)
+        except Exception as e:
+            self.log('Error removing %s: %s' % (source_folder, e))
+
+        self.threads = False
+        self.deleteLater()
+
+        '''
         result_clip = None
         if not self.temp_library:
             self.temp_library = None
@@ -2671,24 +2696,15 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                         )
                     self.temp_library.acquire_exclusive_access()
                     flame.delete(self.temp_library)
-                    '''
-                    copied_clip = copied_clip[0]
-                    segment = copied_clip.versions[0].tracks[0].segments[0]
-                    segment.create_effect('Colour Mgmt')
-                    copied_clip.render()
-                    '''
+                    # copied_clip = copied_clip[0]
+                    # segment = copied_clip.versions[0].tracks[0].segments[0]
+                    # segment.create_effect('Colour Mgmt')
+                    # copied_clip.render()
                     flame.execute_shortcut('Save Project')
                     flame.execute_shortcut('Refresh Thumbnails')
                 except Exception as e:
                     print (e)
         except Exception as e:
             self.on_showMessageBox({'message': pformat(e)})
-
-        self.threads = False
-        self.deleteLater()
-
         '''
-        def rescan_hooks():
-            flame.execute_shortcut('Rescan Python Hooks')
-        flame.schedule_idle_event(rescan_hooks)
-        '''
+
