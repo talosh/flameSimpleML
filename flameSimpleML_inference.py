@@ -1214,6 +1214,10 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         if action and callable(action):
             action()
 
+        self.raise_()
+        self.activateWindow()
+
+
     def update_interface_image(self, array, image_label, text = None):
         if self.ui_images_queue.qsize() > 8:
             return
@@ -1993,7 +1997,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         elif C > model_input_channels:
             # Truncate extra channels
             src_image_data = src_image_data[:, :, :model_input_channels]
-            
+
         self.app_state['src_image_data'] = src_image_data
         
         if self.current_model is None:
