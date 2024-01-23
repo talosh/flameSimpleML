@@ -1933,11 +1933,9 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             if not self.app_state.get('render_loop'):
                 return
             
-            print (f'frame: {frame}')
-
-            '''
             self.set_current_frame(frame, render = True)
             
+            '''
             if self.app_state.get('render_loop'):
                 save_image_data = self.app_state.get('res_image_data')
                 save_image_data = save_image_data.cpu().detach().numpy()
@@ -1976,6 +1974,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import torch
 
         current_frame = self.app_state.get('current_frame')
+
+        print (f'processing frame {current_frame}')
 
         self.message_queue.put(
             {'type': 'info', 
