@@ -2612,15 +2612,13 @@ class flameSimpleMLInference(QtWidgets.QWidget):
             except:
                 pass
 
-
         file_names = [f for f in os.listdir(result_folder) if f.endswith('.exr')]
+
         if file_names:
             file_names.sort()
             first_frame, ext = os.path.splitext(file_names[0])
             last_frame, ext = os.path.splitext(file_names[-1])
             flame_friendly_path = os.path.join(result_folder, '[' + first_frame + '-' + last_frame + ']' + '.exr')
-
-            import flame
             flame.schedule_idle_event(import_flame_clip)
 
         self.log('Cleaning up temporary files used: %s' % pformat(source_folder))
