@@ -950,6 +950,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # Move the window to the center of the screen
         screen_center = screen_geometry.center()
         self.move(screen_center.x() - scaled_width // 2, screen_center.y() - scaled_height // 2 - 100)
+        self.setFixedSize(self.size())
 
         # show window and fix its size
         self.setWindowTitle(self.app_name + ' ' + self.version)
@@ -957,6 +958,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         self.raise_()
         self.activateWindow()
         self.setFixedSize(self.size())
+
 
         QtCore.QTimer.singleShot(99, self.after_show)
 
