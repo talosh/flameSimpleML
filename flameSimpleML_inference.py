@@ -2605,12 +2605,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         # new_clip.name.set_value(new_clip_name)
         flame.execute_shortcut('Refresh Thumbnails')
 
-
         self.log('Cleaning up temporary files used: %s' % pformat(source_folder))
         cmd = f'rm -f "{os.path.abspath(source_folder)}"'
         self.log(f'Executing command: {cmd}')
         os.system(cmd)
-        
+
         '''
         try:
             os.rmdir(source_folder)
