@@ -1927,7 +1927,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         min_frame = self.app_state.get('min_frame', 1)
         max_frame = self.app_state.get('max_frame', 99)
         for frame in range(min_frame, max_frame + 1):
-            print (f'Frame = {frame}')
+            # print (f'Frame = {frame}')
             if not self.threads:
                 return
             if not self.app_state.get('render_loop'):
@@ -1944,7 +1944,7 @@ class flameSimpleMLInference(QtWidgets.QWidget):
                 save_image_data = save_image_data.cpu().detach().numpy()
                 self.save_result_frame(
                     save_image_data,
-                    self.app_state.get('current_frame') - 1
+                    self.app_state.get('current_frame')
                 )
                 del save_image_data
 
@@ -2169,7 +2169,8 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         import numpy as np
         
         frames_map = self.app_state.get('frames_map')
-        file_path = frames_map.get(frame_number)
+        current_frame_data = frames_map.get(frame_number)
+        file_path = current_frame_data.get('result_frame_path')
 
         save_file_start = time.time()
 
