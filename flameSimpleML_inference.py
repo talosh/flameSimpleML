@@ -2100,10 +2100,11 @@ class flameSimpleMLInference(QtWidgets.QWidget):
         src_image_data = torch.nn.functional.pad(src_image_data, padding)
         src_image_data = src_image_data.unsqueeze(0)
         src_image_data = self.fw.normalize_values(src_image_data, torch = self.torch)
-        if not platform.system == 'Darwin':
-            src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
+
+        if platform.system == 'Darwin':
+            src_image_data = src_image_data.to(self.torch_device, dtype=torch.float32)
         else:
-            src_image_data = src_image_data.to(self.torch_device, dtype=torch.float32)        
+            src_image_data = src_image_data.to(self.torch_device, dtype=torch.half)
 
         time_stamp = time.time()
         
