@@ -30,7 +30,7 @@ settings = {
         'numpy>=1.16',
         'torch>=1.12.0'
     ],
-    'version': 'v0.0.3 dev 001',
+    'version': 'v0.0.3',
 }
 
 class ApplyModelDialog(QtWidgets.QDialog):
