@@ -222,9 +222,10 @@ class myDataset(torch.utils.data.Dataset):
         if exr_files_in_folder(self.source_root):
             self.source_files = [[os.path.join(self.source_root, file)] for file in sorted(os.listdir(self.source_root))]
         else:
+            self.source_files = []
             source_files_map = self.create_source_files_map(self.source_root)
-            pprint (source_files_map)
-            sys.exit()
+            for key in sorted(source_files_map.keys()):
+                self.source_files.append(source_files_map[key])
 
         self.target_files = [os.path.join(self.target_root, file) for file in sorted(os.listdir(self.target_root))]
         self.indices = list(range(len(self.source_files)))
